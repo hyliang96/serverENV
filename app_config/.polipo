@@ -1,3 +1,4 @@
+
 proxyAddress = "127.0.0.1"
 proxyPort = 8124
 
@@ -10,6 +11,6 @@ socksProxyType = socks5
 daemonise = true
 logSyslog = true
 
-mkdir -p $localENV/log/polipo
-logFile = $localENV/log/polipo/log
-pidFile = $localENV/log/polipo/pid
+logFile = /log/polipo/log
+pidFile = /log/polipo/pid
+
