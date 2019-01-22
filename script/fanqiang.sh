@@ -40,6 +40,8 @@ ss()
 		--pid-file $localENV/log/shadowsocks/pid \
 		--log-file $localENV/log/shadowsocks/log \
 		-d start  # 开成守护进程（不仅仅是后台进程），即系统关机/重启时才结束的进程
+
+	. $serverENV/app_config/.polipo_gen.sh
 	polipo
 	# 用polipo代理http(s)到socks5
 	export http_proxy="http://127.0.0.1:8124"
