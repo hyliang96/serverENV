@@ -1,0 +1,9 @@
+{
+    "remarks" : "巧姐港03",
+    "server": "hk03.ipip.pm",
+    "server_port" : 42641,
+    "password" : "267112",
+    "timeout": 600,
+    "method": "rc4-md5",
+    "local_port": 1080
+}

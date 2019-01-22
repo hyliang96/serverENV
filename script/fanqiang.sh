@@ -5,10 +5,7 @@ ssk()
 {
 	killall sslocal
 	killall polipo
-	if [ -f /home/haoyu/ENV/localENV/log/polipo/pid ]
-	then
-		rm /home/haoyu/ENV/localENV/log/polipo/pid
-	fi
+	[ -f $localENV/log/polipo/pid ] && rm $localENV/log/polipo/pid
 	# 取消 export的环境变量
 	unset http_proxy
 	unset https_proxy
@@ -38,16 +35,17 @@ ss()
 	fi
 	echo opening shadowsocks server: $server
 	# 打开
+	mkdir -p $localENV/log/shadowsocks
 	sslocal -c ~/.shadowsocks/$server.json \
-		--pid-file /home/haoyu/ENV/localENV/log/shadowsocks/pid \
-		--log-file /home/haoyu/ENV/localENV/log/shadowsocks/log \
+		--pid-file $localENV/log/shadowsocks/pid \
+		--log-file $localENV/log/shadowsocks/log \
 		-d start  # 开成守护进程（不仅仅是后台进程），即系统关机/重启时才结束的进程
 	polipo
 	# 用polipo代理http(s)到socks5
 	export http_proxy="http://127.0.0.1:8124"
 	export https_proxy="http://127.0.0.1:8124"
 	export ftp_proxy="http://127.0.0.1:8124"
-	export no_proxy="localhost,127.0.0.1,localaddress,.localdomain.com,.souche.com" 
+	export no_proxy="localhost,127.0.0.1,localaddress,.localdomain.com,.souche.com"
 	#no_proxy表示一些不需要代理的网址,比如内网之类的
 }
 
