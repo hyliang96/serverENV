@@ -8,7 +8,9 @@
 s3install()
 {
     cd $server_script
-    wget --no-check-certificate -O shadowsocks-all.sh https://raw.githubusercontent.com/teddysun/shadowsocks_install/master/shadowsocks-all.sh
+    if ! [ -f ./shadowsocks-all.sh ]; then
+        wget --no-check-certificate -O shadowsocks-all.sh https://raw.githubusercontent.com/teddysun/shadowsocks_install/master/shadowsocks-all.sh
+    fi
     chmod +x shadowsocks-all.sh
     echo
     echo -----------------------------------------------------------------------
@@ -51,7 +53,8 @@ s3()
         echo '$s3il: ss server安装的日志'
         echo '$s3a:  ss server的alias文件'
         echo '$s3s:  ss server的运行脚本'
-        echo 'you need `sudo` for s3'
+        echo 'when `s3` is running, it will requires you for sudo'
+        echo 'but dont `sudo s3`, because s3 function will not be loaded by sudo'
     elif [ "$1" = "install" ]; then
         s3install
     else

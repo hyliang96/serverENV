@@ -1,0 +1,46 @@
+.bash_env
+[3;J[H[2JWhich Shadowsocks server you'd select:
+[0;32m1[0m) Shadowsocks-Python
+[0;32m2[0m) ShadowsocksR
+[0;32m3[0m) Shadowsocks-Go
+[0;32m4[0m) Shadowsocks-libev
+Please enter a number (Default Shadowsocks-Python):
+You choose = Shadowsocks-Python
+
+Please enter password for Shadowsocks-Python
+(Default password: teddysun.com):
+password = yhl1328ftq
+
+Please enter a port for Shadowsocks-Python [1-65535]
+(Default port: 14168):
+port = 18583
+
+Please select stream cipher for Shadowsocks-Python:
+[0;32m1[0m) aes-256-gcm
+[0;32m2[0m) aes-192-gcm
+[0;32m3[0m) aes-128-gcm
+[0;32m4[0m) aes-256-ctr
+[0;32m5[0m) aes-192-ctr
+[0;32m6[0m) aes-128-ctr
+[0;32m7[0m) aes-256-cfb
+[0;32m8[0m) aes-192-cfb
+[0;32m9[0m) aes-128-cfb
+[0;32m10[0m) camellia-128-cfb
+[0;32m11[0m) camellia-192-cfb
+[0;32m12[0m) camellia-256-cfb
+[0;32m13[0m) xchacha20-ietf-poly1305
+[0;32m14[0m) chacha20-ietf-poly1305
+[0;32m15[0m) chacha20-ietf
+[0;32m16[0m) chacha20
+[0;32m17[0m) salsa20
+[0;32m18[0m) rc4-md5
+Which cipher you'd select(Default: aes-256-gcm):
+cipher = chacha20
+
+
+Press any key to start...or Press Ctrl+C to cancel
+Hit:1 http://mirrors.digitalocean.com/ubuntu xenial InRelease
+Hit:2 http://mirrors.digitalocean.com/ubuntu xenial-updates InRelease
+Hit:3 http://mirrors.digitalocean.com/ubuntu xenial-backports InRelease
+Hit:4 http://security.ubuntu.com/ubuntu xenial-security InRelease
+Hit:5 https://repos.sonar.digitalocean.com/apt main InRelease
