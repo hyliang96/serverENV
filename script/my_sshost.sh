@@ -1,9 +1,13 @@
 #!/usr/bin/env bash
 
+# 所用安装方法
+# 秋水逸冰 一键安装ss服务端
+# https://teddysun.com/486.html
+
 # install shadowsocks server
-sssinstall()
+s3install()
 {
-    cd /home/$USER
+    cd $server_script
     wget --no-check-certificate -O shadowsocks-all.sh https://raw.githubusercontent.com/teddysun/shadowsocks_install/master/shadowsocks-all.sh
     chmod +x shadowsocks-all.sh
     echo
@@ -14,21 +18,43 @@ sssinstall()
     echo ' * other arguments just as defaut'
     echo -----------------------------------------------------------------------
 
-    sudo /shadowsocks-all.sh 2>&1 | tee shadowsocks-all.log
+    sudo ./shadowsocks-all.sh 2>&1 | tee shadowsocks-all.log
     echo -----------------------------------------------------------------------
     echo Usage:
-    echo '    ss [start | stop | restart | status]'
+    echo '    s3 [start | stop | restart | status ]'
 }
 
-# ss server
-# 运行ss：参数[start | stop | restart | status]
-alias sss="/etc/init.d/shadowsocks-python"
-# 查看ss的教程
-alias jchsss="ps aux | grep  ssserver | grep -v grep"
-# ss的配置文件
-alias sssconfig='/etc/shadowsocks-python/config.json'
-# ss的运行日志
-ssslog='/var/log/shadowsocks.log'
-# ss安装的日志
-sssinstall_log='/root/shadowsocks-all.log'
 
+
+# 查看ss的进程
+alias jchs3="ps aux | grep  ssserver | grep -v grep"
+# ss的配置文件
+s3c=/etc/shadowsocks-python/config.json
+# ss的运行日志
+s3l=/var/log/shadowsocks.log
+# ss安装的日志
+s3il=/root/shadowsocks-all.log
+# 本脚本
+s3a=$serverENV/script/my_sshost.sh
+# ss服务端运行脚本
+s3s=/etc/init.d/shadowsocks-python
+# 运行sss：参数[start | stop | restart | status]
+s3()
+{
+    if [ $# -eq 0 ]; then
+        echo 'Usage : s3 [ start | stop | restart | status | help | install ]'
+    elif [ "$1" = "help" ]; then
+        echo 'Usage : s3 [ start | stop | restart | status | help | install ]'
+        echo '`jchs3`:  查看ss server的教程'
+        echo '$s3c:  ss server的配置文件'
+        echo '$s3l:  ss server的运行日志'
+        echo '$s3il: ss server安装的日志'
+        echo '$s3a:  ss server的alias文件'
+        echo '$s3s:  ss server的运行脚本'
+        echo 'you need use `sudo` for install'
+    elif [ "$1" = "install" ]; then
+        s3install
+    else
+        $s3s $*
+    fi
+}
