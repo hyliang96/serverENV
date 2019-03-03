@@ -17,7 +17,9 @@ s3install()
     echo 'what you need to do next'
     echo ' * select "chacha20"  as protocol'
     echo ' * set a password for this ss account'
-    echo ' * other arguments just as defaut'
+    echo ' * select a large (5-digit) port'
+    echo ' * When It Show "HIT: <WebLink>", and stucks; just press ENTER for times'
+    echo '   当出现五行"HIT: <网址>"时，会卡住，只需多按几次回车即可'
     echo -----------------------------------------------------------------------
 
     sudo ./shadowsocks-all.sh 2>&1 | tee shadowsocks-all.log
