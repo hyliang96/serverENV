@@ -51,10 +51,10 @@ s3()
         echo '$s3il: ss server安装的日志'
         echo '$s3a:  ss server的alias文件'
         echo '$s3s:  ss server的运行脚本'
-        echo 'you need use `sudo` for install'
+        echo 'you need `sudo` for s3'
     elif [ "$1" = "install" ]; then
         s3install
     else
-        $s3s $*
+        sudo $s3s $*
     fi
 }
