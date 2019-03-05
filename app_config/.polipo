@@ -11,6 +11,6 @@ socksProxyType = socks5
 daemonise = true
 logSyslog = true
 
-logFile = /home/hyliang/ENV/localENV/log/polipo/log
-pidFile = /home/hyliang/ENV/localENV/log/polipo/pid
+logFile = /home/haoyu/ENV/localENV/log/polipo/log
+pidFile = /home/haoyu/ENV/localENV/log/polipo/pid
 
