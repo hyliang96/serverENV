@@ -19,7 +19,7 @@ ssls()
     ls ~/.shadowsocks | grep .json  | sed 's/.json//g'
 }
 # 开、重启全局http,https,socks5 翻墙
-# ss VPN名，默认是liang
+# ss VPN名，默认是default
 ss()
 {
     # 关闭原来的
@@ -28,7 +28,7 @@ ss()
     # 解析
     if [ $#=0 ];    then
         echo default server
-        local server=liang
+        local server=default
     else
         echo server $1
         local server=$1
