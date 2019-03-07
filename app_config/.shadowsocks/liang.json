@@ -1,9 +1,0 @@
-{
-  "remarks" : "老梁",
-  "server": "142.93.26.112",
-  "server_port": 15398,
-  "password": "yhl1328ftq",
-  "timeout": 600,
-  "method": "chacha20",
-  "local_port": 1080
-}

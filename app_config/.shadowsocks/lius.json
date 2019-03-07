@@ -1,9 +1,0 @@
-{
-  "remarks" : "巧姐美01",
-  "server": "us01.ipip.pm",
-  "server_port" : 42641,
-  "password" : "267112",
-  "timeout": 600,
-  "method": "rc4-md5",
-  "local_port": 1080
-}
