@@ -38,19 +38,27 @@ fi
 
 # 命令生成
 cmds=''
-for i in "$*"; do
+for i in $*; do
     echo $i
-    cmds="${cmds} echo; echo  $i; $i; "
+    cmds="${cmds} echo '# $i'; $i; echo;"
 done
 
 #  服务器列表生成
+gpu_servers=()
 for ((i=1; i<=$GPU_NUM; i++)); do
-    gpu_servers[$i]="g$i"
+    # 跳过用不了的gpu
+    if [ "$(echo $INVALID_GPU | grep -w $i)" = "" ]; then
+        gpu_servers+=("g$i")
+    fi
 done
+
+
+cpu_servers=()
 for ((i=1; i<=$CPU_NUM; i++)); do
-    cpu_servers[$i]="c$i"
+    cpu_servers+=("c$i")
 done
 all_servers=("${cpu_servers[@]}" "${gpu_servers[@]}" )
+
 
 if $cpuonly ; then
     servers=("${cpu_servers[@]}")
@@ -60,21 +68,23 @@ else
     servers=("${all_servers[@]}")
 fi
 
-
 # 临时文件夹
 dir=~/.cache/all
 mkdir -p $dir
-rm $dir/* -rf
+if [ "$(ls $dir)" != "" ]; then
+    rm $dir/* -rf
+fi
+
 # 并行遍历个服务器
 for server in "${servers[@]}"; do
 {
-    echo "ssh $server"
+    # echo "ssh $server"
     echo "====== $server ======" >> $dir/$server.feedback
     ssh $server "$cmds" >> $dir/$server.feedback
-    echo "" >> $dir/$server.feedback
 } &
 done
 wait
+
 # 输出ssh返回的结果
 ls $dir/* | sort --version-sort | xargs -I {} cat {}
 # 删除临时文件夹
