@@ -26,7 +26,7 @@ ss()
     ssk
     sleep 1
     # 解析
-    if [ $#=0 ];    then
+    if [ $# -eq 0 ];    then
         echo default server
         local server=default
     else
