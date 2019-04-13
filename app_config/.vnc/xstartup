@@ -9,11 +9,13 @@ dbus-launch /usr/bin/startxfce4 &
 xsetroot -solid grey
 vncconfig -iconic &
 
-x-terminal-emulator -geometry 80x24+10+10 -ls -title "$VNCDESKTOP Desktop" &
-x-window-manager &
+# 开终端
+# x-terminal-emulator -geometry 80x24+10+10 -ls -title "$VNCDESKTOP Desktop" &
+
+# x-window-manager &
 
 # gnome-panel &
 # gnome-settings-daemon &
 # metacity &
-nautilus &
+# nautilus &
 
