@@ -4,6 +4,14 @@ unset DBUS_SESSION_BUS_ADDRESS
 dbus-launch /usr/bin/startxfce4 &
 # startxfce4 &
 
+export LANG=zh_CN.UTF-8 # 启用中文环境
+scim –d  # 加载scim中文输入法
+XMODIFIERS="@im=SCIM"
+export XMODIFIERS
+export GTK_IM_MODULE=scim
+# startlxde &
+# /usr/bin/ibus-daemon -d &
+
 [ -x /etc/vnc/xstartup ] && exec /etc/vnc/xstartup
 [ -r $HOME/.Xresources ] && xrdb $HOME/.Xresources
 xsetroot -solid grey
