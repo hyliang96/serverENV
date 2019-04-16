@@ -1,47 +1,64 @@
 #!/bin/sh
-unset SESSION_MANAGER
-unset DBUS_SESSION_BUS_ADDRESS
-dbus-launch /usr/bin/startxfce4 &
-# startxfce4 &
+# -------------------------------------------------------------------------
+# unset SESSION_MANAGER
+# unset DBUS_SESSION_BUS_ADDRESS
+# dbus-launch /usr/bin/startxfce4 &
+# # startkde
+# # exec /usr/bin/startkde # startkde
+# #exec gnome-session
+# # startlxde
+# # exec /usr/bin/startlxde
 
-autocutsel -f # 共享剪切板，在vnc viewer里，ctrl+shift+c/v 复制/黏贴
+# autocutsel -f # 共享剪切板，在vnc viewer里，ctrl+shift+c/v 复制/黏贴
 
-# 输入法
-# # 加载scim中文输入法
-export LANG=zh_CN.UTF-8 # 启用中文环境
-# export XMODIFIERS=@im=SCIM
-# export GTK_IM_MODULE="xim"
+# # 输入法
+# # # 加载scim中文输入法
+# export LANG=zh_CN.UTF-8 # 启用中文环境
+# # export XMODIFIERS=@im=SCIM
+# # export GTK_IM_MODULE="xim"
 
-# # for xfce
-# export QT_IM_MODULE="scim-bridge"
-# # for others
-# export QT_IM_MODULE="scim"
+# # # for xfce
+# # export QT_IM_MODULE="scim-bridge"
+# # # for others
+# # export QT_IM_MODULE="scim"
 
-# scim -d
+# # scim -d
 
-## sougpu
-export GTK_IM_MODULE=fcitx
-export QT_IM_MODULE=fcitx
-export XMODIFIERS=@im=fcitx
-fcitx &
-
-
-# startlxde &
-# /usr/bin/ibus-daemon -d &
-
-[ -x /etc/vnc/xstartup ] && exec /etc/vnc/xstartup
-[ -r $HOME/.Xresources ] && xrdb $HOME/.Xresources
-xsetroot -solid grey
-vncconfig -iconic &
+# ## sougpu
+# export GTK_IM_MODULE=fcitx
+# export QT_IM_MODULE=fcitx
+# export XMODIFIERS=@im=fcitx
+# fcitx &
 
 
-# # 开终端
-# x-terminal-emulator -geometry 80x24+10+10 -ls -title "$VNCDESKTOP Desktop" &
+# # startlxde &
+# # /usr/bin/ibus-daemon -d &
 
-# x-window-manager &
+# [ -x /etc/vnc/xstartup ] && exec /etc/vnc/xstartup
+# [ -r $HOME/.Xresources ] && xrdb $HOME/.Xresources
+# xsetroot -solid grey
+# vncconfig -iconic &
 
-# gnome-panel &
-# gnome-settings-daemon &
-# metacity &
-# nautilus &
 
+# # # 开终端
+# # x-terminal-emulator -geometry 80x24+10+10 -ls -title "$VNCDESKTOP Desktop" &
+
+# # x-window-manager &
+
+# # gnome-panel &
+# # gnome-settings-daemon &
+# # metacity &
+# # nautilus &
+
+# -------------------------------------------------------------------------
+# ##!/bin/sh
+# # Uncomment the following two lines for normal desktop:
+# unset SESSION_MANAGER
+# exec /etc/X11/xinit/xinitrc
+# [ -x /etc/vnc/xstartup ] && exec /etc/vnc/xstartup
+# [ -r $HOME/.Xresources ] && xrdb $HOME/.Xresources
+# xsetroot -solid grey
+# vncconfig -iconic &
+# xterm -geometry 80x24+10+10 -ls -title "$VNCDESKTOP Desktop" &
+# twm &
+# exec startkde
