@@ -20,6 +20,9 @@ export LANG=zh_CN.UTF-8 # 启用中文环境
 # scim -d
 
 ## sougpu
+export GTK_IM_MODULE=fcitx
+export QT_IM_MODULE=fcitx
+export XMODIFIERS=@im=fcitx
 fcitx &
 
 
