@@ -4,24 +4,24 @@ unset DBUS_SESSION_BUS_ADDRESS
 dbus-launch /usr/bin/startxfce4 &
 # startxfce4 &
 
-autocutsel -f
+autocutsel -f # 共享剪切板，在vnc viewer里，ctrl+shift+c/v 复制/黏贴
 
+# 输入法
+# # 加载scim中文输入法
 export LANG=zh_CN.UTF-8 # 启用中文环境
-# scim –d  # 加载scim中文输入法
-# XMODIFIERS="@im=SCIM"
-# export XMODIFIERS
-# export GTK_IM_MODULE=scim
+# export XMODIFIERS=@im=SCIM
+# export GTK_IM_MODULE="xim"
 
-
-
-#!/bin/bash
-export XMODIFIERS=@im=SCIM
-export GTK_IM_MODULE="xim"
+# # for xfce
+# export QT_IM_MODULE="scim-bridge"
+# # for others
 # export QT_IM_MODULE="scim"
 
-# for xfce
-export QT_IM_MODULE="scim-bridge"
-scim -d
+# scim -d
+
+## sougpu
+fcitx &
+
 
 # startlxde &
 # /usr/bin/ibus-daemon -d &
