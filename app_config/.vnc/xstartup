@@ -25,6 +25,10 @@ export LANG=zh_CN.UTF-8 # 启用中文环境
 # scim -d
 
 ## sougpu
+export XIM_PROGRAM=fcitx
+export XIM=fcitx
+
+export XMODIFIERS="@im=fcitx"
 export GTK_IM_MODULE=fcitx
 export QT_IM_MODULE=fcitx
 export XMODIFIERS=@im=fcitx
@@ -40,7 +44,7 @@ xsetroot -solid grey
 vncconfig -iconic &
 
 
-# # 开终端
+# 开终端
 # x-terminal-emulator -geometry 80x24+10+10 -ls -title "$VNCDESKTOP Desktop" &
 
 # x-window-manager &
