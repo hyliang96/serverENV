@@ -43,6 +43,7 @@ fcitx &
 xsetroot -solid grey
 vncconfig -iconic &
 
+# exec startkde
 
 # 开终端
 # x-terminal-emulator -geometry 80x24+10+10 -ls -title "$VNCDESKTOP Desktop" &
