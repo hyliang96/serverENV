@@ -14,6 +14,8 @@ autocutsel -f # 共享剪切板，在vnc viewer里，ctrl+shift+c/v 复制/黏�
 # 输入法
 # # 加载scim中文输入法
 export LANG=zh_CN.UTF-8 # 启用中文环境
+export LANGUAGE=zh_CN:en_US
+export LC_CTYPE=en_US.UTF-8
 # export XMODIFIERS=@im=SCIM
 # export GTK_IM_MODULE="xim"
 
