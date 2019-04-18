@@ -1,23 +1,27 @@
-# ---------------------- 服务器台数 ------------------
-# export GPU_NUM=24
-# export CPU_NUM=4
+#!/usr/bin/env bash
 
-
+# ---------------------- 服务器编组设置------------------
+# 顺序编组
+# 编组名=($(echo 前缀{起始数字..结束数字}后缀))
 c=($(echo juncluster{1..4}))
 g=($(echo jungpu{1..24}))
 gJ1=($(echo jungpu{1..13}))
 gJ2=($(echo jungpu{14..24}))
+
+# 复合编组
+# 编组名=( "${子编组1[@]}" "${子编组2[@]}" "${子编组3[@]}" )
 J1=( "${c[@]}" "${gJ1[@]}" )
 a=( "${c[@]}" "${g[@]}" )
 
+# 有效编组：即只有写在此处的编组才会被 `all` 命令使用
 server_sets=(c  g  gJ1  gJ2  a )
 
 
-# 用不了的gpu
-INVALID_GPU=()
-export INVALID_GPU
-# 用不了的cpu
-INVALID_CPU=()
-export INVALID_CPU
+# # 用不了的gpu
+# INVALID_GPU=()
+# export INVALID_GPU
+# # 用不了的cpu
+# INVALID_CPU=()
+# export INVALID_CPU
 
 

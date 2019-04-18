@@ -82,14 +82,5 @@ adduser_command(){
     echo -E "useradd '$username' -m -c '$realname' -s /usr/bin/zsh -u $uid && usermod --password '$enc_password' '$username'"
 }
 
-# 用法
 
-# `all -c "$(alladduser test_name 'TEST NAME' UID password)"`
-
-# `sudo su`
-# `zsh all.sh junall "$(adduser_command)"`   # 双引号不得少，不得用单引号
-
-# `echo $password | openssl passwd -1 -stdin`  encrypt $password by how linux encrypts user password
-# `openssl rand -base64 24`  generate 24-letter random string
-# `sudo cat /etc/shadow` to see encrypted user password
 
