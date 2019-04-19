@@ -1,11 +1,13 @@
 #!/bin/bash
 
+# ---------------------------------------
 # 加载配置文件
 # get absoltae path to the dir this is in, work in bash, zsh
 # if you want transfer symbolic link to true path, just change `pwd` to `pwd -P`
 here=$(cd "$(dirname "${BASH_SOURCE[0]-$0}")"; pwd)
 . $here/all_config.sh
 
+# ---------------------------------------
 # 服务器组名
 server_set=$1; shift
 
@@ -22,30 +24,51 @@ if [ "$valid_server" = false ]; then
     return
 fi
 
-# 参数解析
-
-if [ "$1" = '--no-prompt' ]; then
-    shift
-    no_prompt=true
-else
-    no_prompt=false
-fi
-
-# 命令生成
-cmds=''
-for i in "$@"; do
-    if [ "$no_prompt" = true ]; then
-        cmds="${cmds} $i; echo;"
-    else
-        echo -E "$i"
-        i_print=${i//\$/\"\\\$\"}
-        cmds="${cmds} echo -E \"# $i_print\"; $i; echo;"
-    fi
-done
-
 #  服务器列表生成
 eval "servers=(\${$server_set[@]})"
 
+# ---------------------------------------
+# 参数解析
+# 参数预处理
+TEMP=$(getopt \
+    -o      n \
+    --long  no-prompt \
+    -n      '参数解析错误' \
+    -- "$@")
+# 写法
+    #   -o     短参数 不需要分隔符
+    #   --long 长参数 用','分隔
+    #   ``无选项  `:`必有选项  `::` 可由选项
+if [ $? != 0 ] ; then echo "格式化的参数解析错误，正在退出" >&2 ; exit 1 ; fi
+eval set -- "$TEMP" # 将复制给 $1, $2, ...
+
+# 初始化参数
+no_prompt=false
+
+# 处理参数
+while true ; do case "$1" in
+    # 无选项
+    -n|--no-prompt)  no_prompt=true ; shift ;;
+    # '--'后是 余参数
+    --) shift ; break ;;
+    # 处理参数的代码错误
+    *) echo "参数处理错误" ; exit 1 ;;
+esac ; done
+
+# ---------------------------------------
+# 命令生成
+cmds=''
+for arg do
+    if [ "$no_prompt" = true ]; then
+        cmds="${cmds} $arg; echo;"
+    else
+        echo -E "$arg"
+        i_print=${arg//\$/\"\\\$\"}
+        cmds="${cmds} echo -E \"# $i_print\"; $arg; echo;"
+    fi
+done
+
+# ---------------------------------------
 # 临时文件夹
 dir=~/.cache/all
 mkdir -p $dir
