@@ -15,20 +15,9 @@ manual_set(){
         fi
     done
     local enc_password=$(echo "$password" | openssl passwd -1 -stdin)
-    # echo -En "$username
-# $realname
-# $uid
-# $password"
-
-    # echo -En $username
-    # echo -En $realname
-    # echo -En $uid
-    # echo -En $password
-    # echo -E
 }
 
 adduser_command(){
-    # non interactive
 
     if [ "$1" = '-n' ]; then
         shift
@@ -52,26 +41,18 @@ adduser_command(){
         local enc_password=$(echo "$password" | openssl passwd -1 -stdin)
     else
         echo 'Usage:
-* interactively:     `adduser_command`
+* interactively:    `adduser_command`
     realname can contains English letters in low/captital case, chinese characters, `'\''``. `"`,-,_ ,sapce,etc
 * non-interactively: `adduser_command -n <username> <realname> <uid> <enc_password>`
     the enc_password is gotten by
-        `openssl rand -base64 24`  generate 24-letter random password
-        `openssl passwd -1`        to encrypted the password
-        `sudo cat /etc/shadow`     to see encrypted user password' >&2
+        method1      `openssl passwd -1`         to encrypted the password
+        method2      `sudo cat /etc/shadow`      the 2nd part (segmented by ":") is encrypted user password
+Attention:
+    * please set user'\''s uid the same on all server machines, or authorization will wrong under mfs folder
+    * generate random password: `openssl rand -base64 24`  24-letter, on 64-bit machine' >&2
         return
     fi
 
-    # echo -En $username
-    # echo -En $realname
-    # echo -En $uid
-    # echo -En $password
-
-
-    # # encrypt user password
-    # local enc_password=$(echo "$password" | openssl passwd -1 -stdin)
-    # echo "password = '$password'" >&2
-    # # return useradd command
     username=${username//\'/\'\\\'\'}
     username=${username//\"/\'\\\"\'}
     realname=${realname//\'/\'\\\'\'}
