@@ -42,8 +42,8 @@ fcitx &
 [ -x /etc/vnc/xstartup ] && exec /etc/vnc/xstartup
 [ -r $HOME/.Xresources ] && xrdb $HOME/.Xresources
 xsetroot -solid grey
-vncconfig -iconic &
-
+vncconfig -iconic & # 启用图标
+# vncconfig -nowin & # 开剪切板传输
 
 # 开终端
 # x-terminal-emulator -geometry 80x24+10+10 -ls -title "$VNCDESKTOP Desktop" &
