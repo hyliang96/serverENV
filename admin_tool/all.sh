@@ -76,6 +76,8 @@ if [ "$(ls $dir)" != "" ]; then
     rm $dir/* -rf
 fi
 
+which ssh
+
 # 并行遍历个服务器
 for server in ${servers[@]}; do
 {
