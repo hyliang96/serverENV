@@ -92,7 +92,8 @@ for server in ${servers[@]}; do
     if ! [ "$no_prompt" = true ]; then
         echo "====== $server ======" >> $dir/$server.feedback
     fi
-    ssh -F $ssh_config -o "StrictHostKeyChecking no" $server "$cmds" >> $dir/$server.feedback 2>&1
+    ssh -F $ssh_config $server "$cmds" >> $dir/$server.feedback 2>&1
+    # ssh -F $ssh_config -o "StrictHostKeyChecking no" $server "$cmds" >> $dir/$server.feedback 2>&1
 } &
 done
 wait
