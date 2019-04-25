@@ -76,7 +76,6 @@ if [ "$(ls $dir)" != "" ]; then
     rm $dir/* -rf
 fi
 
-which ssh
 
 # 并行遍历个服务器
 for server in ${servers[@]}; do
@@ -85,7 +84,14 @@ for server in ${servers[@]}; do
     if ! [ "$no_prompt" = true ]; then
         echo "====== $server ======" >> $dir/$server.feedback
     fi
-    ssh $server "$cmds" >> $dir/$server.feedback 2>&1
+    if [ "`uname -a | grep -E 'gpu[0-9] |gpu1[0-3] |cluster[1-4] '`" != "" ]; then
+    # 在gpu1-11，cluster1-4
+        local ssh_config=$here/config_JUN1
+    else
+        local ssh_config=$here/config_JUN2
+    fi
+    echo ssh_config $ssh_config
+    ssh -F $ssh_config $server "$cmds" >> $dir/$server.feedback 2>&1
 } &
 done
 wait
