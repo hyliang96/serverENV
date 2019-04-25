@@ -1,1 +1,127 @@
-../../CONF/.ssh/config_JUN1
+# for servers on ml.cs.tsinghua.edu.cn
+
+Host *
+    StrictHostKeyChecking no
+
+Host c1 juncluster1
+    HostName 192.168.245.95
+    IdentityFile ~/.ssh/id_rsa
+
+Host c2 juncluster2
+    HostName 192.168.245.96
+    IdentityFile ~/.ssh/id_rsa
+
+Host c3 juncluster3
+    HostName 192.168.245.97
+    IdentityFile ~/.ssh/id_rsa
+
+Host c4 juncluster4
+    HostName 192.168.245.98
+    IdentityFile ~/.ssh/id_rsa
+
+Host g1 jungpu1
+    HostName 192.168.245.99
+    IdentityFile ~/.ssh/id_rsa
+
+Host g2 jungpu2
+    HostName 192.168.245.100
+    IdentityFile ~/.ssh/id_rsa
+
+Host g3 jungpu3
+    HostName 192.168.245.153
+    IdentityFile ~/.ssh/id_rsa
+
+Host g4 jungpu4
+    HostName 192.168.245.154
+    IdentityFile ~/.ssh/id_rsa
+
+Host g5 jungpu5
+    HostName 192.168.245.155
+    IdentityFile ~/.ssh/id_rsa
+
+Host g6 jungpu6
+    HostName 192.168.245.156
+    IdentityFile ~/.ssh/id_rsa
+
+Host g7 jungpu7
+    HostName 192.168.245.157
+    IdentityFile ~/.ssh/id_rsa
+
+Host g8 jungpu8
+    HostName 192.168.245.158
+    IdentityFile ~/.ssh/id_rsa
+
+Host g9 jungpu9
+    HostName 192.168.245.159
+    IdentityFile ~/.ssh/id_rsa
+
+Host g10 jungpu10
+    HostName 192.168.245.160
+    IdentityFile ~/.ssh/id_rsa
+
+Host g11 jungpu11
+    HostName 192.168.245.161
+    IdentityFile ~/.ssh/id_rsa
+
+Host g12 jungpu12
+    HostName 166.111.7.124
+    IdentityFile ~/.ssh/id_rsa
+
+Host g13 jungpu13
+    HostName 166.111.7.125
+    IdentityFile ~/.ssh/id_rsa
+
+Host g14 jungpu14
+    HostName 166.111.121.42
+    Port 4714
+    IdentityFile ~/.ssh/id_rsa
+
+Host g15 jungpu15
+    HostName 166.111.121.42
+    Port 4715
+    IdentityFile ~/.ssh/id_rsa
+
+Host g16 jungpu16
+    HostName 166.111.121.42
+    Port 4716
+    IdentityFile ~/.ssh/id_rsa
+
+Host g17 jungpu17
+    HostName 166.111.121.42
+    Port 4717
+    IdentityFile ~/.ssh/id_rsa
+
+Host g18 jungpu18
+    HostName 166.111.121.42
+    Port 4718
+    IdentityFile ~/.ssh/id_rsa
+
+Host g19 jungpu19
+    HostName 166.111.121.42
+    Port 4719
+    IdentityFile ~/.ssh/id_rsa
+
+Host g20 jungpu20
+    HostName 166.111.121.42
+    Port 4720
+    IdentityFile ~/.ssh/id_rsa
+
+Host g21 jungpu21
+    HostName 166.111.121.42
+    Port 4721
+    IdentityFile ~/.ssh/id_rsa
+
+Host g22 jungpu22
+    HostName 166.111.121.42
+    Port 4722
+    IdentityFile ~/.ssh/id_rsa
+
+Host g23 jungpu23
+    HostName 166.111.121.42
+    Port 4723
+    IdentityFile ~/.ssh/id_rsa
+
+Host g24 jungpu24
+    HostName 166.111.121.42
+    Port 4724
+    IdentityFile ~/.ssh/id_rsa
