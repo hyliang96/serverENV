@@ -57,15 +57,11 @@ esac ; done
 
 # ---------------------------------------
 # 命令生成
+echo "$*"
+
 cmds=''
 for arg do
-    if [ "$no_prompt" = true ]; then
-        cmds="${cmds} $arg; echo;"
-    else
-        echo -E "$arg"
-        i_print=${arg//\$/\"\\\$\"}
-        cmds="${cmds} echo -E \"# $i_print\"; $arg; echo;"
-    fi
+    cmds="${cmds} ${arg}"
 done
 
 # ---------------------------------------
@@ -93,7 +89,8 @@ for server in ${servers[@]}; do
         echo "====== $server ======" >> $dir/$server.feedback
     fi
     # ssh -F $ssh_config $server "$cmds" >> $dir/$server.feedback 2>&1
-    rsync -aHhvzP -e "ssh -F $ssh_config"  $server $* >> $dir/$server.feedback 2>&1
+    echo "rsync -aHhvzP -e \"ssh -F $ssh_config\" $cmds $server:. "
+    rsync -aHhvzP -e "ssh -F $ssh_config" $cmds $server:. >> $dir/$server.feedback 2>&1
     # ssh -F $ssh_config -o "StrictHostKeyChecking no" $server "$cmds" >> $dir/$server.feedback 2>&1
 } &
 done
