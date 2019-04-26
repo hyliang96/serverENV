@@ -93,7 +93,7 @@ for server in ${servers[@]}; do
         echo "====== $server ======" >> $dir/$server.feedback
     fi
     # ssh -F $ssh_config $server "$cmds" >> $dir/$server.feedback 2>&1
-    command rsync $server -e "ssh -F $ssh_config" $* >> $dir/$server.feedback 2>&1
+    rsync -aHhvzP -e "ssh -F $ssh_config"  $server $* >> $dir/$server.feedback 2>&1
     # ssh -F $ssh_config -o "StrictHostKeyChecking no" $server "$cmds" >> $dir/$server.feedback 2>&1
 } &
 done
