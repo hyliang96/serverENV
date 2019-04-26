@@ -6,7 +6,8 @@ here=$(cd "$(dirname "${BASH_SOURCE[0]-$0}")"; pwd)
 # here=/home/haoyu/mfs/alladduser
 
 alias all="$SHELL $here/all.sh"
-alias sendall="$SHELL $here/send_all.sh"
+
+alias allsend="$SHELL $here/all.sh --send"
 
 allgpu(){
     local server_set=

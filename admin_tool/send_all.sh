@@ -81,14 +81,14 @@ for server in ${servers[@]}; do
         echo "====== $server ======" >> $dir/$server.feedback
     fi
     # ssh -F $ssh_config $server "$cmds" >> $dir/$server.feedback 2>&1
-    echo "rsync -aHhzP -e \"ssh -F $ssh_config\" $* $server:. "
-    command rsync -aHhzP -e "ssh -F $ssh_config" $* $server:. >> $dir/$server.feedback 2>&1
+    echo "rsync -aHhzP -e \"ssh -F $ssh_config\" $@ $server:. "
+    command rsync -aHhzP -e "ssh -F $ssh_config" $@ $server:. >> $dir/$server.rsync 2>&1
     # ssh -F $ssh_config -o "StrictHostKeyChecking no" $server "$cmds" >> $dir/$server.feedback 2>&1
 } &
 done
 wait
 
 # 输出ssh返回的结果
-ls $dir/* | sort --version-sort | xargs -I {} cat {}
+ls $dir/*.rsync | sort --version-sort | xargs -I {} cat {}
 # 删除临时文件夹
 rm $dir -rf

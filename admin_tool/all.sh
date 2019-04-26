@@ -8,6 +8,36 @@ here=$(cd "$(dirname "${BASH_SOURCE[0]-$0}")"; pwd)
 . $here/all_config.sh
 
 # ---------------------------------------
+# 参数解析
+# 参数预处理
+TEMP=$(getopt \
+    -o      ns \
+    --long  no-prompt,send \
+    -n      '参数解析错误' \
+    -- "$@")
+# 写法
+    #   -o     短参数 不需要分隔符
+    #   --long 长参数 用','分隔
+    #   ``无选项  `:`必有选项  `::` 可由选项
+if [ $? != 0 ] ; then echo "格式化的参数解析错误，正在退出" >&2 ; exit 1 ; fi
+eval set -- "$TEMP" # 将复制给 $1, $2, ...
+
+# 初始化参数
+no_prompt=false
+send=false
+
+# 处理参数
+while true ; do case "$1" in
+    # 无选项
+    -n|--no-prompt)  no_prompt=true  ; shift ;;
+    -s|--send)       send=true; shift ;;
+    # '--'后是 余参数
+    --) shift ; break ;;
+    # 处理参数的代码错误
+    *) echo "参数处理错误" ; exit 1 ;;
+esac ; done
+
+# ---------------------------------------
 # 服务器组名
 server_set=$1; shift
 
@@ -28,45 +58,19 @@ fi
 eval "servers=(\${$server_set[@]})"
 
 # ---------------------------------------
-# 参数解析
-# 参数预处理
-TEMP=$(getopt \
-    -o      n \
-    --long  no-prompt \
-    -n      '参数解析错误' \
-    -- "$@")
-# 写法
-    #   -o     短参数 不需要分隔符
-    #   --long 长参数 用','分隔
-    #   ``无选项  `:`必有选项  `::` 可由选项
-if [ $? != 0 ] ; then echo "格式化的参数解析错误，正在退出" >&2 ; exit 1 ; fi
-eval set -- "$TEMP" # 将复制给 $1, $2, ...
-
-# 初始化参数
-no_prompt=false
-
-# 处理参数
-while true ; do case "$1" in
-    # 无选项
-    -n|--no-prompt)  no_prompt=true ; shift ;;
-    # '--'后是 余参数
-    --) shift ; break ;;
-    # 处理参数的代码错误
-    *) echo "参数处理错误" ; exit 1 ;;
-esac ; done
-
-# ---------------------------------------
 # 命令生成
-cmds=''
-for arg do
-    if [ "$no_prompt" = true ]; then
-        cmds="${cmds} $arg; echo;"
-    else
-        echo -E "$arg"
-        i_print=${arg//\$/\"\\\$\"}
-        cmds="${cmds} echo -E \"# $i_print\"; $arg; echo;"
-    fi
-done
+if [ "$send" = 'false' ]; then
+    cmds=''
+    for arg do
+        if [ "$no_prompt" = true ]; then
+            cmds="${cmds} $arg; echo;"
+        else
+            echo -E "$arg"
+            i_print=${arg//\$/\"\\\$\"}
+            cmds="${cmds} echo -E \"# $i_print\"; $arg; echo;"
+        fi
+    done
+fi
 
 # ---------------------------------------
 # 临时文件夹
@@ -88,17 +92,22 @@ fi
 # 并行遍历个服务器
 for server in ${servers[@]}; do
 {
-    # echo "ssh $server"
-    if ! [ "$no_prompt" = true ]; then
-        echo "====== $server ======" >> $dir/$server.feedback
+    if [ "$send" = "true" ]; then
+        echo "rsync -aHhzP -e \"ssh -F $ssh_config\" $@ $server:. "
+        command rsync -aHhzP -e "ssh -F $ssh_config" $@ $server:. >> $dir/$server.feedback 2>&1
+        # command表示系统原版rsync命令
+    else
+        if ! [ "$no_prompt" = true ]; then
+            echo "====== $server ======" >> $dir/$server.feedback
+        fi
+        ssh -F $ssh_config $server "$cmds" >> $dir/$server.feedback 2>&1
+        # ssh -F $ssh_config -o "StrictHostKeyChecking no" $server "$cmds" >> $dir/$server.feedback 2>&1
     fi
-    ssh -F $ssh_config $server "$cmds" >> $dir/$server.feedback 2>&1
-    # ssh -F $ssh_config -o "StrictHostKeyChecking no" $server "$cmds" >> $dir/$server.feedback 2>&1
 } &
 done
 wait
 
 # 输出ssh返回的结果
-ls $dir/* | sort --version-sort | xargs -I {} cat {}
+ls $dir/*.feedback | sort --version-sort | xargs -I {} cat {}
 # 删除临时文件夹
 rm $dir -rf
