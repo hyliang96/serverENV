@@ -90,13 +90,15 @@ for server in ${servers[@]}; do
     fi
     # ssh -F $ssh_config $server "$cmds" >> $dir/$server.feedback 2>&1
     echo "rsync -aHhvzP -e \"ssh -F $ssh_config\" $cmds $server:. "
-    rsync -aHhvzP -e "ssh -F $ssh_config" $cmds $server:. >> $dir/$server.feedback 2>&1
+    rsync -aHhvzP -e "ssh -F $ssh_config" $cmds $server:.
+    # >> $dir/$server.feedback 2>&1
     # ssh -F $ssh_config -o "StrictHostKeyChecking no" $server "$cmds" >> $dir/$server.feedback 2>&1
-} &
+}
+# &
 done
-wait
+# wait
 
-# 输出ssh返回的结果
-ls $dir/* | sort --version-sort | xargs -I {} cat {}
-# 删除临时文件夹
-rm $dir -rf
+# # 输出ssh返回的结果
+# ls $dir/* | sort --version-sort | xargs -I {} cat {}
+# # 删除临时文件夹
+# rm $dir -rf
