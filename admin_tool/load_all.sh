@@ -7,7 +7,7 @@ here=$(cd "$(dirname "${BASH_SOURCE[0]-$0}")"; pwd)
 
 alias all="$SHELL $here/all.sh"
 
-alias allsend="$SHELL $here/all.sh --send"
+alias send="$SHELL $here/all.sh --send"
 
 allgpu(){
     local server_set=
