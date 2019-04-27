@@ -92,14 +92,15 @@ fi
 # 并行遍历个服务器
 for server in ${servers[@]}; do
 {
+    if ! [ "$no_prompt" = true ]; then
+        echo "====== $server ======" >> $dir/$server.feedback
+    fi
     if [ "$send" = "true" ]; then
         echo "rsync -aHhzP -e \"ssh -F $ssh_config\" $@ $server:. "
         command rsync -aHhzP -e "ssh -F $ssh_config" $@ $server:. >> $dir/$server.feedback 2>&1
         # command表示系统原版rsync命令
     else
-        if ! [ "$no_prompt" = true ]; then
-            echo "====== $server ======" >> $dir/$server.feedback
-        fi
+
         ssh -F $ssh_config $server "$cmds" >> $dir/$server.feedback 2>&1
         # ssh -F $ssh_config -o "StrictHostKeyChecking no" $server "$cmds" >> $dir/$server.feedback 2>&1
     fi
