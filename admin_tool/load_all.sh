@@ -23,16 +23,16 @@ allgpu()
 . $here/adduser_command.sh
 
 
-all_adduser()
-{
-    local server_set=
-    if [ $# -eq 0 ]; then
-        server_set=a
-    else
-        server_set=$1
-    fi
-    all $server_set "$(adduser_command)"
-}
+# all_adduser()
+# {
+#     local server_set=
+#     if [ $# -eq 0 ]; then
+#         server_set=a
+#     else
+#         server_set=$1
+#     fi
+#     all $server_set "$(adduser_command)"
+# }
 
 
 

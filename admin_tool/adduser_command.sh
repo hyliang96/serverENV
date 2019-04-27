@@ -56,9 +56,9 @@ alladduser()
     if [ "$1" = "-h" ] || [ "$1" = "--help" ] || [ "$1" = "help" ]  || \
         ! ( [ $# -eq 1 ]  || [ $# -eq 5 ] ) ; then
         echo 'Usage:
-* interactively:    `adduser_command`
+* interactively:    `alladduser <server_set>`
     realname can contains English letters in low/captital case, chinese characters, `'\''``. `"`,-,_ ,sapce,etc
-* non-interactively: `adduser_command -n <username> <realname> <uid> <enc_password>`
+* non-interactively: `alladduser <server_set> <username> <realname> <uid> <enc_password>`
     the enc_password is gotten by
         method1      `openssl passwd -1`         to encrypted the password
         method2      `sudo cat /etc/shadow`      the 2nd part (segmented by ":") is encrypted user password
