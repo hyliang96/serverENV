@@ -2,12 +2,13 @@
 
 
 manual_set(){
-    local username=
-    local realname=
-    local uid=
-    echo -n 'set username: ' >&2 ; read -r username
-    echo -n 'set realname: ' >&2 ; read -r realname
-    echo -n 'set uid: ' >&2 ; read uid
+    local username_=
+    local realname_=
+    local uid_=
+    echo -n 'set username: ' >&2 ; read -r username_
+    echo -n 'set realname: ' >&2 ; read -r realname_
+    echo -n 'set uid: ' >&2 ; read uid_
+    local password=
     while true; do
         echo -n 'set password: ' >&2 ; read -sr password; echo '' >&2
         echo -n 'check password: ' >&2 ; read -sr password2; echo '' >&2
@@ -17,56 +18,43 @@ manual_set(){
             echo 'passwords are not the same, re-input it' >&2
         fi
     done
-    local enc_password=$(echo "$password" | openssl passwd -1 -stdin)
-    echo -E "$username"
-    echo -E "$realname"
-    echo -E "$uid"
-    echo -E "$enc_password"
-    eval $1=\"\$username\"
-    eval $2=\"\$realname\"
-    eval $3=\"\$uid\"
-    eval $4=\"\$enc_password\"
-    echo 1 $1
-    echo 2 $2
-    echo 3 $3
-    echo 4 $4
+    local enc_password_=$(echo "$password" | openssl passwd -1 -stdin)
+
+    eval $1=\"\$username_\"
+    eval $2=\"\$realname_\"
+    eval $3=\"\$uid_\"
+    eval $4=\"\$enc_password_\"
 }
 
 adduser_command(){
 
-    if [ "$1" = '-n' ]; then
-        shift
-        local username=$1
-        local realname=$2
-        local uid=$3
-        local enc_password=$4
-    elif [ $# -eq 0 ]; then
-        local username=
-        local realname=
-        local uid=
-        local enc_password=
-        manual_set username realname uid enc_password
-        echo -E "$username"
-        echo -E "$realname"
-        echo -E "$uid"
-        echo -E "$enc_password"
-        # local username=
-        # local realname=
-        # local realname=
-        # echo -n 'set username: ' >&2 ; read -r username
-        # echo -n 'set realname: ' >&2 ; read -r realname
-        # echo -n 'set uid: ' >&2 ; read uid
-        # while true; do
-        #     echo -n 'set password: ' >&2 ; read -sr password; echo '' >&2
-        #     echo -n 'check password: ' >&2 ; read -sr password2; echo '' >&2
-        #     if [ "$password" = "$password2" ]; then
-        #         break
-        #     else
-        #         echo 'passwords are not the same, re-input it' >&2
-        #     fi
-        # done
-        # local enc_password=$(echo "$password" | openssl passwd -1 -stdin)
-    else
+
+    local username=$1
+    local realname=$2
+    local uid=$3
+    local enc_password=$4
+
+
+    username=${username//\'/\'\\\'\'}
+    username=${username//\"/\'\\\"\'}
+    realname=${realname//\'/\'\\\'\'}
+    realname=${realname//\"/\'\\\"\'}
+    enc_password=${enc_password//\'/\'\\\'\'}
+    enc_password=${enc_password//\"/\'\\\"\'}
+
+    echo -E "useradd '$username' -m -c '$realname' -s /usr/bin/zsh -u $uid && usermod --password '$enc_password' '$username'"
+    echo
+
+    unset username
+    unset realname
+    unset uid
+    unset enc_password
+}
+
+alladduser()
+{
+    if [ "$1" = "-h" ] || [ "$1" = "--help" ] || [ "$1" = "help" ]  || \
+        ! ( [ $# -eq 1 ]  || [ $# -eq 5 ] ) ; then
         echo 'Usage:
 * interactively:    `adduser_command`
     realname can contains English letters in low/captital case, chinese characters, `'\''``. `"`,-,_ ,sapce,etc
@@ -80,23 +68,32 @@ Attention:
         return
     fi
 
-    username=${username//\'/\'\\\'\'}
-    username=${username//\"/\'\\\"\'}
-    realname=${realname//\'/\'\\\'\'}
-    realname=${realname//\"/\'\\\"\'}
-    enc_password=${enc_password//\'/\'\\\'\'}
-    enc_password=${enc_password//\"/\'\\\"\'}
+    local server_set=$1; shift
 
-    echo -E "useradd '$username' -m -c '$realname' -s /usr/bin/zsh -u $uid && usermod --password '$enc_password' '$username'"
+    if [ $# -eq 4 ]; then
+        local username=$1
+        local realname=$2
+        local uid=$3
+        local enc_password=$4
+    else
+        local username=
+        local realname=
+        local uid=
+        local enc_password=
+        manual_set username realname uid enc_password
+    fi
+
+
+    echo "============================ making user account  ============================"
+
+    all $server_set "$(adduser_command $username $realname $uid $enc_password)"
+
+    echo "=================== making keys in /home/$username/.ssh  ====================="
+    su - $username -c 'ssh-keygen -t rsa -P "" -f ~/.ssh/id_rsa -q && \
+     cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys'
+
+    echo "======= seperating /home/$username/.ssh to server set [${server_set}] ========"
+    send /home/$username/.ssh  ${server_set}:/home/$username/
 }
-
-# alladduser()
-# {
-
-#     su - test -c 'ssh-keygen -t rsa -P "" -f ~/.ssh/id_rsa -q && \
-#      cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys'
-
-#     send /home/test/.ssh  a:/home/test/
-# }
 
 
