@@ -43,12 +43,9 @@ if [ "$send" = 'false' ]; then
     server_set=$1; shift
 else
     server_set_path="${@:$#}"
-    set -- "${@:1:$(($#-1))}"
+    set -- "${@:1:$(($# - 1))}"
     server_set="${server_set_path%%:*}"  # 第一个':'左侧
-    echo "server_set_array: $server_set_array"
     server_path="${server_set_path#*:}" # 第一个':'右侧
-    echo "server_path: $server_path"
-    return
 fi
 
 

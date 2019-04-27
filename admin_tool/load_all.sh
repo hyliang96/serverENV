@@ -9,7 +9,8 @@ alias all="$SHELL $here/all.sh"
 
 alias send="$SHELL $here/all.sh --send"
 
-allgpu(){
+allgpu()
+{
     local server_set=
     if [ $# -eq 0 ]; then
         server_set=g
@@ -22,7 +23,8 @@ allgpu(){
 . $here/adduser_command.sh
 
 
-all_adduser(){
+all_adduser()
+{
     local server_set=
     if [ $# -eq 0 ]; then
         server_set=a
@@ -31,5 +33,7 @@ all_adduser(){
     fi
     all $server_set "$(adduser_command)"
 }
+
+
 
 unset here

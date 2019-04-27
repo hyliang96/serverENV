@@ -2,6 +2,9 @@
 
 
 manual_set(){
+    local username=
+    local realname=
+    local uid=
     echo -n 'set username: ' >&2 ; read -r username
     echo -n 'set realname: ' >&2 ; read -r realname
     echo -n 'set uid: ' >&2 ; read uid
@@ -15,6 +18,18 @@ manual_set(){
         fi
     done
     local enc_password=$(echo "$password" | openssl passwd -1 -stdin)
+    echo -E "$username"
+    echo -E "$realname"
+    echo -E "$uid"
+    echo -E "$enc_password"
+    eval $1=\"\$username\"
+    eval $2=\"\$realname\"
+    eval $3=\"\$uid\"
+    eval $4=\"\$enc_password\"
+    echo 1 $1
+    echo 2 $2
+    echo 3 $3
+    echo 4 $4
 }
 
 adduser_command(){
@@ -26,19 +41,31 @@ adduser_command(){
         local uid=$3
         local enc_password=$4
     elif [ $# -eq 0 ]; then
-        echo -n 'set username: ' >&2 ; read -r username
-        echo -n 'set realname: ' >&2 ; read -r realname
-        echo -n 'set uid: ' >&2 ; read uid
-        while true; do
-            echo -n 'set password: ' >&2 ; read -sr password; echo '' >&2
-            echo -n 'check password: ' >&2 ; read -sr password2; echo '' >&2
-            if [ "$password" = "$password2" ]; then
-                break
-            else
-                echo 'passwords are not the same, re-input it' >&2
-            fi
-        done
-        local enc_password=$(echo "$password" | openssl passwd -1 -stdin)
+        local username=
+        local realname=
+        local uid=
+        local enc_password=
+        manual_set username realname uid enc_password
+        echo -E "$username"
+        echo -E "$realname"
+        echo -E "$uid"
+        echo -E "$enc_password"
+        # local username=
+        # local realname=
+        # local realname=
+        # echo -n 'set username: ' >&2 ; read -r username
+        # echo -n 'set realname: ' >&2 ; read -r realname
+        # echo -n 'set uid: ' >&2 ; read uid
+        # while true; do
+        #     echo -n 'set password: ' >&2 ; read -sr password; echo '' >&2
+        #     echo -n 'check password: ' >&2 ; read -sr password2; echo '' >&2
+        #     if [ "$password" = "$password2" ]; then
+        #         break
+        #     else
+        #         echo 'passwords are not the same, re-input it' >&2
+        #     fi
+        # done
+        # local enc_password=$(echo "$password" | openssl passwd -1 -stdin)
     else
         echo 'Usage:
 * interactively:    `adduser_command`
@@ -63,5 +90,13 @@ Attention:
     echo -E "useradd '$username' -m -c '$realname' -s /usr/bin/zsh -u $uid && usermod --password '$enc_password' '$username'"
 }
 
+# alladduser()
+# {
+
+#     su - test -c 'ssh-keygen -t rsa -P "" -f ~/.ssh/id_rsa -q && \
+#      cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys'
+
+#     send /home/test/.ssh  a:/home/test/
+# }
 
 
