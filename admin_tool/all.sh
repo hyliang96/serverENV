@@ -39,7 +39,15 @@ esac ; done
 
 # ---------------------------------------
 # 服务器组名
-server_set=$1; shift
+if [ "$send" = 'false' ]; then
+    server_set=$1; shift
+else
+    server_set_path=$1; shift
+    server_set="${server_set_path%%:*}"  # 第一个':'左侧
+    echo "server_set_array: $server_set_array"
+    server_path="${server_set_path#*:}" # 第一个':'右侧
+    echo "server_path: $server_path"
+fi
 
 # 检查server_set是否有效
 valid_server=false
@@ -96,8 +104,8 @@ for server in ${servers[@]}; do
         echo "====== $server ======" >> $dir/$server.feedback
     fi
     if [ "$send" = "true" ]; then
-        echo "rsync -aHhzP -e \"ssh -F $ssh_config\" $@ $server:. "
-        command rsync -aHhzP -e "ssh -F $ssh_config" $@ $server:. >> $dir/$server.feedback 2>&1
+        echo "rsync -aHhzP -e \"ssh -F $ssh_config\" $@ $server:$server_path "
+        command rsync -aHhzP -e "ssh -F $ssh_config" $@ $server:$server_path >> $dir/$server.feedback 2>&1
         # command表示系统原版rsync命令
     else
 
