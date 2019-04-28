@@ -14,7 +14,7 @@ J1=( "${c[@]}" "${gJ1[@]}" )
 a=( "${c[@]}" "${g[@]}" )
 
 # 有效编组：即只有写在此处的编组才会被 `all` 命令使用
-server_sets=(c  g  gJ1  gJ2  a )
+server_sets=(c  g  gJ1  gJ2 J1  a )
 
 
 # # 用不了的gpu
