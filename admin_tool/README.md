@@ -27,12 +27,31 @@
 
 ## 使用方法
 
+### 依赖
+
+用户每一台机器上的 `/home/用户名/.ssh/{id_rsa,id_rsa.pub,authorized_keys}` 相同，其中`id_rsa.pub` 的全文已经加入到`authorized_keys` 中作为一行
+
+* 若用户不满足此依赖，则他每次使用`all*` `send`命令，都会要求给每一台服务器输入密码
+
+* **欲满足此依赖，请管理员运行**
+
+  ```bash
+  . <本目录>/load_all.sh
+  # 如 . /mfs/haoyu/server_conf/ENV/serverENV/admin_tool/load_all.sh
+  allnewkey [机器编组] <用户名>
+  ```
+
+  会重新生成（覆盖原有的）一对`/home/用户名/.ssh/{id_rsa,id_rsa.pub}`,将`id_rsa.pub` 的全文已经加入到`authorized_keys` 中，并分发到`机器编组`的各台服务器上。
+
+* 上述`allnewkey` 在下文 `alladduser` 创建用户时会自动执行
+
 ### 加载本工具包
 
 使用工具包前，需先在`zsh`或`bash`下执行以下命令
 
 ```bash
 . <本目录>/load_all.sh
+# 如 . /mfs/haoyu/server_conf/ENV/serverENV/admin_tool/load_all.sh
 ```
 
 ### 执行命令
@@ -214,9 +233,10 @@ gJ2=(jungpu{14..24})
 # 复合编组
 # 编组名=( "${子编组1[@]}" "${子编组2[@]}" "${子编组3[@]}" )
 J1=( "${c[@]}" "${gJ1[@]}" )
+J2=( "${gJ2[@]}" )
 a=( "${c[@]}" "${g[@]}" )
 
 # 有效编组：即只有写在此处的编组才会被 `all` 命令使用
-server_sets=(c  g  gJ1  gJ2  a )
+server_sets=(c  g  gJ1  gJ2 J1 J2 a )
 ```
 

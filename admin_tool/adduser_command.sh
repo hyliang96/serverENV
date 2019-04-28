@@ -51,6 +51,30 @@ adduser_command(){
     unset enc_password
 }
 
+
+allnewkey()
+{
+    if [ $# -ne 2 ]; then
+        echo 'Usage: `allnewkey <server_set> <username>`
+What it will do:
+    regernate ~/.ssh/{id_rsa,id_rsa.pub} for <username>
+    add id_rsa.pub to ~/.ssh/authorized_keys
+    send ~/.ssh to all servers in <server_set>'
+        return
+    fi
+    local server_set="$1"
+    local username="$2"
+
+    echo "=================== making keys in /home/$username/.ssh  ====================="
+    # 若已有id_rsa,id_rsa.pub，则会询问你是否覆盖之
+    su - $username -c 'ssh-keygen -t rsa -P "" -f ~/.ssh/id_rsa -q && \
+     cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys'
+
+    echo "======= seperating /home/$username/.ssh to server set [${server_set}] ========"
+    # 会覆盖各个服务器上的原文件
+    send /home/$username/.ssh  ${server_set}:/home/$username/
+}
+
 alladduser()
 {
     if [ "$1" = "-h" ] || [ "$1" = "--help" ] || [ "$1" = "help" ]  || \
@@ -88,12 +112,7 @@ Attention:
 
     all $server_set "$(adduser_command $username $realname $uid $enc_password)"
 
-    echo "=================== making keys in /home/$username/.ssh  ====================="
-    su - $username -c 'ssh-keygen -t rsa -P "" -f ~/.ssh/id_rsa -q && \
-     cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys'
-
-    echo "======= seperating /home/$username/.ssh to server set [${server_set}] ========"
-    send /home/$username/.ssh  ${server_set}:/home/$username/
+    allnewkey $server_set $username
 }
 
 
