@@ -157,11 +157,13 @@ alladduser [机器编组] '用户名' '用户真名' 统一的UID '加密用户�
     id 用户名
     ```
 
-    > uid=11328(用户名) gid=11328(组名) groups=11328(组名)
-    >
-    > ​	↑
-    >
-    >  此即所求UID
+    > ```
+    > uid=11328(用户名) gid=11328(当前组名) groups=11328(组名1) groups=12312(组名2)
+    >     	↑                ↑                         ↑             ↑
+    > 此即用户的UID       户当前组的GID	               用户所属所有组的GID	
+    > ```
+
+    用上述方法初创用户时，用户的 组名, 群名 与 用户名 相同，用户的 gid, groups 与 uid 相同
 
   * 加密用户密码：在旧机器上
 
@@ -169,9 +171,11 @@ alladduser [机器编组] '用户名' '用户真名' 统一的UID '加密用户�
     sudo cat /etc/shadow | grep 用户名
     ```
 
-    >  `用户名:$6$xDasasdSDsS1$hJNcEpsSDdP23SosSdzs.j3rHFToIHIH878bsS3w/fyVgnRnZ4/sdasisUlf7AA/3K1ENIJ2asiIIdsd9sSCxxgFsdSAQPa.:17266:0:99999:7:::`
+    > ```
+    > 用户名:$6$xDasasdSDsS1$hJNcEpsSDdP23SosSdzs.j3rHFToIHIH878bsS3w/fyVgnRnZ4/sdasisUlf7AA/3K1ENIJ2asiIIdsd9sSCxxgFsdSAQPa.:17266:0:99999:7:::
+    > ```
 
-    以冒号分隔，其中第二字段`$6$xDasasdSDsS1$hJNcEpsSDdP23SosSdzs.j3rHFToIHIH878bsS3w/fyVgnRnZ4/sdasisUlf7AA/3K1ENIJ2asiIIdsd9sSCxxgFsdSAQPa. `即加密用户密码
+    以冒号分隔，其中第二字段`$6$xDasasdSDsS1$hJNcEpsSDdP23SosSdzs.j3rHFToIHIH878bsS3w/fyVgnRnZ4/sdasisUlf7AA/3K1ENIJ2asiIIdsd9sSCxxgFsdSAQPa. ` 即加密用户密码
 
 * 当明码用户密码已经知道时，还可以这样获得加密用户密码
 
@@ -194,10 +198,37 @@ ssh 用户名@jungpu1  # 看看能否正常登陆，使用前面设置的明码
 all [机器编组]  'usermod -u 用户UID 用户名 && groupmod -g 组GGID 用户对应的组名'
 ```
 
+获得`UID`和`GID` 需执行 `id 用户名`，详见上文
+
 ### 修改用户密码
 
 ```bash
 all [机器编组] 'usermod -p '\''加密密码'\'' 用户名'
+```
+
+获得`加密密码` 需执行`sudo cat /etc/shadow | grep 用户名`，详细见上文
+
+### 修改用户默认shell
+
+```bash
+all [机器编组] 'cat /etc/passwd | grep 用户名'  # 看看是否用户目录创建成功
+```
+
+> ```
+> [用户名]:x:[用户UID]:[组GID]:,,,:/home/用户名:[默认shell路径]
+> ```
+
+`[默认shell路径]`如 `/usr/bin/zsh` 或 `/bin/bash` 或 (空的) 
+
+如果是空的，则为`/bin/sh`，极其难用，且用户自己无法修改默认shell
+
+> ```
+> chsh -s `which zsh`
+> You may not change the shell for '用户名'.
+> ```
+
+```bash
+all [机器编组] 'usermod -s [默认shell路径] 用户名'
 ```
 
 ### 删除用户
