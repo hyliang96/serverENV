@@ -108,7 +108,7 @@ for server in ${servers[@]}; do
         # echo "rsync -aHhzP -e \"ssh -F $ssh_config\" $@ $server:$server_path "
         # command rsync -aHhzP -e "ssh -F $ssh_config" $@ $server:$server_path >> $dir/$server.feedback 2>&1
         echo "rsync -aHhzP -e \"ssh -o 'StrictHostKeyChecking no'\"  $@ $server:$server_path "
-        command rsync -aHhzP -o 'StrictHostKeyChecking no' $@ $server:$server_path >> $dir/$server.feedback 2>&1
+        command rsync -aHhzP -e "ssh -o 'StrictHostKeyChecking no'" $@ $server:$server_path >> $dir/$server.feedback 2>&1
     # command表示系统原版rsync命令
     else
         ssh -o 'StrictHostKeyChecking no' $server "$cmds" >> $dir/$server.feedback 2>&1
