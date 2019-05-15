@@ -1,15 +1,38 @@
 #!/usr/bin/env bash
 
+
+# 检测服务器的类型、所属局域网
+host_id=$(hostname | tr -cd '[0-9]')
+if [ "$(hostname | tr -d '[0-9]')" = 'jungpu' ]; then
+    host_type='gpu'
+    if [ $host_id -le 13 ]; then
+        host_group='JUN1'   # 在jungpu1-13，juncluster1-4
+    else
+        host_group='JUN2'   # 在jungpu>=14
+        mfs_source='jungpu'"`expr $host_id - 13`"
+        # jungpuxx 的/mfs用sshfs挂载 jungpu(xx-13) 的 /mfs
+    fi
+else
+    host_type='cpu'
+    host_group='JUN1'
+fi
+
+
 # ---------------------- 服务器编组设置------------------
 # 顺序编组
 # 编组名=(前缀{起始数字..结束数字}后缀)
 c=(juncluster{1..4})
-g=(jungpu{1..24})
-gJ1=(jungpu{1..13})
+
+if [ "$host_group" = 'JUN1' ]; then
+    gJ1=(jungpu{1..13})
+else
+    gJ1=(jungpu{1..11})
+fi
 gJ2=(jungpu{14..24})
 
 # 复合编组
 # 编组名=( "${子编组1[@]}" "${子编组2[@]}" "${子编组3[@]}" )
+g=( "${gJ1[@]}" "${gJ2[@]}" )
 J1=( "${c[@]}" "${gJ1[@]}" )
 J2=( "${gJ2[@]}" )
 a=( "${c[@]}" "${g[@]}" )

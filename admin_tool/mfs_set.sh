@@ -1,20 +1,13 @@
 #!/usr/bin/env bash
 
-# 检测服务器的类型、所属局域网
-host_id=$(hostname | tr -cd '[0-9]')
-if [ "$(hostname | tr -d '[0-9]')" = 'jungpu' ]; then
-    host_type='gpu'
-    if [ $host_id -le 13 ]; then
-        host_group='JUN1'   # 在jungpu1-13，juncluster1-4
-    else
-        host_group='JUN2'   # 在jungpu>=14
-        mfs_source='jungpu'"`expr $host_id - 13`"
-        # jungpuxx 的/mfs用sshfs挂载 jungpu(xx-13) 的 /mfs
-    fi
-else
-    host_type='cpu'
-    host_group='JUN1'
-fi
+# ---------------------------------------
+# 加载配置文件
+# get absoltae path to the dir this is in, work in bash, zsh
+# if you want transfer symbolic link to true path, just change `pwd` to `pwd -P`
+here=$(cd "$(dirname "${BASH_SOURCE[0]-$0}")"; pwd)
+. $here/all_config.sh
+
+
 
 mfsstart()
 {
