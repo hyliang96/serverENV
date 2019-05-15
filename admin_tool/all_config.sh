@@ -26,6 +26,7 @@ c=(juncluster{1..4})
 if [ "$host_group" = 'JUN1' ]; then
     gJ1=(jungpu{1..13})
 else
+    # 由于JUN2上的服务器上的ssh版本太低，不支持跳板访问g12-g13，故此处跳过他俩
     gJ1=(jungpu{1..11})
 fi
 gJ2=(jungpu{14..24})

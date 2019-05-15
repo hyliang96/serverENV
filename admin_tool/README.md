@@ -25,15 +25,11 @@
 
 **性能：**比另一个常见的批量管理工具`ansible`快，经测试，查看所有gpu服务器的`gpustat`，本包需要7-9秒，`ansible`需要70-80秒。但本包目前功能比它少。
 
-## 使用方法
-
-### 依赖
+## 依赖
 
 用户每一台机器上的 `/home/用户名/.ssh/{id_rsa,id_rsa.pub,authorized_keys}` 相同，其中`id_rsa.pub` 的全文已经加入到`authorized_keys` 中作为一行
 
-* 若用户不满足此依赖，则他每次使用`all*` `send`命令，都会要求给每一台服务器输入密码
-
-* **欲满足此依赖，请管理员运行**
+* 若用户不满足此依赖，则他每次使用`all*` ,`send`命令，都会要求给每一台服务器输入密码，**欲满足此依赖，请管理员运行**
 
   ```bash
   . <本目录>/load_all.sh
@@ -44,6 +40,26 @@
   会重新生成（覆盖原有的）一对`/home/用户名/.ssh/{id_rsa,id_rsa.pub}`,将`id_rsa.pub` 的全文已经加入到`authorized_keys` 中，并分发到`机器编组`的各台服务器上。
 
 * 上述`allnewkey` 在下文 `alladduser` 创建用户时会自动执行
+
+* 系统 `/etc/ssh/ssh_config` 配置好了，在其文尾添加如下配置
+
+  ```
+  
+  Host c* juncluster* g* jungpu* 
+      StrictHostKeyChecking no
+  
+  Host c1 juncluster1
+      HostName xxx.xxx.xxx.xxx
+      IdentityFile ~/.ssh/id_rsa
+  
+  Host c2 juncluster2
+      HostName xxx.xxx.xxx.xxx
+      IdentityFile ~/.ssh/id_rsa
+  
+  ...
+  ```
+
+## 使用方法
 
 ### 加载本工具包
 
@@ -137,7 +153,7 @@ sudo su # 然后输入密码
   > check password: 明码用户密码
   > ```
 
-  然后在每一台服务器上开始创建账号
+  自动在每一台服务器上开始创建账号，并为用户每一台机器上，创建相同的 `/home/用户名/.ssh/{id_rsa,id_rsa.pub,authorized_keys}` ，其中`id_rsa.pub` 的全文已经加入到`authorized_keys` 中作为一行
 
 ##### 非交互命令，使用加密的用户密码
 
@@ -146,6 +162,8 @@ sudo su # 然后输入密码
 ```bash
 alladduser [机器编组] '用户名' '用户真名' 统一的UID '加密用户密码' # 要用单引号，表示不转义
 ```
+
+自动在每一台服务器上开始创建账号，并为用户每一台机器上，创建相同的 `/home/用户名/.ssh/{id_rsa,id_rsa.pub,authorized_keys}` ，其中`id_rsa.pub` 的全文已经加入到`authorized_keys` 中作为一行
 
 其中`统一的UID` `加密用户密码`有两种获得方式：
 
@@ -263,18 +281,21 @@ send 本地文件(夹)1 (本地文件(夹)2 ...) [机器编组]:接受文件夹�
 本包使用`./all_config.sh`文件来配置编组，写法如下
 
 ```bash
-#!/usr/bin/env bash
-
-# ---------------------- 服务器编组设置------------------
 # 顺序编组
 # 编组名=(前缀{起始数字..结束数字}后缀)
 c=(juncluster{1..4})
-g=(jungpu{1..24})
-gJ1=(jungpu{1..13})
+
+if [ "$host_group" = 'JUN1' ]; then
+    gJ1=(jungpu{1..13})
+else
+    # 由于JUN2上的服务器上的ssh版本太低，不支持跳板访问g12-g13，故此处跳过他俩
+    gJ1=(jungpu{1..11})
+fi
 gJ2=(jungpu{14..24})
 
 # 复合编组
 # 编组名=( "${子编组1[@]}" "${子编组2[@]}" "${子编组3[@]}" )
+g=( "${gJ1[@]}" "${gJ2[@]}" )
 J1=( "${c[@]}" "${gJ1[@]}" )
 J2=( "${gJ2[@]}" )
 a=( "${c[@]}" "${g[@]}" )
@@ -283,3 +304,14 @@ a=( "${c[@]}" "${g[@]}" )
 server_sets=(c  g  gJ1  gJ2 J1 J2 a )
 ```
 
+# 服务器其他管理命令
+
+### 启动mfs
+
+当服务器重启后，`/mfs` 没有挂载，请输入
+
+```bash
+mfsstart
+```
+
+以挂载`/mfs` 。它会区分当前服务器是JUN1还是JUN2，JUN1采用mfs挂载，JUN2采用sshfs挂载JUN1中的某台服务器上的`/mfs`。
