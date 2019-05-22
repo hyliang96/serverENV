@@ -114,7 +114,7 @@ fi
 # touch $dir/reachable_servers
 # for server in ${servers[@]}; do
 # {
-#     temp="$(ssh -o ConnectTimeout=0 $server 'echo reachable_server' 2>&1)"
+#     temp="$(ssh -o ConnectTimeout=1 $server 'echo reachable_server' 2>&1)"
 #     if [[ "$temp" =~ 'reachable_server' ]]; then
 #         echo "$server" >> $dir/reachable_servers
 #     else
