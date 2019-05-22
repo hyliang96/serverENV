@@ -101,16 +101,33 @@ if [ "$(ls $dir)" != "" ]; then
 fi
 
 
-if [ "`uname -a | grep -E 'gpu[0-9] |gpu1[0-3] |cluster[1-4] '`" != "" ]; then
+if [ "$host_group" = 'JUN1' ]; then
 # 在gpu1-13，cluster1-4
     ssh_config=$here/config_JUN1
-else
+elif [ "$host_group" = 'JUN2' ]; then
 # 在gpu14-24
     ssh_config=$here/config_JUN2
 fi
 
-# 并行遍历个服务器
+
+# ---------------------------------------
+# 检查每台服务器可连接
 for server in ${servers[@]}; do
+{
+    if [[ "$(ssh -o ConnectTimeout=0 $server 'echo reachable_server' 2>&1)" =~ 'reachable_server' ]]; then
+        echo "$server" >> $dir/reachable_servers
+    fi
+} &
+done
+wait
+
+IFS_old=$IFS
+IFS=$'\r\n'
+servers_available=($(<~/.cache/all/reachable_servers ))
+IFS=$IFS_old
+
+# 并行遍历个服务器
+for server in ${servers_available[@]}; do
 {
     if ! [ "$no_prompt" = true ]; then
         echo "====== $server ======" >> $dir/$server.feedback
