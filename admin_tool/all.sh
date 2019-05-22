@@ -114,8 +114,11 @@ fi
 # 检查每台服务器可连接
 for server in ${servers[@]}; do
 {
-    if [[ "$(ssh -o ConnectTimeout=0 $server 'echo reachable_server' 2>&1)" =~ 'reachable_server' ]]; then
+    temp="$(ssh -o ConnectTimeout=0 $server 'echo reachable_server' 2>&1)"
+    if [[ "$temp" =~ 'reachable_server' ]]; then
         echo "$server" >> $dir/reachable_servers
+    else
+        echo "$temp" >&2
     fi
 } &
 done
@@ -126,7 +129,8 @@ IFS=$'\r\n'
 servers_available=($(<~/.cache/all/reachable_servers ))
 IFS=$IFS_old
 
-# 并行遍历个服务器
+# ---------------------------------------
+# 并行遍历个服务器发送命令
 for server in ${servers_available[@]}; do
 {
     if ! [ "$no_prompt" = true ]; then
