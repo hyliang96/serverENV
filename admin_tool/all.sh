@@ -111,7 +111,6 @@ fi
 
 # ---------------------------------------
 # 检查每台服务器可连接
-declare -p servers
 touch $dir/reachable_servers
 for server in ${servers[@]}; do
 {
