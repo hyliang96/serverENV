@@ -109,7 +109,6 @@ elif [ "$host_group" = 'JUN2' ]; then
     ssh_config=$here/config_JUN2
 fi
 
-
 # ---------------------------------------
 # 检查每台服务器可连接
 for server in ${servers[@]}; do
@@ -118,7 +117,7 @@ for server in ${servers[@]}; do
     if [[ "$temp" =~ 'reachable_server' ]]; then
         echo "$server" >> $dir/reachable_servers
     else
-        echo "$temp" >&2
+        echo "$server Can Not Connet: $temp" >&2
     fi
 } &
 done
