@@ -109,29 +109,29 @@ elif [ "$host_group" = 'JUN2' ]; then
     ssh_config=$here/config_JUN2
 fi
 
-# ---------------------------------------
-# 检查每台服务器可连接
-touch $dir/reachable_servers
-for server in ${servers[@]}; do
-{
-    temp="$(ssh -o ConnectTimeout=0 $server 'echo reachable_server' 2>&1)"
-    if [[ "$temp" =~ 'reachable_server' ]]; then
-        echo "$server" >> $dir/reachable_servers
-    else
-        echo "$server Can Not Connet: $temp" >&2
-    fi
-} &
-done
-wait
+# # ---------------------------------------
+# # 检查每台服务器可连接
+# touch $dir/reachable_servers
+# for server in ${servers[@]}; do
+# {
+#     temp="$(ssh -o ConnectTimeout=0 $server 'echo reachable_server' 2>&1)"
+#     if [[ "$temp" =~ 'reachable_server' ]]; then
+#         echo "$server" >> $dir/reachable_servers
+#     else
+#         echo "$server Can Not Connet: $temp" >&2
+#     fi
+# } &
+# done
+# wait
 
-IFS_old=$IFS
-IFS=$'\r\n'
-servers_available=($(<$dir/reachable_servers))
-IFS=$IFS_old
+# IFS_old=$IFS
+# IFS=$'\r\n'
+# servers=($(<$dir/reachable_servers))
+# IFS=$IFS_old
 
 # ---------------------------------------
 # 并行遍历个服务器发送命令
-for server in ${servers_available[@]}; do
+for server in ${servers[@]}; do
 {
     if ! [ "$no_prompt" = true ]; then
         echo "====== $server ======" >> $dir/$server.feedback
