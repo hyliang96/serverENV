@@ -111,6 +111,8 @@ fi
 
 # ---------------------------------------
 # 检查每台服务器可连接
+declare -p servers
+touch $dir/reachable_servers
 for server in ${servers[@]}; do
 {
     temp="$(ssh -o ConnectTimeout=0 $server 'echo reachable_server' 2>&1)"
@@ -125,7 +127,7 @@ wait
 
 IFS_old=$IFS
 IFS=$'\r\n'
-servers_available=($(<~/.cache/all/reachable_servers ))
+servers_available=($(<$dir/reachable_servers))
 IFS=$IFS_old
 
 # ---------------------------------------

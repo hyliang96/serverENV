@@ -14,9 +14,9 @@ allgpu()
     if [ $# -eq 0 ]; then
         server_set=g
     else
-        server_set=$1
+        server_set="$1"
     fi
-    all $server_set --no-prompt 'gpustat'
+    all "$server_set" --no-prompt 'gpustat'
 }
 
 . $here/adduser_command.sh
