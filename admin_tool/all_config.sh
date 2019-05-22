@@ -24,6 +24,7 @@ fi
 c=(juncluster{1..4})
 gJ1=(jungpu{1..13})
 gJ2=(jungpu{14..24})
+temp=(jungpu{14..20})
 
 # 复合编组
 # 编组名=( "${子编组1[@]}" "${子编组2[@]}" "${子编组3[@]}" )
@@ -33,7 +34,7 @@ J2=( "${gJ2[@]}" )
 a=( "${c[@]}" "${g[@]}" )
 
 # 有效编组：即只有写在此处的编组才会被 `all` 命令使用
-server_sets=(c  g  gJ1  gJ2 J1 J2 a )
+server_sets=(c  g  gJ1  gJ2 J1 J2 a temp )
 
 
 # # 用不了的gpu
