@@ -6,6 +6,8 @@
 # if you want transfer symbolic link to true path, just change `pwd` to `pwd -P`
 here=$(cd "$(dirname "${BASH_SOURCE[0]-$0}")"; pwd)
 . $here/all_config.sh
+. $here/utils.sh
+
 
 # ---------------------------------------
 # 参数解析
@@ -59,12 +61,21 @@ for i in ${server_sets[@]}; do
     fi
 done
 if [ "$valid_server" = false ]; then
-    echo 'invalid server_set name' >&2
-    return
+    #  服务器列表生成
+    eval "servers=($server_set)"
+    if ! [ "$(is_array servers)" = true ]; then
+        echo 'invalid server_set' >&2
+        echo "Usage: all <server_set_name> '<command>'"
+        echo "Usage: all 'server1 server2 server3' '<command>'"
+        echo "Usage: all 'server{1..3} server{10..13}' '<command>'"
+        return
+    fi
+else
+    #  服务器列表生成
+    eval "servers=(\${$server_set[@]})"
 fi
 
-#  服务器列表生成
-eval "servers=(\${$server_set[@]})"
+
 
 # ---------------------------------------
 # 命令生成

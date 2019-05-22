@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 
-manual_set(){
+manual_set() {
     local username_=
     local realname_=
     local uid_=
@@ -26,7 +26,7 @@ manual_set(){
     eval $4=\"\$enc_password_\"
 }
 
-adduser_command(){
+adduser_command() {
 
 
     local username=$1
@@ -52,8 +52,7 @@ adduser_command(){
 }
 
 
-allnewkey()
-{
+allnewkey() {
     if [ $# -ne 2 ]; then
         echo 'Usage: `allnewkey <server_set> <username>`
 What it will do:
@@ -75,8 +74,7 @@ What it will do:
     send /home/$username/.ssh  ${server_set}:/home/$username/
 }
 
-alladduser()
-{
+alladduser() {
     if [ "$1" = "-h" ] || [ "$1" = "--help" ] || [ "$1" = "help" ]  || \
         ! ( [ $# -eq 1 ]  || [ $# -eq 5 ] ) ; then
         echo 'Usage:
