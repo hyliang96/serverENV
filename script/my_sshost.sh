@@ -58,7 +58,7 @@ s3()
 {
     if [ $# -eq 0 ]; then
         echo 'Usage : s3 [ start | stop | restart | status | help | (un)install ]'
-    elif [ "$1" = "help" ]; then
+    elif [ "$1" = "help" ] || [ "$1" = "h" ] || [ "$1" = "-h" ] || [ "$1" = "--help" ] || [ "$1" = "-help" ]; then
         echo 'Usage : s3 [ start | stop | restart | status | help | (un)install ]'
         echo '`jchs3`:  查看ss server的教程'
         echo '$s3c:  ss server的配置文件'
