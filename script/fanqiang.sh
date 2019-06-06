@@ -29,7 +29,7 @@ ss_ls()
 ss_start()
 {
     # 关闭原来的
-    s_stop
+    ss_stop
     sleep 1
     # 解析
     if [ $# -eq 0 ];    then
@@ -57,21 +57,31 @@ ss_start()
     #no_proxy表示一些不需要代理的网址,比如内网之类的
 }
 
+ss_jch()
+{
+    ps aux | awk NR==1
+    ps aux | awk NR!=1 | grep --color -v grep | grep --color -v 'ps aux' | grep --color -v 'awk NR!=1' | grep --color sslocal
+}
+
 ss()
 {
     if [ "$1" = 'stop' ]; then
         shift
-        ss_stop $@
+        ss_stop
     elif [ "$1" = 'start' ]; then
         shift
         ss_start $@
     elif [ "$1" = 'ls' ]; then
         shift
         ss_ls
+    elif [ "$1" = 'jch' ]; then
+        shift
+        ss_jch
     else
         echo '`ss start [<vps_name>]` open shadowsocks client; dafault vps_name="default"'
         echo '`ss stop`               stop shadowsocks client'
         echo '`ss ls`                 list all vps_name'
+        echo '`ss jch`                show all sslocal process'
         echo '`$vps_dir`              dir to save all vps'
         echo '`$ss_script`            dir to fanqiang.sh script'
     fi
