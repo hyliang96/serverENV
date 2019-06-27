@@ -11,9 +11,9 @@ here=$(cd "$(dirname "${BASH_SOURCE[0]-$0}")"; pwd)
 
 mfsstart()
 {
-    if [ "$host_group" = 'JUN1' ]; then
+    if [ "$mfs_source" = '' ]; then
         sudo mfsmount /mfs -H mfsmaster && ls /home/$USER/mfs/
-    elif [ "$host_group" = 'JUN2' ]; then
+    else
         sudo sshfs  $mfs_source:/mfs /mfs -o allow_other,default_permissions
     fi
     echo 'ls /mfs | head -n 10'

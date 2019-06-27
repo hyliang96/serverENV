@@ -1,12 +1,19 @@
 #!/usr/bin/env bash
 
 
+mfs_source=''
+
 # 检测服务器的类型、所属局域网
 host_id=$(hostname | tr -cd '[0-9]')
 if [ "$(hostname | tr -d '[0-9]')" = 'jungpu' ]; then
     host_type='gpu'
     if [ $host_id -le 13 ]; then
         host_group='JUN1'   # 在jungpu1-13，juncluster1-4
+        if [ $host_id -ge 12 ]; then
+            # 在jungpu12-13
+            # mfs 用sshfs挂载cpu1-2
+            mfs_source='juncluster'"`expr $host_id - 11`"
+        fi
     else
         host_group='JUN2'   # 在jungpu>=14
         mfs_source='jungpu'"`expr $host_id - 13`"
