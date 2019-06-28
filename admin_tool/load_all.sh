@@ -23,5 +23,6 @@ allgpu()
 
 . $here/mfs_set.sh
 
+alias allsshmfs="all J23 'sshmfs'"
 
 unset here

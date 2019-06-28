@@ -9,6 +9,78 @@ here=$(cd "$(dirname "${BASH_SOURCE[0]-$0}")"; pwd)
 
 
 
+usshmfs() # `usshmfs`：卸载ssh挂载的mfs
+{
+    # 本地shareENV、serverENV、CONF链接改指向shareENV_backup、serverENV_backup、CONF_backup
+    [ -L /home/${USER}/ENV/CONF ] && rm /home/${USER}/ENV/CONF
+    [ -L /home/${USER}/ENV/shareENV ] && rm /home/${USER}/ENV/shareENV
+    [ -L /home/${USER}/ENV/serverENV ] && rm /home/${USER}/ENV/serverENV
+
+    if [ -d /home/${USER}/ENV/CONF_backup ]; then
+        ln -s /home/${USER}/ENV/CONF_backup /home/${USER}/ENV/CONF
+    fi
+    if [ -d /home/${USER}/ENV/shareENV_backup ]; then
+        ln -s /home/${USER}/ENV/shareENV_backup /home/${USER}/ENV/shareENV
+    fi
+    if [ -d /home/${USER}/ENV/serverENV_backup ]; then
+        ln -s /home/${USER}/ENV/serverENV_backup /home/${USER}/ENV/serverENV
+    fi
+    # 因为HOME=/home/${USER}/ENV/shareENV/CONF
+
+    # 卸挂载
+    fusermount -u /home/${USER}/mfs
+}
+
+
+# 用sshfs挂载mfs，如在gpu16上，即将g3上的mfs挂载到g16
+# `sshfs [服务器](仅一个服务器)`
+# 如 `sshmfs g3`
+# 如 `sshmfs -p 4707 haoyu@ml.cs.tsinghua.edu.cn`
+sshmfs()
+{
+    # 本地shareENV、CONF链接改指向shareENV_backup、CONF_back
+    # 卸挂载
+    # 如果先不把所有指向挂载的mfs下的链接删掉，会挂载进程锁死
+    usshmfs
+
+    if [ $# -eq 0 ]; then
+        local _mfs_source="$mfs_source"
+    else
+        local _mfs_source="$1"
+    fi
+
+    # 挂载${hostname}上的mfs
+    if [ -d /home/${USER}/mfs ]; then
+        echo command sshfs $_mfs_source:/mfs/haoyu /home/${USER}/mfs -o allow_other,default_permissions,reconnect
+        command sshfs $_mfs_source:/mfs/haoyu /home/${USER}/mfs -o allow_other,default_permissions,reconnect &&  ls /home/$USER/mfs/
+        # 由于已经配置好了`/etc/ssh/ssh_config`，故不再需要`-F $local_ssh_config`
+        # command sshfs -F $local_ssh_config $_mfs_source:/mfs/haoyu /home/${USER}/mfs -o allow_other,default_permissions &&  ls /home/$USER/mfs/
+    fi
+
+    # 创建本地linkENV链接，并将本地shareENV链接改指向mfs下的shareENV
+    [ -L /home/${USER}/ENV/CONF ] && rm /home/${USER}/ENV/CONF
+    if [ -d /home/haoyu/mfs/server_conf/ENV/CONF ]; then
+        ln -s /home/haoyu/mfs/server_conf/ENV/CONF /home/${USER}/ENV/CONF
+    fi
+
+    [ -L /home/${USER}/ENV/shareENV ] && rm /home/${USER}/ENV/shareENV
+    if [ -d /home/haoyu/mfs/server_conf/ENV/shareENV ]; then
+        ln -s /home/haoyu/mfs/server_conf/ENV/shareENV /home/${USER}/ENV/shareENV
+    fi
+
+    [ -L /home/${USER}/ENV/serverENV ] && rm /home/${USER}/ENV/serverENV
+    if [ -d /home/haoyu/mfs/server_conf/ENV/serverENV ]; then
+        ln -s /home/haoyu/mfs/server_conf/ENV/serverENV /home/${USER}/ENV/serverENV
+    fi
+}
+
+# 查看所有占用/home/$USER/mfs 的进程
+# 若显示"umount(<mount_path>): Resource busy -- try 'diskutil unmount'"
+# 则执行此命令，观察哪些进程占用了挂载目录
+alias jchmfs='lsof /home/$USER/mfs/'
+
+
+
 mfsstart()
 {
     if [ "$mfs_source" = '' ]; then
