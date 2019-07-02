@@ -1,12 +1,19 @@
 #!/usr/bin/env bash
 
 
+mfs_source=''
+
 # 检测服务器的类型、所属局域网
 host_id=$(hostname | tr -cd '[0-9]')
 if [ "$(hostname | tr -d '[0-9]')" = 'jungpu' ]; then
     host_type='gpu'
     if [ $host_id -le 13 ]; then
         host_group='JUN1'   # 在jungpu1-13，juncluster1-4
+        if [ $host_id -ge 12 ]; then
+            # 在jungpu12-13
+            # mfs 用sshfs挂载cpu1-2
+            mfs_source='juncluster'"`expr $host_id - 11`"
+        fi
     else
         host_group='JUN2'   # 在jungpu>=14
         mfs_source='jungpu'"`expr $host_id - 13`"
@@ -23,18 +30,24 @@ fi
 # 编组名=(前缀{起始数字..结束数字}后缀)
 # 或 编组名=(前缀1{起始数字..结束数字}后缀1  前缀2{起始数字..结束数字}后缀2)
 c=(juncluster{1..4})
-gJ1=(jungpu{1..13})
-gJ2=(jungpu{14..24})
+gJ1=(jungpu{1..11})
+gJ2=(jungpu{12..13})
+gJ3=(jungpu{14..24})
 
 # 复合编组
 # 编组名=( "${子编组1[@]}" "${子编组2[@]}" "${子编组3[@]}" )
-g=( "${gJ1[@]}" "${gJ2[@]}" )
+g=( "${gJ1[@]}" "${gJ2[@]}" "${gJ3[@]}" )
 J1=( "${c[@]}" "${gJ1[@]}" )
 J2=( "${gJ2[@]}" )
+J3=( "${gJ3[@]}" )
+gJ12=( "${gJ1[@]}" "${gJ2[@]}" )
+J12=( "${J1[@]}"   "${gJ2[@]}" )
+gJ23=( "${gJ2[@]}" "${gJ3[@]}" )
+J23=( "${gJ23[@]}" )
 a=( "${c[@]}" "${g[@]}" )
 
 # 有效编组：即只有写在此处的编组才会被 `all` 命令使用
-server_sets=(c  g  gJ1  gJ2 J1 J2 a)
+server_sets=(gJ1 J1 gJ2 J2 gJ3 J3 gJ12 J12 gJ23 J23 c g a)
 
 
 # # 用不了的gpu
