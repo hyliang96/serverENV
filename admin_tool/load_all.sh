@@ -23,6 +23,13 @@ allgpu()
 
 . $here/mfs_set.sh
 
+
+_allsshmfs()
+{
+    all J23 'umount -l /home/haoyu/mfs; su -l haoyu -c \"sshmfs\"'
+}
+alias allsshmfs="sudo su -c '. $here/load_all.sh; _allsshmfs'"
+
 # alias _allsshmfs="all J23 'umount -l /home/haoyu/mfs; su -l haoyu -c \"sshmfs\"'"
 # alias allsshmfs="sudo su -c '. $here/load_all.sh; _allsshmfs'"
 # alias test="sudo su -c 'source $here/load_all.sh; all'"
