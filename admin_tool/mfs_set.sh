@@ -92,6 +92,7 @@ mfsstart()
     echo $(ls /mfs | head -n 10)
 }
 
+# 开启原生的mfs
 alias __allmfsstart="all J1 '. $here/load_all.sh; mfsstart'"
 _allmfsstart()
 {
@@ -101,15 +102,17 @@ alias allmfsstart="sudo su -c '. $here/load_all.sh; _allmfsstart'"
 # 注意，不可把 _allsshmfs 写成一个 alias，必需写成function
 # 这是因为 su -c 'xxxx' 是非交互式登录，故未经专门设置则不支持alias，只支持function
 
-
+# 重新用sshfs挂载mfs
 _allsshmfs()
 {
     all J23 'umount -l /home/haoyu/mfs; su -l haoyu -c \"sshmfs\"'
 }
 alias allsshmfs="sudo su -c '. $here/load_all.sh; _allsshmfs'"
 
+# 将所有mfs开启
 alias allmfs='allmfsstart; allsshmfs'
 
+alias alltest='all a "echo Hello World!"'
 
 
 
