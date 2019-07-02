@@ -26,7 +26,7 @@ allgpu()
 
 _allmfsstart()
 {
-    all J1 'mfsstart'
+    all J1 '. $here/load_all.sh; mfsstart'
 }
 alias allmfsstart="sudo su -c '. $here/load_all.sh; _allmfsstart'"
 
