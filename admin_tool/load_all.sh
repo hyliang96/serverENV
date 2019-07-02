@@ -24,9 +24,10 @@ allgpu()
 . $here/mfs_set.sh
 
 
+alias __allmfsstart='all J1 ". $here/load_all.sh; mfsstart"'
 _allmfsstart()
 {
-    all J1 ". $here/load_all.sh; mfsstart"
+    __allmfsstart
 }
 alias allmfsstart="sudo su -c '. $here/load_all.sh; _allmfsstart'"
 
