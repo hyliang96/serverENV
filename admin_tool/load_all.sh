@@ -24,7 +24,7 @@ allgpu()
 . $here/mfs_set.sh
 
 
-alias __allmfsstart='all J1 ". $here/load_all.sh; mfsstart"'
+alias __allmfsstart="all J1 '. $here/load_all.sh; mfsstart'"
 _allmfsstart()
 {
     __allmfsstart
@@ -36,6 +36,8 @@ _allsshmfs()
     all J23 'umount -l /home/haoyu/mfs; su -l haoyu -c \"sshmfs\"'
 }
 alias allsshmfs="sudo su -c '. $here/load_all.sh; _allsshmfs'"
+
+alias allmfs='allmfsstart; allsshmfs'
 # 注意，不可把 _allsshmfs 写成一个 alias，必需写成function
 # 这是因为 su -c 'xxxx' 是非交互式登录，故未经专门设置则不支持alias，只支持function
 
