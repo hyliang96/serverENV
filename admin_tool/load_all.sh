@@ -29,10 +29,7 @@ _allsshmfs()
     all J23 'umount -l /home/haoyu/mfs; su -l haoyu -c \"sshmfs\"'
 }
 alias allsshmfs="sudo su -c '. $here/load_all.sh; _allsshmfs'"
-
-# alias _allsshmfs="all J23 'umount -l /home/haoyu/mfs; su -l haoyu -c \"sshmfs\"'"
-# alias allsshmfs="sudo su -c '. $here/load_all.sh; _allsshmfs'"
-# alias test="sudo su -c 'source $here/load_all.sh; all'"
-# alias allsshmfs="all J23 'sshmfs'"
+# 注意，不可把 _allsshmfs 写成一个 alias，必需写成function
+# 这是因为 su -c 'xxxx' 是非交互式登录，故未经专门设置则不支持alias，只支持function
 
 unset here
