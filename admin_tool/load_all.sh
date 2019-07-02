@@ -24,6 +24,12 @@ allgpu()
 . $here/mfs_set.sh
 
 
+_allmfsstart()
+{
+    all J1 'mfsstart'
+}
+alias allmfsstart="sudo su -c '. $here/load_all.sh; _allmfsstart'"
+
 _allsshmfs()
 {
     all J23 'umount -l /home/haoyu/mfs; su -l haoyu -c \"sshmfs\"'
