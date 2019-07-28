@@ -5,7 +5,12 @@ mfs_source=''
 
 # 检测服务器的类型、所属局域网
 host_id=$(hostname | tr -cd '[0-9]')
-if [ "$(hostname | tr -d '[0-9]')" = 'jungpu' ]; then
+if [  "$(hostname | tr -d '[0-9]')" = 'img' ] &&  [ $host_id -ge 19 ] && [ $host_id -le 21 ]; then
+    # img19-img20 = jungpu25-jungpu27
+    host_group='JUN2'   # 在jungpu>=14
+    host_id="`expr $host_id + 6`"
+    mfs_source='jungpu'"`expr $host_id - 13`"
+elif [ "$(hostname | tr -d '[0-9]')" = 'jungpu' ] ; then
     host_type='gpu'
     if [ $host_id -le 13 ]; then
         host_group='JUN1'   # 在jungpu1-13，juncluster1-4
