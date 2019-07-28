@@ -7,6 +7,7 @@ mfs_source=''
 host_id=$(hostname | tr -cd '[0-9]')
 if [  "$(hostname | tr -d '[0-9]')" = 'img' ] &&  [ $host_id -ge 19 ] && [ $host_id -le 21 ]; then
     # img19-img20 = jungpu25-jungpu27
+    host_type='gpu'
     host_group='JUN2'   # 在jungpu>=14
     host_id="`expr $host_id + 6`"
     mfs_source='jungpu'"`expr $host_id - 13`"
