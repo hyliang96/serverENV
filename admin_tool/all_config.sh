@@ -10,7 +10,7 @@ if [  "$(hostname | tr -d '[0-9]')" = 'img' ] &&  [ $host_id -ge 19 ] && [ $host
     host_type='gpu'
     host_group='JUN2'   # 在jungpu>=14
     host_id="`expr $host_id + 6`"
-    mfs_source='jungpu'"`expr $host_id - 13`"
+    mfs_source='jungpu'"`expr $host_id - 18`" # jungpu25-27 -> jungpu7-9
 elif [ "$(hostname | tr -d '[0-9]')" = 'jungpu' ] ; then
     host_type='gpu'
     if [ $host_id -le 13 ]; then

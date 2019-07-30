@@ -27,8 +27,11 @@ usshmfs() # `usshmfs`：卸载ssh挂载的mfs
     fi
     # 因为HOME=/home/${USER}/ENV/shareENV/CONF
 
-    # 卸挂载
-    fusermount -u /home/${USER}/mfs
+    # 如果这个目录不被占用，则卸挂载，无需sudo
+    # fusermount -u /home/${USER}/mfs
+
+    # 即使被这个目录占用也强行卸挂载，需要sudo
+    sudo umount -l /home/${USER}/mfs
 }
 
 
