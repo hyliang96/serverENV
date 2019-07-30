@@ -35,16 +35,11 @@ usshmfs() # `usshmfs`：卸载ssh挂载的mfs
 }
 
 
-# 用sshfs挂载mfs，如在gpu16上，即将g3上的mfs挂载到g16
-# `sshfs [服务器](仅一个服务器)`
-# 如 `sshmfs g3`
-# 如 `sshmfs -p 4707 haoyu@ml.cs.tsinghua.edu.cn`
-sshmfs()
+
+_sshmfs()
 {
     # 本地shareENV、CONF链接改指向shareENV_backup、CONF_back
-    # 卸挂载
-    # 如果先不把所有指向挂载的mfs下的链接删掉，会挂载进程锁死
-    usshmfs
+
 
     if [ $# -eq 0 ]; then
         local _mfs_source="$mfs_source"
@@ -75,6 +70,20 @@ sshmfs()
     if [ -d /home/haoyu/mfs/server_conf/ENV/serverENV ]; then
         ln -s /home/haoyu/mfs/server_conf/ENV/serverENV /home/${USER}/ENV/serverENV
     fi
+}
+
+
+# 用sshfs挂载mfs，如在gpu16上，即将g3上的mfs挂载到g16
+# `sshfs [服务器](仅一个服务器)`
+# 如 `sshmfs g3`
+# 如 `sshmfs -p 4707 haoyu@ml.cs.tsinghua.edu.cn`
+sshmfs()
+{
+    # 卸挂载
+    # 如果先不把所有指向挂载的mfs下的链接删掉，会挂载进程锁死
+    usshmfs
+
+    _sshmfs $@
 }
 
 # 查看所有占用/home/$USER/mfs 的进程
@@ -108,7 +117,7 @@ alias allmfsstart="sudo su -c '. $here/load_all.sh; _allmfsstart'"
 # 重新用sshfs挂载mfs
 _allsshmfs()
 {
-    all J23 'umount -l /home/haoyu/mfs; su -l haoyu -c \"sshmfs\"'
+    all J23 'umount -l /home/haoyu/mfs; su -l haoyu -c \"_sshmfs\"'
 }
 alias allsshmfs="sudo su -c '. $here/load_all.sh; _allsshmfs'"
 
