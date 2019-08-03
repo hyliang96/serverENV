@@ -50,7 +50,8 @@ _sshmfs()
     # 挂载${hostname}上的mfs
     if [ -d /home/${USER}/mfs ]; then
         echo command sshfs $_mfs_source:/mfs/haoyu /home/${USER}/mfs -o allow_other,default_permissions,reconnect
-        command sshfs $_mfs_source:/mfs/haoyu /home/${USER}/mfs -o allow_other,default_permissions,reconnect &&  ls /home/$USER/mfs/
+        command sshfs $_mfs_source:/mfs/haoyu /home/${USER}/mfs -o allow_other,default_permissions,reconnect
+        ls /home/$USER/mfs/
         # 由于已经配置好了`/etc/ssh/ssh_config`，故不再需要`-F $local_ssh_config`
         # command sshfs -F $local_ssh_config $_mfs_source:/mfs/haoyu /home/${USER}/mfs -o allow_other,default_permissions &&  ls /home/$USER/mfs/
     fi
