@@ -270,7 +270,7 @@ ssh 用户名@jungpu1  # 看看能否正常登陆，使用前面设置的明码
 ### 修改用户UID
 
 ```bash
-all [机器编组]  'usermod -u 用户UID 用户名 && groupmod -g 组GGID 用户对应的组名'
+all [机器编组]  'usermod -u 用户UID 用户名 && groupmod -g 组GID 用户对应的组名'
 ```
 
 获得`UID`和`GID` 需执行 `id 用户名`，详见上文
