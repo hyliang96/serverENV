@@ -92,3 +92,5 @@ wait
 ls $dir/*.rsync | sort --version-sort | xargs -I {} cat {}
 # 删除临时文件夹
 rm $dir -rf
+
+unset here

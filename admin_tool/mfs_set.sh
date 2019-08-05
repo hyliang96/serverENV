@@ -126,11 +126,13 @@ _allsshmfs()
     all "$server_set" 'umount -l /home/haoyu/mfs; su -l haoyu -c \"_sshmfs\"'
     # all J23 'umount -l /home/haoyu/mfs; su -l haoyu -c \"command sshfs \$_mfs_source:/mfs/haoyu /home/\${USER}/mfs -o allow_other,default_permissions,reconnect &&  ls /home/\$USER/mfs/\"'
 }
+
+admin_tool_path="$here"
 allsshmfs()
 {
     # global
-    echo "`eval echo $here`"
-    sudo su -c ". ""`eval echo $here`""/load_all.sh; _allsshmfs $@"
+    # echo "`eval echo $here`"
+    sudo su -c ". $admin_tool_path/load_all.sh; _allsshmfs $@"
 }
 
 # 将所有mfs开启
@@ -139,4 +141,4 @@ alias allmfs='allmfsstart; allsshmfs'
 alias alltest='all a "echo Hello World!"'
 
 
-
+unset here

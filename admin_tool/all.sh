@@ -152,7 +152,7 @@ if [ "$checkuid" = true ]; then
     echo uid $uid available > $dir/info
 fi
 
-watch -n 1 -t "cat $dir/unfinished_output && ls $dir/*.feedback 2> /dev/null | sort --version-sort | xargs -I {} cat {}" &
+watch -n 1 -t "cat $dir/unfinished_output && echo && ls $dir/*.feedback 2> /dev/null | sort --version-sort | xargs -I {} cat {}" &
 
 # 退出进程
 exit_func()
@@ -168,6 +168,7 @@ exit_func()
     echo -n 'unfinished servers:' && cat $dir/unfinished_output
     # 删除临时文件夹
     rm $dir -rf
+    unset here
     # 退出程序
     exit
 }
