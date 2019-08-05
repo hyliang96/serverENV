@@ -201,5 +201,5 @@ done
 
 wait
 
-
+exit_func
 
