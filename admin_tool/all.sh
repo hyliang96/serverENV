@@ -147,10 +147,10 @@ for server in ${servers[@]}; do
     echo $server >> $dir/servers
     echo -n "$server " >> $dir/unfinished_output
 done
+touch $dir/info
 if [ "$checkuid" = true ]; then
-    available=1
+    echo uid $uid available > $dir/info
 fi
-finish=0
 
 watch -n 1 -t "cat $dir/unfinished_output && ls $dir/*.feedback 2> /dev/null | sort --version-sort | xargs -I {} cat {}" &
 
@@ -159,22 +159,13 @@ exit_func()
 {
     # 杀死所有子进程
     pkill -P $$
-    # 输出uid是否可用
-    if [ "$checkuid" = true ]; then
-        if [ "$available" = '1' ]; then
-            echo "uid $uid is available"
-        else
-            echo "uid $uid is not available"
-        fi
-    fi
-    # 输出ssh返回的结果
+    # 输出总结信息
+    cat $dir/info
+    # 输出所有ssh返回的结果
     local files=($dir/*.feedback) 2> /dev/null
     [ -f "${files[1]}" ] && { ls $dir/*.feedback | sort --version-sort | xargs -I {} cat {} }
-    # 未完成的
-    if [ "$finish" = 1 ]; then
-        echo -n 'unfinished servers:'
-        cat $dir/unfinished_output
-    fi
+    # 报告未完成的服务器的名单
+    echo -n 'unfinished servers:' && cat $dir/unfinished_output
     # 删除临时文件夹
     rm $dir -rf
     # 退出程序
@@ -197,8 +188,8 @@ for server in ${servers[@]}; do
     if [ "$checkuid" = true ]; then
         result="$(ssh $server id $uid 2>&1)"
         if ! [[ "$result" =~ 'no such user' ]]; then
+            echo uid $uid not available > $dir/info
             echo "$server: $result" >> $dir/$server.feedback 2>&1
-            available=0
         fi
     elif [ "$send" = true ]; then
         # echo "rsync -aHhzP -e \"ssh -F $ssh_config\" $@ $server:$server_path "
@@ -228,7 +219,6 @@ done
 # exit when all servers return result
 while true; do
     if [ "`cat $dir/unfinished_output`"  = '' ]; then
-        finish=1
         exit_func
     fi
 done

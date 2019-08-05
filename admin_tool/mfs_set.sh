@@ -118,10 +118,18 @@ alias allmfsstart="sudo su -c '. $here/load_all.sh; _allmfsstart'"
 # 重新用sshfs挂载mfs
 _allsshmfs()
 {
-    all J23 'umount -l /home/haoyu/mfs; su -l haoyu -c \"_sshmfs\"'
+    if [ $# -eq 0 ]; then
+        local server_set=J23
+    else
+        local server_set="$1"
+    fi
+    all "$server_set" 'umount -l /home/haoyu/mfs; su -l haoyu -c \"_sshmfs\"'
     # all J23 'umount -l /home/haoyu/mfs; su -l haoyu -c \"command sshfs \$_mfs_source:/mfs/haoyu /home/\${USER}/mfs -o allow_other,default_permissions,reconnect &&  ls /home/\$USER/mfs/\"'
 }
-alias allsshmfs="sudo su -c '. $here/load_all.sh; _allsshmfs'"
+allsshmfs()
+{
+    sudo su -c ". $here/load_all.sh; _allsshmfs $@"
+}
 
 # 将所有mfs开启
 alias allmfs='allmfsstart; allsshmfs'

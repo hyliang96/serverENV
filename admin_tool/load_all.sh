@@ -8,7 +8,7 @@ alias all="$SHELL $here/all.sh"
 
 alias send="$SHELL $here/all.sh --send"
 
-checkuid()
+alluid()
 {
     local server_set=
     if [ $# -eq 1 ]; then
