@@ -85,7 +85,7 @@ fi
 # 命令生成
 if [ "$checkuid" = true ]; then
     uid=$1
-elif [ "$send" = false ]; then
+elif [ "$send" = true ]; then
     :
 else
     cmds=''
@@ -100,6 +100,8 @@ else
     done
 fi
 
+
+echo uid=$uid
 # ---------------------------------------
 # 临时文件夹
 dir=~/.cache/all
@@ -184,12 +186,12 @@ for server in ${servers[@]}; do
     fi
 
     if [ "$checkuid" = true ]; then
-        result="$(ssh $i 'id $uid' 2>&1)"
+        result="$(ssh $server id $uid 2>&1)"
         if ! [[ "$result" =~ 'no such user' ]]; then
-            echo "$i: $result" >> $dir/$server.feedback 2>&1
+            echo "$server: $result" >> $dir/$server.feedback 2>&1
             available=0
         fi
-    elif [ "$send" = "true" ]; then
+    elif [ "$send" = true ]; then
         # echo "rsync -aHhzP -e \"ssh -F $ssh_config\" $@ $server:$server_path "
         # command rsync -aHhzP -e "ssh -F $ssh_config" $@ $server:$server_path >> $dir/$server.feedback 2>&1
         echo "rsync -aHhzP -e \"ssh -o 'StrictHostKeyChecking no'\"  $@ $server:$server_path "
