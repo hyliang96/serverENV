@@ -150,6 +150,7 @@ done
 if [ "$checkuid" = true ]; then
     available=1
 fi
+finish=0
 
 watch -n 1 -t "cat $dir/unfinished_output && ls $dir/*.feedback 2> /dev/null | sort --version-sort | xargs -I {} cat {}" &
 
@@ -170,10 +171,9 @@ exit_func()
     local files=($dir/*.feedback) 2> /dev/null
     [ -f "${files[1]}" ] && { ls $dir/*.feedback | sort --version-sort | xargs -I {} cat {} }
     # 未完成的
-    cat  $dir/unfinished_output
-    if [ -s $dir/unfinished_output ]; then
+    if [ "$finish" = 1 ]; then
         echo -n 'unfinished servers:'
-        echo "`cat $dir/unfinished_output`"'|'
+        cat $dir/unfinished_output
     fi
     # 删除临时文件夹
     rm $dir -rf
@@ -227,8 +227,8 @@ done
 
 # exit when all servers return result
 while true; do
-    if ! [[ -s cat $dir/unfinished_output ]]; then
-        echo empty unfinished_output
+    if [ "`cat $dir/unfinished_output`"  = '' ]; then
+        finish=1
         exit_func
     fi
 done
