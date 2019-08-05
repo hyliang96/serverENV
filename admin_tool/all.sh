@@ -147,6 +147,9 @@ for server in ${servers[@]}; do
     echo $server >> $dir/servers
     echo -n "$server " >> $dir/unfinished_output
 done
+if [ "$checkuid" = true ]; then
+    available=1
+fi
 
 watch -n 1 -t "cat $dir/unfinished_output && ls $dir/*.feedback 2> /dev/null | sort --version-sort | xargs -I {} cat {}" &
 
@@ -164,9 +167,14 @@ exit_func()
         fi
     fi
     # 输出ssh返回的结果
-    # if ls $dir/*.feedback 1> /dev/null 2>&1; then
-    ls $dir/*.feedback 2> /dev/null | sort --version-sort | xargs -I {} cat {}
-    # fi
+    local files=($dir/*.feedback) 2> /dev/null
+    [ -f "${files[1]}" ] && { ls $dir/*.feedback | sort --version-sort | xargs -I {} cat {} }
+    # 未完成的
+    cat  $dir/unfinished_output
+    if [ -s $dir/unfinished_output ]; then
+        echo -n 'unfinished servers:'
+        echo "`cat $dir/unfinished_output`"'|'
+    fi
     # 删除临时文件夹
     rm $dir -rf
     # 退出程序
@@ -219,7 +227,8 @@ done
 
 # exit when all servers return result
 while true; do
-    if [ "`cat $dir/unfinished_output`" = '' ]; then
+    if ! [[ -s cat $dir/unfinished_output ]]; then
+        echo empty unfinished_output
         exit_func
     fi
 done
