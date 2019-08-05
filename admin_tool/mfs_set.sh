@@ -129,8 +129,8 @@ _allsshmfs()
 allsshmfs()
 {
     # global
-    echo "$here"
-    sudo su -c ". $here/load_all.sh; _allsshmfs $@"
+    echo "`eval echo $here`"
+    sudo su -c ". ""`eval echo $here`""/load_all.sh; _allsshmfs $@"
 }
 
 # 将所有mfs开启
