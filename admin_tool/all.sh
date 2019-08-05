@@ -164,7 +164,9 @@ exit_func()
         fi
     fi
     # 输出ssh返回的结果
+    # if ls $dir/*.feedback 1> /dev/null 2>&1; then
     ls $dir/*.feedback 2> /dev/null | sort --version-sort | xargs -I {} cat {}
+    # fi
     # 删除临时文件夹
     rm $dir -rf
     # 退出程序
