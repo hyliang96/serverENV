@@ -10,15 +10,16 @@ alias send="$SHELL $here/all.sh --send"
 
 checkuid()
 {
+    echo $@
     local server_set=
     if [ $# -eq 1 ]; then
-        server_set=a
+        server_set="a"
     else
         server_set="$1"
         shift
     fi
     local uid="$1"
-    $SHELL $here/all.sh $server_set --checkuid $uid
+    all "$server_set" --checkuid $uid
 }
 
 allgpu()
