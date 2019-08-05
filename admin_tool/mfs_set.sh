@@ -128,6 +128,7 @@ _allsshmfs()
 }
 allsshmfs()
 {
+    echo "$here"
     sudo su -c ". $here/load_all.sh; _allsshmfs $@"
 }
 
