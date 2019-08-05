@@ -207,7 +207,7 @@ for server in ${servers[@]}; do
     #-- collect unfinished servers --
     echo "$server" >> $dir/finished
     # 计算差集 servers - finished
-    unfinished="`sort $dir/servers $dir/finished | uniq -u`"
+    unfinished="`sort --version-sort $dir/servers $dir/finished | uniq -u`"
     # unfinished中换行符换为空格
     unfinished="${unfinished//
 / }"
