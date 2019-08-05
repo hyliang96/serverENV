@@ -13,8 +13,8 @@ here=$(cd "$(dirname "${BASH_SOURCE[0]-$0}")"; pwd)
 # 参数解析
 # 参数预处理
 TEMP=$(getopt \
-    -o      ns \
-    --long  no-prompt,send \
+    -o      nsu \
+    --long  no-prompt,send,checkuid \
     -n      '参数解析错误' \
     -- "$@")
 # 写法
@@ -27,12 +27,14 @@ eval set -- "$TEMP" # 将复制给 $1, $2, ...
 # 初始化参数
 no_prompt=false
 send=false
+checkuid=false
 
 # 处理参数
 while true ; do case "$1" in
     # 无选项
     -n|--no-prompt)  no_prompt=true  ; shift ;;
     -s|--send)       send=true; shift ;;
+    -u|--checkuid)   no_prompt=true; checkuid=true; shift ;;
     # '--'后是 余参数
     --) shift ; break ;;
     # 处理参数的代码错误
@@ -41,13 +43,15 @@ esac ; done
 
 # ---------------------------------------
 # 服务器组名
-if [ "$send" = 'false' ]; then
+if [ "$checkuid" = true ]; then
     server_set=$1; shift
-else
+elif [ "$send" = true ]; then
     server_set_path="${@:$#}"
     set -- "${@:1:$(($# - 1))}"
     server_set="${server_set_path%%:*}"  # 第一个':'左侧
     server_path="${server_set_path#*:}" # 第一个':'右侧
+else
+    server_set=$1; shift
 fi
 
 
@@ -79,7 +83,11 @@ fi
 
 # ---------------------------------------
 # 命令生成
-if [ "$send" = 'false' ]; then
+if [ "$checkuid" = true ]; then
+    uid=$1
+elif [ "$send" = false ]; then
+    :
+else
     cmds=''
     for arg do
         if [ "$no_prompt" = true ]; then
@@ -146,6 +154,14 @@ exit_func()
 {
     # 杀死所有子进程
     pkill -P $$
+    # 输出uid是否可用
+    if [ "$checkuid" = true ]; then
+        if [ "$available" = '1' ]; then
+            echo "uid $uid is available"
+        else
+            echo "uid $uid is not available"
+        fi
+    fi
     # 输出ssh返回的结果
     ls $dir/*.feedback | sort --version-sort | xargs -I {} cat {}
     # 删除临时文件夹
@@ -167,7 +183,13 @@ for server in ${servers[@]}; do
         echo "====== $server ======" >> $dir/$server.feedback
     fi
 
-    if [ "$send" = "true" ]; then
+    if [ "$checkuid" = true ]; then
+        result="$(ssh $i 'id $uid' 2>&1)"
+        if ! [[ "$result" =~ 'no such user' ]]; then
+            echo "$i: $result" >> $dir/$server.feedback 2>&1
+            available=0
+        fi
+    elif [ "$send" = "true" ]; then
         # echo "rsync -aHhzP -e \"ssh -F $ssh_config\" $@ $server:$server_path "
         # command rsync -aHhzP -e "ssh -F $ssh_config" $@ $server:$server_path >> $dir/$server.feedback 2>&1
         echo "rsync -aHhzP -e \"ssh -o 'StrictHostKeyChecking no'\"  $@ $server:$server_path "
@@ -181,7 +203,7 @@ for server in ${servers[@]}; do
 
     #-- collect unfinished servers --
     echo "$server" >> $dir/finished
-     # 计算差集 servers - finished
+    # 计算差集 servers - finished
     unfinished="`sort $dir/servers $dir/finished | uniq -u`"
     # unfinished中换行符换为空格
     unfinished="${unfinished//
