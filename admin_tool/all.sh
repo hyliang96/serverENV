@@ -101,7 +101,6 @@ else
 fi
 
 
-echo uid=$uid
 # ---------------------------------------
 # 临时文件夹
 dir=~/.cache/all
@@ -149,7 +148,7 @@ for server in ${servers[@]}; do
     echo -n "$server " >> $dir/unfinished_output
 done
 
-watch -n 1 -t "cat $dir/unfinished_output && ls $dir/*.feedback | sort --version-sort | xargs -I {} cat {}" &
+watch -n 1 -t "cat $dir/unfinished_output && ls $dir/*.feedback 2> /dev/null | sort --version-sort | xargs -I {} cat {}" &
 
 # 退出进程
 exit_func()
@@ -165,7 +164,7 @@ exit_func()
         fi
     fi
     # 输出ssh返回的结果
-    ls $dir/*.feedback | sort --version-sort | xargs -I {} cat {}
+    ls $dir/*.feedback 2> /dev/null | sort --version-sort | xargs -I {} cat {}
     # 删除临时文件夹
     rm $dir -rf
     # 退出程序

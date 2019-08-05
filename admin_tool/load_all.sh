@@ -10,7 +10,6 @@ alias send="$SHELL $here/all.sh --send"
 
 checkuid()
 {
-    echo $@
     local server_set=
     if [ $# -eq 1 ]; then
         server_set="a"
