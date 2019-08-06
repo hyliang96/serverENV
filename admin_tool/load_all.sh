@@ -33,6 +33,12 @@ allgpu()
     all "$server_set" --no-prompt 'gpustat'
 }
 
+# use sudo to do something
+admin()
+{
+    sudo su -c \". $admin_tool_path/load_all.sh; $@\"
+}
+
 . $here/adduser_command.sh
 
 . $here/mfs_set.sh
