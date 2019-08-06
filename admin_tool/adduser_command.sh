@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-
+here=$(cd "$(dirname "${BASH_SOURCE[0]-$0}")"; pwd)
+. $here/utils.sh
 
 manual_set() {
     local username_=
@@ -112,9 +113,11 @@ Attention:
 
     echo "============================ making user account  ============================"
 
-    all $server_set "$(adduser_command $username $realname $uid $enc_password)"
+    all "$server_set" "$(adduser_command $username $realname $uid $enc_password)"
 
-    allnewkey $server_set $username
+    local servers=()
+    parse_server_set "$server_set" servers
+    ssh ${servers[1]} ". $here/load_all.sh && allnewkey '$server_set' $username"
 }
 
 # show uid of all users on this server
