@@ -77,7 +77,7 @@ What it will do:
 
 alladduser() {
     if [ "$1" = "-h" ] || [ "$1" = "--help" ] || [ "$1" = "help" ]  || \
-        ! ( [ $# -eq 1 ]  || [ $# -eq 5 ] ) ; then
+        ! ( [ $# -eq 0 ] || [ $# -eq 1 ]  || [ $# -eq 5 ] ) ; then
         echo 'Usage:
 * interactively:    `alladduser [<server_set> default=a]`
     realname can contains English letters in low/captital case, chinese characters, `'\''``. `"`,-,_ ,sapce,etc
@@ -92,7 +92,7 @@ Attention:
     fi
 
     if [ $# -eq 0 ]; then
-        local server_set='a'; shift
+        local server_set='a'
     else
         local server_set="$1"; shift
     fi
@@ -117,7 +117,7 @@ Attention:
 
     local servers=()
     parse_server_set "$server_set" servers
-    ssh ${servers[1]} ". $here/load_all.sh && allnewkey '$server_set' $username"
+    ssh ${servers[1]} ". $admin_tool_path/load_all.sh && allnewkey '$server_set' $username"
 }
 
 # show uid of all users on this server
