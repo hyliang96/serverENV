@@ -113,4 +113,14 @@ Attention:
     allnewkey $server_set $username
 }
 
+# show uid of all users on this server
+uids()
+{
+    if [ $# -eq 0 ]; then
+        awk -F '[:]' '{print $3, $1}' /etc/passwd | sort -nr
+    else
+        awk -F '[:]' '{print $3, $1}' /etc/passwd | sort -nr | head -n$1
+    fi
+}
+
 
