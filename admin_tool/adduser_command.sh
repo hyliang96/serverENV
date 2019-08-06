@@ -90,7 +90,7 @@ Attention:
         return
     fi
 
-    local server_set=$1; shift
+    local server_set="$1"; shift
 
     if [ $# -eq 4 ]; then
         local username=$1
@@ -123,4 +123,16 @@ uids()
     fi
 }
 
+# set uid for a user on all servers
+allsetuid()
+{
+    if [ $# -eq 3 ]; then
+        local server_set="$1"; shift
+    else
+        local server_set='a'
+    fi
+    local username="$1"
+    local uid="$2"
+    all "$server_set" "usermod -u $uid $username && groupmod -g $uid $username"
+}
 
