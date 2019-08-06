@@ -144,9 +144,10 @@ fi
 
 # 初始化：servers和unfinished_output
 for server in ${servers[@]}; do
-    echo $server >> $dir/servers
-    echo -n "$server " >> $dir/unfinished_output
+    echo "$server" >> $dir/servers
 done
+touch $dir/finished
+echo "${servers[@]}" >> $dir/unfinished_output
 touch $dir/info
 if [ "$checkuid" = true ]; then
     echo uid $uid available > $dir/info
@@ -219,7 +220,11 @@ done
 
 # exit when all servers return result
 while true; do
-    if [ "`cat $dir/unfinished_output`"  = '' ]; then
+    # 不可用这句''' if [ "`cat $dir/unfinished_output`"  = '' ]; then '''
+    # 这是因为：
+    # 在执行`echo $unfinished > $dir/unfinished_output`时，是先清空unfinished_output文件，再写入，
+    # 如果刚清空完，就被判断 [ "`cat $dir/unfinished_output`"  = '' ] ，则会提前执行 exit_func
+    if [ "`sort --version-sort $dir/servers $dir/finished | uniq -u`" = '' ]; then
         exit_func
     fi
 done
