@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 
 
 # get absoltae path to the dir this is in, work in bash, zsh
@@ -5,9 +6,17 @@
 here=$(cd "$(dirname "${BASH_SOURCE[0]-$0}")"; pwd)
 admin_tool_path="$here"
 
-alias all="$SHELL $here/all.sh"
+alias _all="$SHELL $here/all.sh"
+all()
+{
+    _all $@
+}
 
-alias send="$SHELL $here/all.sh --send"
+alias _send="$SHELL $here/all.sh --send"
+send()
+{
+    _send $@
+}
 
 alluid()
 {
@@ -36,7 +45,10 @@ allgpu()
 # use sudo to do something
 admin()
 {
-    sudo su -c \". $admin_tool_path/load_all.sh; $@\"
+    local commands="$@"
+    echo "$commands"
+    local commands="'. $admin_tool_path/load_all.sh && $commands'"
+    sudo su -c ". $admin_tool_path/load_all.sh && all c 'ls'"
 }
 
 . $here/adduser_command.sh
