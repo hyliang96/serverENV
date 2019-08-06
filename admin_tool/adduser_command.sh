@@ -78,7 +78,7 @@ alladduser() {
     if [ "$1" = "-h" ] || [ "$1" = "--help" ] || [ "$1" = "help" ]  || \
         ! ( [ $# -eq 1 ]  || [ $# -eq 5 ] ) ; then
         echo 'Usage:
-* interactively:    `alladduser <server_set>`
+* interactively:    `alladduser [<server_set> default=a]`
     realname can contains English letters in low/captital case, chinese characters, `'\''``. `"`,-,_ ,sapce,etc
 * non-interactively: `alladduser <server_set> <username> <realname> <uid> <enc_password>`
     the enc_password is gotten by
@@ -90,7 +90,11 @@ Attention:
         return
     fi
 
-    local server_set="$1"; shift
+    if [ $# -eq 0 ]; then
+        local server_set='a'; shift
+    else
+        local server_set="$1"; shift
+    fi
 
     if [ $# -eq 4 ]; then
         local username=$1

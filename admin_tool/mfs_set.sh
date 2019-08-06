@@ -119,7 +119,8 @@ alias allmfsstart="sudo su -c '. $here/load_all.sh; _allmfsstart'"
 _allsshmfs()
 {
     if [ $# -eq 0 ]; then
-        local server_set=J23
+        
+        local server_set='J23'
     else
         local server_set="$1"
     fi
@@ -127,10 +128,8 @@ _allsshmfs()
     # all J23 'umount -l /home/haoyu/mfs; su -l haoyu -c \"command sshfs \$_mfs_source:/mfs/haoyu /home/\${USER}/mfs -o allow_other,default_permissions,reconnect &&  ls /home/\$USER/mfs/\"'
 }
 
-admin_tool_path="$here"
 allsshmfs()
 {
-    # global
     # echo "`eval echo $here`"
     sudo su -c ". $admin_tool_path/load_all.sh; _allsshmfs $@"
 }
