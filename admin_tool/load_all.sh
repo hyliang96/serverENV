@@ -49,11 +49,12 @@ admin()
     for i in "$@"; do
         echo "$i"
         if [[ "$i" =~ ' ' ]]; then
-            local commands="$commands '$i'"
+            local commands="$commands \"$i\""
         else
             local commands="$commands $i"
         fi
     done
+    echo "$commands"
     sudo su -c ". $admin_tool_path/load_all.sh && $commands"
 }
 

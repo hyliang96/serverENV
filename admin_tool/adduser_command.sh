@@ -75,7 +75,8 @@ What it will do:
     send /home/$username/.ssh  ${server_set}:/home/$username/
 }
 
-alladduser() {
+alladduser() 
+{
     if [ "$1" = "-h" ] || [ "$1" = "--help" ] || [ "$1" = "help" ]  || \
         ! ( [ $# -eq 0 ] || [ $# -eq 1 ]  || [ $# -eq 5 ] ) ; then
         echo 'Usage:
