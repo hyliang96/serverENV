@@ -45,10 +45,16 @@ allgpu()
 # use sudo to do something
 admin()
 {
-    local commands="$@"
-    echo "$commands"
-    local commands="'. $admin_tool_path/load_all.sh && $commands'"
-    sudo su -c ". $admin_tool_path/load_all.sh && all c 'ls'"
+    local commands=''
+    for i in "$@"; do
+        echo "$i"
+        if [[ "$i" =~ ' ' ]]; then
+            local commands="$commands '$i'"
+        else
+            local commands="$commands $i"
+        fi
+    done
+    sudo su -c ". $admin_tool_path/load_all.sh && $commands"
 }
 
 . $here/adduser_command.sh
