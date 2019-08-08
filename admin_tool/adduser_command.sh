@@ -2,6 +2,12 @@
 here=$(cd "$(dirname "${BASH_SOURCE[0]-$0}")"; pwd)
 . $here/utils.sh
 
+# 生成随机密码
+randpasswd()
+{
+    openssl rand -base64 24
+}
+
 manual_set() {
     local username_=
     local realname_=
@@ -75,7 +81,7 @@ What it will do:
     send /home/$username/.ssh  ${server_set}:/home/$username/
 }
 
-alladduser() 
+alladduser()
 {
     if [ "$1" = "-h" ] || [ "$1" = "--help" ] || [ "$1" = "help" ]  || \
         ! ( [ $# -eq 0 ] || [ $# -eq 1 ]  || [ $# -eq 5 ] ) ; then
@@ -128,6 +134,15 @@ uids()
         awk -F '[:]' '{print $3, $1}' /etc/passwd | sort -nr
     else
         awk -F '[:]' '{print $3, $1}' /etc/passwd | sort -nr | head -n$1
+    fi
+}
+
+gid()
+{
+    if [ $# -eq 0 ]; then
+        getent group | awk -F '[:]' '{print $3, $1":"$2":"$4}' | sort -n
+    else
+        getent group $@
     fi
 }
 

@@ -181,7 +181,38 @@ sudo su # 然后输入密码
 
 #### 创建用户
 
+##### 先确认可用的uid
+
+S1：输出本机`/etc/passwd`中的用户，按照uid降序排列，显示前n个用户名及其uid。若n缺省，则全显示
+
+```
+uids [n]
+```
+
+选择一个未被占用的uid=x
+
+S2：确认uid=x在所有机器上均未被占用
+
+```
+alluid [机器编组 缺省为a] [x] 
+```
+
+返回如下则未被占用
+
+> ```
+> uid [x] available
+> ```
+
+返回如下则被占用，会把所有占用此uid的服务器和用户名显示出来
+
+> ```
+> uid [x] not available
+> juncluster1: uid=111(libvirt-qemu) gid=119(kvm) groups=119(kvm),64055(libvirt-qemu)
+> juncluster2: uid=111(libvirt-qemu) gid=119(kvm) groups=119(kvm)
+> ```
+
 ##### 交互界面，使用明码设置用户密码
+
 * 生成随机明码用户密码
 
   ```bash

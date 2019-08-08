@@ -4,15 +4,12 @@
 # get absoltae path to the dir this is in, work in bash, zsh
 # if you want transfer symbolic link to true path, just change `pwd` to `pwd -P`
 here=$(cd "$(dirname "${BASH_SOURCE[0]-$0}")"; pwd)
+here="`echo $here | sed 's/^\/mfs\/\([^\/]\+\)/\/home\/\1\/mfs/'`"
 admin_tool_path="$here"
 
 alias _all="$SHELL $here/all.sh"
 all()
 {
-    echo all\'s args:
-    for i in "$@"; do
-        echo "$i"
-    done
     _all $@
 }
 
@@ -51,7 +48,7 @@ admin()
 {
     local commands=''
     for i in "$@"; do
-        echo -E "$i"
+        # echo -E "$i"
         if [[ "$i" =~ ' ' ]]; then
             local i="${i//\"/\\\"}"
             local commands="$commands \"$i\""
@@ -61,9 +58,7 @@ admin()
     done
     commands="${commands//\$/\\\$}"
     commands="${commands//\`/\\\`}"
-    echo commands:
-    echo -E "$commands"
-    echo commands end
+
     sudo su -c ". $admin_tool_path/load_all.sh && $commands"
 }
 

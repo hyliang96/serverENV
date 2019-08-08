@@ -8,11 +8,6 @@ here=$(cd "$(dirname "${BASH_SOURCE[0]-$0}")"; pwd)
 . $here/all_config.sh
 . $here/utils.sh
 
-echo all.sh\'s args:
-for i in "$@"; do
-    echo -E $i
-done
-
 # ---------------------------------------
 # 参数解析
 # 参数预处理
@@ -60,47 +55,24 @@ fi
 
 servers=()
 parse_server_set "$server_set" servers
-# 检查server_set是否有效
-# valid_server=false
-# for i in ${server_sets[@]}; do
-    # if [ "$i" = "$server_set" ]; then
-        # valid_server=true
-        # break
-    # fi
-# done
-# if [ "$valid_server" = false ]; then
-    # #  服务器列表生成
-    # eval "servers=($server_set)"
-    # if ! [ "$(is_array servers)" = true ]; then
-        # echo 'invalid server_set' >&2
-        # echo "Usage: all <server_set_name> '<command>'"
-        # echo "Usage: all 'server1 server2 server3' '<command>'"
-        # echo "Usage: all 'server{1..3} server{10..13}' '<command>'"
-        # return
-    # fi
-# else
-    # #  服务器列表生成
-    # eval "servers=(\${$server_set[@]})"
-# fi
-
-
 
 # ---------------------------------------
 # 命令生成
 if [ "$checkuid" = true ]; then
-    uid=$1
+    if [[ "$1" =~ 'gid=' ]]; then
+        gidonly=true
+        gid="${1/'gid='/}"
+    else
+        gidonly=false
+        uid=$1
+        gid=$1
+    fi
+    cmds="id $uid 2>&1; getent group 27123 || echo no such group"
 elif [ "$send" = true ]; then
     :
 else
     cmds=''
     for arg do
-        # echo -En arg: "$arg" "->"
-        # if [[ "$arg" =~ ' ' ]]; then
-            # arg="\"${arg//\"/\\\"}\""
-        # fi
-
-        echo -E  "$arg"
-
         if [ "$no_prompt" = true ]; then
             cmds="${cmds} $arg; echo;"
         else
@@ -112,7 +84,7 @@ else
     done
 fi
 
-echo -E cmds: $cmds
+# echo -E cmds: $cmds
 
 # ---------------------------------------
 # 临时文件夹
@@ -174,7 +146,8 @@ exit_func()
     # 杀死所有子进程
     pkill -P $$
     # 输出总结信息
-    cat $dir/info
+    [ "$gidonly" = false ] && cat $dir/info1
+    cat $dir/info2
     # 输出所有ssh返回的结果
     local files=($dir/*.feedback) 2> /dev/null
     [ -f "${files[1]}" ] && { ls $dir/*.feedback | sort --version-sort | xargs -I {} cat {} }
@@ -201,9 +174,14 @@ for server in ${servers[@]}; do
     fi
 
     if [ "$checkuid" = true ]; then
-        result="$(ssh $server id $uid 2>&1)"
-        if ! [[ "$result" =~ 'no such user' ]]; then
-            echo uid $uid not available > $dir/info
+        result="$(ssh -o 'StrictHostKeyChecking no' $server '$cmds')"
+        echo $result
+        if [ "$gidonly" = false ] && ! [[ "$result" =~ 'no such user' ]]; then
+            echo uid $uid not available > $dir/info1
+            echo "$server: $result" >> $dir/$server.feedback 2>&1
+        fi
+        if ! [[ "$result" =~ 'no such group' ]]; then
+            echo gid $gid not available > $dir/info2
             echo "$server: $result" >> $dir/$server.feedback 2>&1
         fi
     elif [ "$send" = true ]; then
