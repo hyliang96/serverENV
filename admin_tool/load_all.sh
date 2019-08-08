@@ -75,6 +75,13 @@ admin()
     sudo su -c ". $admin_tool_path/load_all.sh && $commands"
 }
 
+
+# 按大小升序列出当前目录下所有文件与文件夹, 单位为G的
+slG()
+{
+    sudo du -ahd1  --block-size=1G $@ | sort -n
+}
+
 . $here/adduser_command.sh
 
 . $here/mfs_set.sh
