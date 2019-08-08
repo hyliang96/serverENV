@@ -29,7 +29,20 @@ alluid()
         shift
     fi
     local uid="$1"
-    all "$server_set" --checkuid $uid
+    all "$server_set" --uid $uid --gid $uid
+}
+
+allgid()
+{
+    local server_set=
+    if [ $# -eq 1 ]; then
+        server_set="a"
+    else
+        server_set="$1"
+        shift
+    fi
+    local gid="$1"
+    all "$server_set" --gid $gid
 }
 
 allgpu()

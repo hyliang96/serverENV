@@ -12,14 +12,14 @@ here=$(cd "$(dirname "${BASH_SOURCE[0]-$0}")"; pwd)
 # 参数解析
 # 参数预处理
 TEMP=$(getopt \
-    -o      nsu \
-    --long  no-prompt,send,checkuid \
+    -o      nsu:g: \
+    --long  no-prompt,send,uid:,gid: \
     -n      '参数解析错误' \
     -- "$@")
 # 写法
     #   -o     短参数 不需要分隔符
     #   --long 长参数 用','分隔
-    #   ``无选项  `:`必有选项  `::` 可由选项
+    #   ``无选项  `:`必有选项  `::` 可有选项
 if [ $? != 0 ] ; then echo "格式化的参数解析错误，正在退出" >&2 ; exit 1 ; fi
 eval set -- "$TEMP" # 将复制给 $1, $2, ...
 
@@ -27,13 +27,16 @@ eval set -- "$TEMP" # 将复制给 $1, $2, ...
 no_prompt=false
 send=false
 checkuid=false
+checkgid=false
 
 # 处理参数
 while true ; do case "$1" in
     # 无选项
     -n|--no-prompt)  no_prompt=true  ; shift ;;
     -s|--send)       send=true; shift ;;
-    -u|--checkuid)   no_prompt=true; checkuid=true; shift ;;
+    # 必有选项
+    -u|--uid)        no_prompt=true; checkuid=true; uid=$2; shift 2 ;;
+    -g|--gid)        no_prompt=true; checkgid=true; gid=$2; shift 2;;
     # '--'后是 余参数
     --) shift ; break ;;
     # 处理参数的代码错误
@@ -58,16 +61,8 @@ parse_server_set "$server_set" servers
 
 # ---------------------------------------
 # 命令生成
-if [ "$checkuid" = true ]; then
-    if [[ "$1" =~ 'gid=' ]]; then
-        gidonly=true
-        gid="${1/'gid='/}"
-    else
-        gidonly=false
-        uid=$1
-        gid=$1
-    fi
-    cmds="id $uid 2>&1; getent group 27123 || echo no such group"
+if [ "$checkuid" = true ] || [ "$checkgid" = true ]; then
+    :
 elif [ "$send" = true ]; then
     :
 else
@@ -133,9 +128,12 @@ for server in ${servers[@]}; do
 done
 touch $dir/finished
 echo "${servers[@]}" >> $dir/unfinished_output
-touch $dir/info
+
 if [ "$checkuid" = true ]; then
-    echo uid $uid available > $dir/info
+    echo uid $uid available > $dir/info_uid
+fi
+if [ "$checkgid" = true ]; then
+    echo gid $gid available > $dir/info_gid
 fi
 
 watch -n 1 -t "cat $dir/unfinished_output && echo && ls $dir/*.feedback 2> /dev/null | sort --version-sort | xargs -I {} cat {}" &
@@ -146,8 +144,8 @@ exit_func()
     # 杀死所有子进程
     pkill -P $$
     # 输出总结信息
-    [ "$gidonly" = false ] && cat $dir/info1
-    cat $dir/info2
+    [ "$checkuid" = true ] && cat $dir/info_uid
+    [ "$checkgid" = true ] && cat $dir/info_gid
     # 输出所有ssh返回的结果
     local files=($dir/*.feedback) 2> /dev/null
     [ -f "${files[1]}" ] && { ls $dir/*.feedback | sort --version-sort | xargs -I {} cat {} }
@@ -173,16 +171,20 @@ for server in ${servers[@]}; do
         echo "====== $server ======" >> $dir/$server.feedback
     fi
 
-    if [ "$checkuid" = true ]; then
-        result="$(ssh -o 'StrictHostKeyChecking no' $server '$cmds')"
-        echo $result
-        if [ "$gidonly" = false ] && ! [[ "$result" =~ 'no such user' ]]; then
-            echo uid $uid not available > $dir/info1
-            echo "$server: $result" >> $dir/$server.feedback 2>&1
+    if [ "$checkuid" = true ] || [ "$checkgid" = true ]; then
+        if [ "$checkuid" = true ]; then
+            result="$(ssh $server id $uid 2>&1)"
+            if ! [[ "$result" =~ 'no such user' ]]; then
+                echo uid $uid not available > $dir/info1
+                echo "$server: $result" >> $dir/$server.feedback 2>&1
+            fi
         fi
-        if ! [[ "$result" =~ 'no such group' ]]; then
-            echo gid $gid not available > $dir/info2
-            echo "$server: $result" >> $dir/$server.feedback 2>&1
+        if [ "$checkgid" = true ]; then
+            result="$(ssh $server 'getent group $gid || echo no such group')"
+            if ! [[ "$result" =~ 'no such group' ]]; then
+                echo gid $gid not available > $dir/info2
+                echo "$server: $result" >> $dir/$server.feedback 2>&1
+            fi
         fi
     elif [ "$send" = true ]; then
         # echo "rsync -aHhzP -e \"ssh -F $ssh_config\" $@ $server:$server_path "
