@@ -9,6 +9,10 @@ admin_tool_path="$here"
 alias _all="$SHELL $here/all.sh"
 all()
 {
+    echo all\'s args:
+    for i in "$@"; do
+        echo "$i"
+    done
     _all $@
 }
 
@@ -47,14 +51,19 @@ admin()
 {
     local commands=''
     for i in "$@"; do
-        echo "$i"
+        echo -E "$i"
         if [[ "$i" =~ ' ' ]]; then
+            local i="${i//\"/\\\"}"
             local commands="$commands \"$i\""
         else
             local commands="$commands $i"
         fi
     done
-    echo "$commands"
+    commands="${commands//\$/\\\$}"
+    commands="${commands//\`/\\\`}"
+    echo commands:
+    echo -E "$commands"
+    echo commands end
     sudo su -c ". $admin_tool_path/load_all.sh && $commands"
 }
 

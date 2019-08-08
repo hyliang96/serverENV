@@ -8,6 +8,10 @@ here=$(cd "$(dirname "${BASH_SOURCE[0]-$0}")"; pwd)
 . $here/all_config.sh
 . $here/utils.sh
 
+echo all.sh\'s args:
+for i in "$@"; do
+    echo -E $i
+done
 
 # ---------------------------------------
 # 参数解析
@@ -90,16 +94,25 @@ elif [ "$send" = true ]; then
 else
     cmds=''
     for arg do
+        # echo -En arg: "$arg" "->"
+        # if [[ "$arg" =~ ' ' ]]; then
+            # arg="\"${arg//\"/\\\"}\""
+        # fi
+
+        echo -E  "$arg"
+
         if [ "$no_prompt" = true ]; then
             cmds="${cmds} $arg; echo;"
         else
-            echo -E "$arg"
-            i_print=${arg//\$/\"\\\$\"}
+            i_print="${arg//\`/\\\`}"
+            i_print="${i_print//\$/\\\$}"
+            i_print="${i_print//\"/\\\"}"
             cmds="${cmds} echo -E \"# $i_print\"; $arg; echo;"
         fi
     done
 fi
 
+echo -E cmds: $cmds
 
 # ---------------------------------------
 # 临时文件夹
