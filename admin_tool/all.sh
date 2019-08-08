@@ -172,19 +172,24 @@ for server in ${servers[@]}; do
     fi
 
     if [ "$checkuid" = true ] || [ "$checkgid" = true ]; then
+        feedback=""
         if [ "$checkuid" = true ]; then
             result="$(ssh $server id $uid 2>&1)"
             if ! [[ "$result" =~ 'no such user' ]]; then
-                echo uid $uid not available > $dir/info1
-                echo "$server: $result" >> $dir/$server.feedback 2>&1
+                echo uid $uid not available > $dir/info_uid
+                feedback="$feedback     $result"
             fi
         fi
         if [ "$checkgid" = true ]; then
-            result="$(ssh $server 'getent group $gid || echo no such group')"
-            if ! [[ "$result" =~ 'no such group' ]]; then
-                echo gid $gid not available > $dir/info2
-                echo "$server: $result" >> $dir/$server.feedback 2>&1
+            result="$(ssh $server getent group $gid)"
+            if ! [ "$result" = '' ]; then
+                echo gid $gid not available > $dir/info_gid
+               feedback="$feedback     group $result"
             fi
+        fi
+        if ! [ "$feedback" = '' ]; then
+            feedback="$server:$feedback"
+            echo $feedback >> $dir/$server.feedback 2>&1
         fi
     elif [ "$send" = true ]; then
         # echo "rsync -aHhzP -e \"ssh -F $ssh_config\" $@ $server:$server_path "

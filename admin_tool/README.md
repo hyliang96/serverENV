@@ -191,10 +191,11 @@ uids [n]
 
 选择一个未被占用的uid=x
 
-S2：确认uid=x在所有机器上均未被占用
+S2：确认uid=x, gui=x在所有机器上均未被占用
 
-```
-alluid [机器编组 缺省为a] [x] 
+```bash
+alluid [机器编组 缺省为a] [x]  # 查询各台服务器uid和gid是否被x占用
+allgid [机器编组 缺省为a] [x]  # 查询各台服务器gid是否被x占用
 ```
 
 返回如下则未被占用
@@ -203,12 +204,13 @@ alluid [机器编组 缺省为a] [x]
 > uid [x] available
 > ```
 
-返回如下则被占用，会把所有占用此uid的服务器和用户名显示出来
+返回如下(x=11111)则uid=x和gid=x均被占用，会把所有占用此uid的服务器和用户名显示出来
 
 > ```
-> uid [x] not available
-> juncluster1: uid=111(libvirt-qemu) gid=119(kvm) groups=119(kvm),64055(libvirt-qemu)
-> juncluster2: uid=111(libvirt-qemu) gid=119(kvm) groups=119(kvm)
+> uid 11111 not available
+> gid 11111 not available
+> jungpu12:     uid=11111(fixmfs) gid=11111(fixmfs) groups=11111(fixmfs)     group fixmfs:x:11111:
+> jungpu13:     uid=11111(fixmfs) gid=11111(fixmfs) groups=11111(fixmfs)     group fixmfs:x:11111:
 > ```
 
 ##### 交互界面，使用明码设置用户密码
