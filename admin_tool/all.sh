@@ -71,7 +71,8 @@ else
         if [ "$no_prompt" = true ]; then
             cmds="${cmds} $arg; echo;"
         else
-            i_print="${arg//\`/\\\`}"
+            i_print="${arg//\\/\\\\}"
+            i_print="${i_print//\`/\\\`}"
             i_print="${i_print//\$/\\\$}"
             i_print="${i_print//\"/\\\"}"
             cmds="${cmds} echo -E \"# $i_print\"; $arg; echo;"
@@ -79,7 +80,7 @@ else
     done
 fi
 
-# echo -E cmds: $cmds
+echo -E "cmds: $cmds"
 
 # ---------------------------------------
 # 临时文件夹

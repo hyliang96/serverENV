@@ -59,19 +59,29 @@ allgpu()
 # use sudo to do something
 admin()
 {
-    local commands=''
-    for i in "$@"; do
-        # echo -E "$i"
-        if [[ "$i" =~ ' ' ]]; then
-            local i="${i//\"/\\\"}"
-            local commands="$commands \"$i\""
-        else
-            local commands="$commands $i"
-        fi
-    done
-    commands="${commands//\$/\\\$}"
-    commands="${commands//\`/\\\`}"
+    # echo "$@"
+    # echo "$*"
+    # local commands=''
+    # for i in "$@"; do
+        # # echo -E "$i"
+        # if [[ "$i" =~ ' ' ]]; then
+            # local i="${i//\"/\\\"}"
+            # local i="${i//\$/\\\$}"
+            # local commands="$commands \"$i\""
+        # else
+            # local commands="$commands $i"
+        # fi
+    # done
+    # echo commands: $commands
+    # commands="${commands//\`/\\\`}"
+    # echo commands: $commands
 
+
+    local cmds=''
+    for i in "$@"; do
+        local cmds="$cmds $i;"
+    done
+    echo "cmds: $cmds"
     sudo su -c ". $admin_tool_path/load_all.sh && $commands"
 }
 
