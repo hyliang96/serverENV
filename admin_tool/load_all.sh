@@ -56,7 +56,7 @@ allgpu()
     all "$server_set" --no-prompt 'gpustat'
 }
 
-# use sudo to do something
+# use sudo to do something with this package
 admin()
 {
     # echo "$@"
@@ -76,13 +76,20 @@ admin()
     # commands="${commands//\`/\\\`}"
     # echo commands: $commands
 
+    if [ "$1" = '-h' ] || [ "$1" = '--help' ]; then
+        echo "\`admin\` to run commands with admin_tool package"
+        echo "Usage:"
+        echo "admin 'command1' [ 'command2' ... ]"
+        echo "admin \"command1\" [ \"command2\" ... ]"
+        return
+    fi
 
     local cmds=''
     for i in "$@"; do
         local cmds="$cmds $i;"
     done
     echo "cmds: $cmds"
-    sudo su -c ". $admin_tool_path/load_all.sh && $commands"
+    sudo su -c ". $admin_tool_path/load_all.sh && $cmds"
 }
 
 
