@@ -31,8 +31,9 @@ s3install()
     echo ' * 当出现五行"HIT: <网址>"时，会卡住，只需多按几次回车即可'
     echo -----------------------------------------------------------------------
     echo -n "请复制本说明到备忘录，然后按任意键继续，之后这些信息会消失："
-    local answer
-    read -n 1 answer
+    bash -c "read -n 1 answer"
+    # local answer
+    # read -n 1 answer
     sudo ./shadowsocks-all.sh 2>&1 | tee shadowsocks-all.log
     echo -----------------------------------------------------------------------
     echo Usage:
