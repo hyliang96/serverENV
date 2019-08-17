@@ -20,7 +20,7 @@ s3install()
     cd $server_script
     echo -----------------------------------------------------------------------
     echo '安装方法:'
-    echo " * 请安装shadowsocks-r（即ssr）"
+    echo " * 请安装shadowsocksR（即ssr）"
     echo ' * set a password for this ss account'
     echo ' * select a large (5-digit) port'
     echo ' * 选加密方式：'
@@ -30,8 +30,9 @@ s3install()
     echo '    cipher method 选"chacha20"， protocol 选 "origin", obfs 选 "plain" '
     echo ' * 当出现五行"HIT: <网址>"时，会卡住，只需多按几次回车即可'
     echo -----------------------------------------------------------------------
-    # echo -n "请复制本说明到备忘录，然后按任意键继续，之后这些信息会消失："
-    read -n1 -p "请复制本说明到备忘录，然后按任意键继续，之后这些信息会消失：" answer
+    echo -n "请复制本说明到备忘录，然后按任意键继续，之后这些信息会消失："
+    local answer
+    read -n 1 answer
     sudo ./shadowsocks-all.sh 2>&1 | tee shadowsocks-all.log
     echo -----------------------------------------------------------------------
     echo Usage:
