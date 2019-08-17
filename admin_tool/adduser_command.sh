@@ -5,7 +5,16 @@ here=$(cd "$(dirname "${BASH_SOURCE[0]-$0}")"; pwd)
 # 生成随机密码
 randpasswd()
 {
-    openssl rand -base64 24
+    if [ "$1" = help ] || [ "$1" = '--help' ] || [ "$1" = '-h' ]; then
+        echo "Usage: \`randpasswd [length]\` to generate random passwod of this length"
+        return
+    fi 
+    if [ $# -eq 0 ]; then
+        local len=24
+    else
+        local len=$1
+    fi
+    openssl rand -base64 $len
 }
 
 manual_set() {
