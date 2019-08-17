@@ -32,6 +32,7 @@ s3install()
     echo -----------------------------------------------------------------------
     echo -n "请复制本说明到备忘录，然后按任意键继续，之后这些信息会消失："
     bash -c "read -n 1 answer"
+    echo
     # local answer
     # read -n 1 answer
     sudo ./shadowsocks-all.sh 2>&1 | tee shadowsocks-all.log
