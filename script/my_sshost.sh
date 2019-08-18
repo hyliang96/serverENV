@@ -96,11 +96,11 @@ s3()
 s3_change_passwd()
 {
     old_password_line=$(cat $s3c | grep '"password"' | sed -E 's/[, ]+$|^[\t ]+//g')
-    old_password_line="${old_password_line/\//\\/}"
+    old_password_line="${old_password_line//\//\\/}"
 
     new_password=$(openssl rand -base64 30)
     new_password_line="\"password\":\"$new_password\""
-    new_password_line="${new_password_line/\//\\/}"
+    new_password_line="${new_password_line//\//\\/}"
 
     if [ "$(uname -o)" = "Darwin" ]; then
         # 是mac
