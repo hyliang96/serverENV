@@ -64,12 +64,15 @@ s3a=$serverENV/script/my_sshost.sh
 s3s=/etc/init.d/shadowsocks-$ss_type
 # 运行参数[start | stop | restart | status]
 
+
+
+
 s3()
 {
     if [ $# -eq 0 ]; then
-        echo 'Usage : s3 [ start | stop | restart | status | help | (un)install ]'
+        echo 'Usage : s3 [ start | stop | restart | chpasswd | status | help | (un)install ]'
     elif [ "$1" = "help" ] || [ "$1" = "h" ] || [ "$1" = "-h" ] || [ "$1" = "--help" ] || [ "$1" = "-help" ]; then
-        echo 'Usage : s3 [ start | stop | restart | status | help | (un)install ]'
+        echo 'Usage : s3 [ start | stop | restart | chpasswd | status | help | (un)install ]'
         echo '`jchs3`:  查看ss server的教程'
         echo '$s3c:  ss server的配置文件'
         echo '$s3l:  ss server的运行日志'
@@ -82,7 +85,30 @@ s3()
         s3install
     elif [ "$1" = "uninstall" ]; then
         s3uninstall
+    elif [ "$1" = 'chpasswd' ]; then
+        s3_change_passwd
+        sudo $s3s restart
     else
         sudo $s3s $*
     fi
+}
+
+s3_change_passwd()
+{
+    old_password_line=$(cat $s3c | grep '"password"' | sed -E 's/[, ]+$|^[\t ]+//g')
+    old_password_line="${old_password_line/\//\\/}"
+
+    new_password=$(openssl rand -base64 30)
+    new_password_line="\"password\":\"$new_password\""
+    new_password_line="${new_password_line/\//\\/}"
+
+    if [ "$(uname -o)" = "Darwin" ]; then
+        # 是mac
+        sudo sed -i '' 's/'"$old_password_line"'/'"$new_password_line"'/g' "$s3c"
+    else
+        # 是linux
+        sudo sed -i 's/'"$old_password_line"'/'"$new_password_line"'/g' "$s3c"
+    fi
+
+    cat "$s3c"
 }
