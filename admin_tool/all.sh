@@ -149,7 +149,7 @@ exit_func()
     [ "$checkgid" = true ] && cat $dir/info_gid
     # 输出所有ssh返回的结果
     local files=($dir/*.feedback) 2> /dev/null
-    [ -f "${files[1]}" ] && { ls $dir/*.feedback | sort --version-sort | xargs -I {} cat {} }
+    [ -f "${files[1]}" ] && { ls $dir/*.feedback | sort --version-sort | xargs -I {} cat {}; }
     # 报告未完成的服务器的名单
     echo -n 'unfinished servers:' && cat $dir/unfinished_output
     # 删除临时文件夹
