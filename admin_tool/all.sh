@@ -137,7 +137,7 @@ if [ "$checkgid" = true ]; then
     echo gid $gid available > $dir/info_gid
 fi
 
-watch -n 1 -t "cat $dir/unfinished_output && echo && ls $dir/*.feedback 2> /dev/null | sort --version-sort | xargs -I {} cat {}" &
+watch -n 1 -t "echo 'hosts in wait (ctrl+C to stop waiting):' && cat $dir/unfinished_output && echo && ls $dir/*.feedback 2> /dev/null | sort --version-sort | xargs -I {} cat {}" &
 
 # 退出进程
 exit_func()
