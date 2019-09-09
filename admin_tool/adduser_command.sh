@@ -142,6 +142,27 @@ alladduser()
     sudo su -c ". $admin_tool_path/load_all.sh; _alladduser $*"
 }
 
+alldeluser()
+{
+    if [ "$1" = '-h' ] || [ "$1" = '--help' ] || [ "$1" = 'help' ] || [ $# -ne 2 ]; then
+        echo "alldeluser <host_set> <user_name>"
+        return
+    fi
+
+    local hostset="$1"
+    local user="$2"
+
+    answer=$(bash -c "read  -n 1 -p $'You want to delete \e[1;31m$user\e[0m in host set \e[1;31m$hostset\e[0m? It\'s \e[1;31mirreversible\e[0m. [Y/N]' c; echo \$c"); echo
+    if [ "$answer" = "y" ] || [ "$answer" = "Y" ]; then
+        all "$hostset" "userdel -r $user"
+        # echo "userdel -r $user"
+    elif [ "$answer" = "n" ] || [ "$answer" = "N" ]; then
+        echo 'please correct the last command'
+    else
+        echo 'input Y/y or N/n please!'
+    fi
+}
+
 # show uid of all users on this server
 uids()
 {

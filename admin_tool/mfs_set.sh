@@ -133,6 +133,9 @@ _allsshmfs()
     # all J23 'umount -l /home/haoyu/mfs; su -l haoyu -c \"command sshfs \$_mfs_source:/mfs/haoyu /home/\${USER}/mfs -o allow_other,default_permissions,reconnect &&  ls /home/\$USER/mfs/\"'
 }
 
+# 重新用sshfs挂载mfs
+# allsshmfs 机器编组 [sshmfs源服务器 缺省则为每台服务器对口的sshmfs源服务器]
+# 机器编组：可以只写一台服务器
 allsshmfs()
 {
     # echo "`eval echo $here`"
