@@ -8,7 +8,7 @@ randpasswd()
     if [ "$1" = help ] || [ "$1" = '--help' ] || [ "$1" = '-h' ]; then
         echo "Usage: \`randpasswd [length]\` to generate random passwod of this length"
         return
-    fi 
+    fi
     if [ $# -eq 0 ]; then
         local len=24
     else
@@ -90,7 +90,7 @@ What it will do:
     send /home/$username/.ssh  ${server_set}:/home/$username/
 }
 
-alladduser()
+_alladduser()
 {
     if [ "$1" = "-h" ] || [ "$1" = "--help" ] || [ "$1" = "help" ]  || \
         ! ( [ $# -eq 0 ] || [ $# -eq 1 ]  || [ $# -eq 5 ] ) ; then
@@ -134,6 +134,12 @@ Attention:
     local servers=()
     parse_server_set "$server_set" servers
     ssh ${servers[1]} ". $admin_tool_path/load_all.sh && allnewkey '$server_set' $username"
+}
+
+alladduser()
+{
+    # echo "`eval echo $here`"
+    sudo su -c ". $admin_tool_path/load_all.sh; _alladduser $*"
 }
 
 # show uid of all users on this server
