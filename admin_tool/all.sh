@@ -78,9 +78,9 @@ else
             cmds="${cmds} echo -E \"# $i_print\"; $arg; echo;"
         fi
     done
+    echo -E "cmds: $cmds"
 fi
 
-echo -E "cmds: $cmds"
 
 # exit 1
 
@@ -100,6 +100,7 @@ elif [ "$host_group" = 'JUN2' ]; then
 # 在gpu14-24
     ssh_config=$here/config_JUN2
 fi
+
 
 # # ---------------------------------------
 # # 检查每台服务器可连接
@@ -129,8 +130,10 @@ fi
 for server in ${servers[@]}; do
     echo "$server" >> $dir/servers
 done
+unset -v server
 touch $dir/finished
 echo "${servers[@]}" >> $dir/unfinished_output
+
 
 if [ "$checkuid" = true ]; then
     echo uid $uid available > $dir/info_uid
@@ -139,7 +142,9 @@ if [ "$checkgid" = true ]; then
     echo gid $gid available > $dir/info_gid
 fi
 
+
 watch -n 1 -t "echo 'hosts in wait (ctrl+C to stop waiting):' && cat $dir/unfinished_output && echo && ls $dir/*.feedback 2> /dev/null | sort --version-sort | xargs -I {} cat {}" &
+
 
 # 退出进程
 exit_func()
@@ -167,13 +172,12 @@ function ctrl_c() {
 
 trap ctrl_c SIGINT
 
+
 # 主循环
-for server in ${servers[@]}; do
-{
+for server in ${servers[@]}; do {
     if ! [ "$no_prompt" = true ]; then
         echo "====== $server ======" >> $dir/$server.feedback
     fi
-
     if [ "$checkuid" = true ] || [ "$checkgid" = true ]; then
         feedback=""
         if [ "$checkuid" = true ]; then
@@ -194,10 +198,10 @@ for server in ${servers[@]}; do
             feedback="$server:$feedback"
             echo $feedback >> $dir/$server.feedback 2>&1
         fi
-    elif [ "$send" = true ]; then
+    elif [ "$send" = 'true' ]; then
         # echo "rsync -aHhzP -e \"ssh -F $ssh_config\" $@ $server:$server_path "
         # command rsync -aHhzP -e "ssh -F $ssh_config" $@ $server:$server_path >> $dir/$server.feedback 2>&1
-        echo "rsync -aHhzP -e \"ssh -o 'StrictHostKeyChecking no'\"  $@ $server:$server_path "
+        echo "rsync -aHhzP -e \"ssh -o 'StrictHostKeyChecking no'\"  $@ $server:$server_path " >> $dir/$server.feedback 2>&1
         command rsync -aHhzP -e "ssh -o 'StrictHostKeyChecking no'" $@ $server:$server_path >> $dir/$server.feedback 2>&1
     # command表示系统原版rsync命令
     else
@@ -218,6 +222,8 @@ for server in ${servers[@]}; do
 
 } &
 done
+
+unset -v server
 
 # exit when all servers return result
 while true; do

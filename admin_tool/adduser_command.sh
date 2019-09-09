@@ -85,7 +85,8 @@ What it will do:
     su - $username -c 'ssh-keygen -t rsa -P "" -f ~/.ssh/id_rsa -q && \
      cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys'
 
-    echo "======= seperating /home/$username/.ssh to server set [${server_set}] ========"
+    echo; echo; echo
+    echo "======= distributing /home/$username/.ssh to server set [${server_set}] ========"
     # 会覆盖各个服务器上的原文件
     send /home/$username/.ssh  ${server_set}:/home/$username/
 }
@@ -133,13 +134,13 @@ Attention:
 
     local servers=()
     parse_server_set "$server_set" servers
-    ssh ${servers[1]} ". $admin_tool_path/load_all.sh && allnewkey '$server_set' $username"
+    ssh -t ${servers[1]} ". $admin_tool_path/load_all.sh && allnewkey '$server_set' $username"
 }
 
 alladduser()
 {
-    # echo "`eval echo $here`"
-    sudo su -c ". $admin_tool_path/load_all.sh; _alladduser $*"
+    local server_set="$1"
+    sudo su -c ". $admin_tool_path/load_all.sh; _alladduser '$server_set'"
 }
 
 alldeluser()
@@ -152,9 +153,9 @@ alldeluser()
     local hostset="$1"
     local user="$2"
 
-    answer=$(bash -c "read  -n 1 -p $'You want to delete \e[1;31m$user\e[0m in host set \e[1;31m$hostset\e[0m? It\'s \e[1;31mirreversible\e[0m. [Y/N]' c; echo \$c"); echo
+    answer=$(bash -c "read -p $'You want to delete \e[1;31m$user\e[0m in host set \e[1;31m$hostset\e[0m? It\'s \e[1;31mirreversible\e[0m. [Y/N]' c; echo \$c"); echo
     if [ "$answer" = "y" ] || [ "$answer" = "Y" ]; then
-        all "$hostset" "userdel -r $user"
+        sudo su -c ". $admin_tool_path/load_all.sh; all '$hostset' 'userdel -r $user; id $user'"
         # echo "userdel -r $user"
     elif [ "$answer" = "n" ] || [ "$answer" = "N" ]; then
         echo 'please correct the last command'
