@@ -124,14 +124,19 @@ _allsshmfs()
     else
         local server_set="$1"
     fi
-    all "$server_set" 'umount -l /home/haoyu/mfs; su -l haoyu -c \"_sshmfs\"'
+    if [ $# -eq 2 ]; then
+        local mfs_host="$2"
+    else
+        local mfs_host=""
+    fi
+    all "$server_set" "umount -l /home/haoyu/mfs; su -l haoyu -c '_sshmfs $mfs_host'"
     # all J23 'umount -l /home/haoyu/mfs; su -l haoyu -c \"command sshfs \$_mfs_source:/mfs/haoyu /home/\${USER}/mfs -o allow_other,default_permissions,reconnect &&  ls /home/\$USER/mfs/\"'
 }
 
 allsshmfs()
 {
     # echo "`eval echo $here`"
-    sudo su -c ". $admin_tool_path/load_all.sh; _allsshmfs $@"
+    sudo su -c ". $admin_tool_path/load_all.sh; _allsshmfs $*"
 }
 
 # 将所有mfs开启
