@@ -150,7 +150,6 @@ watch -n 1 -t "echo 'hosts in wait (ctrl+C to stop waiting):' && cat $dir/unfini
 # 退出进程
 exit_func()
 {
-    # 杀死所有子进程
     # pkill -P $$
     # 输出总结信息
     [ "$checkuid" = true ] && cat $dir/info_uid
@@ -163,14 +162,15 @@ exit_func()
     # 删除临时文件夹
     rm $dir -rf
     unset here
-    # 退出程序
     # exit 1
 }
 
 exit_script() {
+    # 杀死所有子进程
     pkill -P $$
     exit_func
-    exit
+    # 退出程序
+    exit 1
 }
 
 function ctrl_c() {
@@ -246,15 +246,11 @@ while true; do
     # 在执行`echo $unfinished > $dir/unfinished_output`时，是先清空unfinished_output文件，再写入，
     # 如果刚清空完，就被判断 [ "`cat $dir/unfinished_output`"  = '' ] ，则会提前执行 exit_func
     if [ "`sort --version-sort $dir/servers $dir/finished | uniq -u`" = '' ]; then
-        # exit
-        # ctrl_c
-        # exit_func
-        # exit
         exit_script
     fi
 done
 
 wait
 
-# exit_script
+exit_script
 

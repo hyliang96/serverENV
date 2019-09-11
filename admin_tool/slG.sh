@@ -3,14 +3,14 @@
 
 tmp_log=$(mktemp /tmp/tmp.XXXXXXXXXX)
 tmp_finish=$(mktemp /tmp/tmp.XXXXXXXXXX)
-BGPID=$!
-SCPID=$$
+# BGPID=$!
+# SCPID=$$
 
-echo $(jobs -p)
+# echo $(jobs -p)
 echo $tmp_log
 echo $tmp_finish
 
-function exit_func() {
+exit_func() {
     # echo $!
     # pgrep -P $SCPID
     # pkill -P $$
@@ -24,11 +24,23 @@ function exit_func() {
     [ -f $tmp_log ] && rm $tmp_log
     [ -f $tmp_finish ] && rm $tmp_finish
     # kill $BGPID
+}
+exit_script() {
+    # 杀死所有子进程
+    pkill -P $$
+    exit_func
+    # 退出程序
     exit 1
 }
-trap exit_func SIGINT
+
+ctrl_c() {
+    exit_func
+    kill 0
+}
+
+trap ctrl_c SIGINT
 # trap "exit" INT TERM ERR
-trap "kill 0" EXIT
+# trap "kill 0" EXIT
 # trap 'kill background' EXIT
 
 watch -n 1 -t "sort -n -r $tmp_log" &
@@ -41,11 +53,11 @@ watch -n 1 -t "sort -n -r $tmp_log" &
 while true; do
     sleep 1
     if [ "`cat $tmp_finish`" = '1' ]; then
-        exit_func
+        exit_script
     fi
 done
 
 
 wait
 
-exit_func
+exit_script
