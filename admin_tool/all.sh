@@ -167,9 +167,9 @@ exit_func()
     # exit 1
 }
 
-exit_script(){
+exit_script() {
     exit_func
-    exit 1
+    exit 
 }
 
 function ctrl_c() {
