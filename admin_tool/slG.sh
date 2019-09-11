@@ -12,8 +12,8 @@ echo $tmp_finish
 
 function exit_func() {
     # echo $!
-    pgrep -P $SCPID
-    pkill -P $$
+    # pgrep -P $SCPID
+    # pkill -P $$
     # killall $tmp_log
     # killall $tmp_finish
     # echo $(jobs -p)
@@ -27,7 +27,8 @@ function exit_func() {
     exit 1
 }
 trap exit_func SIGINT
-
+trap "exit" INT TERM ERR
+trap "kill 0" EXIT
 # trap 'kill background' EXIT
 
 watch -n 1 -t "sort -n -r $tmp_log" &

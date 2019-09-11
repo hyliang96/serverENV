@@ -151,7 +151,7 @@ watch -n 1 -t "echo 'hosts in wait (ctrl+C to stop waiting):' && cat $dir/unfini
 exit_func()
 {
     # 杀死所有子进程
-    pkill -P $$
+    # pkill -P $$
     # 输出总结信息
     [ "$checkuid" = true ] && cat $dir/info_uid
     [ "$checkgid" = true ] && cat $dir/info_gid
@@ -172,7 +172,8 @@ function ctrl_c() {
 }
 
 trap ctrl_c SIGINT
-
+# trap "exit" INT TERM ERR
+trap "kill 0" EXIT
 
 # 主循环
 for server in ${servers[@]}; do {
@@ -230,6 +231,7 @@ unset -v server
 
 # exit when all servers return result
 while true; do
+    sleep 1
     # 不可用这句''' if [ "`cat $dir/unfinished_output`"  = '' ]; then '''
     # 这是因为：
     # 在执行`echo $unfinished > $dir/unfinished_output`时，是先清空unfinished_output文件，再写入，
