@@ -169,7 +169,8 @@ exit_func()
 
 exit_script() {
     exit_func
-    exit 
+    kill 0
+    exit
 }
 
 function ctrl_c() {
