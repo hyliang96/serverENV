@@ -164,6 +164,7 @@ alldeluser()
     fi
 }
 
+
 # show uid of all users on this server
 uids()
 {
