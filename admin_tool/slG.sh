@@ -27,7 +27,7 @@ function exit_func() {
     exit 1
 }
 trap exit_func SIGINT
-trap "exit" INT TERM ERR
+# trap "exit" INT TERM ERR
 trap "kill 0" EXIT
 # trap 'kill background' EXIT
 

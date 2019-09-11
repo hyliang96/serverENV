@@ -164,16 +164,23 @@ exit_func()
     rm $dir -rf
     unset here
     # 退出程序
+    # exit 1
+}
+
+exit_script(){
+    exit_func
     exit 1
 }
 
 function ctrl_c() {
     exit_func
+    kill 0
 }
 
 trap ctrl_c SIGINT
 # trap "exit" INT TERM ERR
-trap "kill 0" EXIT
+# trap "exit" TERM ERR
+# trap "kill 0" EXIT
 
 # 主循环
 for server in ${servers[@]}; do {
@@ -237,11 +244,11 @@ while true; do
     # 在执行`echo $unfinished > $dir/unfinished_output`时，是先清空unfinished_output文件，再写入，
     # 如果刚清空完，就被判断 [ "`cat $dir/unfinished_output`"  = '' ] ，则会提前执行 exit_func
     if [ "`sort --version-sort $dir/servers $dir/finished | uniq -u`" = '' ]; then
-        exit_func
+        exit_script
     fi
 done
 
 wait
 
-exit_func
+exit_script
 
