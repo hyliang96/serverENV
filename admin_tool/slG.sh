@@ -9,7 +9,7 @@ echo $tmp_finish
 
 exit_func() {
     pkill -P $$
-    rm $tmp_log $tmp_finish
+    # rm $tmp_log $tmp_finish
 }
 trap exit_func SIGINT
 
