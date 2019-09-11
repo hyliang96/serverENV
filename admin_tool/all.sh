@@ -179,6 +179,7 @@ function ctrl_c() {
 }
 
 trap ctrl_c SIGINT
+trap ctrl_c TERM
 # trap "exit" INT TERM ERR
 # trap "exit" TERM ERR
 # trap "kill 0" EXIT
@@ -245,11 +246,11 @@ while true; do
     # 在执行`echo $unfinished > $dir/unfinished_output`时，是先清空unfinished_output文件，再写入，
     # 如果刚清空完，就被判断 [ "`cat $dir/unfinished_output`"  = '' ] ，则会提前执行 exit_func
     if [ "`sort --version-sort $dir/servers $dir/finished | uniq -u`" = '' ]; then
-        exit_script
+        exit
     fi
 done
 
 wait
 
-exit_script
+# exit_script
 
