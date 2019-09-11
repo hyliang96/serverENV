@@ -103,8 +103,11 @@ slG()
     }
     trap exit_func SIGINT
 
-    watch -n 1 -t "sort -n $tmp_log" &
     sudo du -axhd1  --block-size=1G $@ >> $tmp_log &
+
+    watch -n 1 -t "sort -n $tmp_log"
+
+    # wait
 
     exit_func
 
