@@ -94,24 +94,30 @@ admin()
 
 
 # 按大小升序列出当前目录下所有文件与文件夹, 单位为G的
+alias _slG="$SHELL $here/slG.sh"
 slG()
 {
-    local tmp_log=$(mktemp /tmp/tmp.XXXXXXXXXX)
-    local exit_func() {
-        pkill -P $$
-        rm $tmp_log
-    }
-    trap exit_func SIGINT
-
-    sudo du -axhd1  --block-size=1G $@ >> $tmp_log &
-
-    watch -n 1 -t "sort -n $tmp_log"
-
-    # wait
-
-    exit_func
-
+    _slG $@
 }
+# slG()
+# {
+    # local tmp_log=$(mktemp /tmp/tmp.XXXXXXXXXX)
+    # echo $tmp_log
+    # local exit_func() {
+        # pkill -P $$
+        # rm $tmp_log
+    # }
+    # trap exit_func SIGINT
+
+    # du -axhd1  --block-size=1G $@ >> $tmp_log &
+
+    # watch -n 1 -t "sort -n $tmp_log"
+
+    # # wait
+
+    # # exit_func
+
+# }
 
 . $here/adduser_command.sh
 
