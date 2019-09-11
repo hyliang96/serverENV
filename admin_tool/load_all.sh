@@ -96,8 +96,18 @@ admin()
 # 按大小升序列出当前目录下所有文件与文件夹, 单位为G的
 slG()
 {
-    local dir='~/.cache/all/slG/slG_$$'
-    sudo du -axhd1  --block-size=1G $@ | sort -n
+    local tmp_log=$(mktemp /tmp/tmp.XXXXXXXXXX)
+    local exit_func() {
+        pkill -P $$
+        rm $tmp_log
+    }
+    trap exit_func SIGINT
+
+    watch -n 1 -t "sort -n $tmp_log" &
+    sudo du -axhd1  --block-size=1G $@ >> $tmp_log &
+
+    exit_func
+
 }
 
 . $here/adduser_command.sh
