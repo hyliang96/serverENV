@@ -4,16 +4,28 @@
 tmp_log=$(mktemp /tmp/tmp.XXXXXXXXXX)
 tmp_finish=$(mktemp /tmp/tmp.XXXXXXXXXX)
 
-echo $tmp_log
-echo $tmp_finish
+echo $(jobs -p)
+# echo $tmp_log
+# echo $tmp_finish
 
-exit_func() {
-    pkill -P $$
-    # rm $tmp_log $tmp_finish
+function exit_func() {
+    echo $!
+    # killall $tmp_log
+    # killall $tmp_finish
+    # echo $(jobs -p)
+    # kill $(jobs -p)
+    # pkill -P $$
+    sort -n $tmp_log
+    if [ "`cat $tmp_finish`" = '1' ]; then echo finished; else echo unfinished; fi
+    [ -f $tmp_log ] && rm $tmp_log
+    [ -f $tmp_finish ] && rm $tmp_finish
+    exit 1
 }
 trap exit_func SIGINT
 
-watch -n 1 -t "sort -n $tmp_log" &
+# trap 'kill background' EXIT
+
+watch -n 1 -t "sort -n -r $tmp_log" &
 
 {
     du -axhd1  --block-size=1G $@ >> $tmp_log
@@ -21,7 +33,8 @@ watch -n 1 -t "sort -n $tmp_log" &
 } &
 
 while true; do
-    if [ "`cat $tmp_finish`" != '' ]; then
+    sleep 1
+    if [ "`cat $tmp_finish`" = '1' ]; then
         exit_func
     fi
 done

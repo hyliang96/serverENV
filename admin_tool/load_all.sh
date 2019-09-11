@@ -99,6 +99,8 @@ slG()
 {
     _slG $@
 }
+alias sl_home="sudo $SHELL $here/slG.sh /home"
+
 # slG()
 # {
     # local tmp_log=$(mktemp /tmp/tmp.XXXXXXXXXX)
