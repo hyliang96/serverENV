@@ -148,9 +148,10 @@ watch -n 1 -t "echo 'hosts in wait (ctrl+C to stop waiting):' && cat $dir/unfini
 
 
 # 退出进程
-exit_func()
+function exit_func()
 {
-    # pkill -P $$
+    # 杀死所有子进程
+    pkill -P $$
     # 输出总结信息
     [ "$checkuid" = true ] && cat $dir/info_uid
     [ "$checkgid" = true ] && cat $dir/info_gid
@@ -160,14 +161,12 @@ exit_func()
     # 报告未完成的服务器的名单
     echo -n 'unfinished servers:' && cat $dir/unfinished_output
     # 删除临时文件夹
-    rm $dir -rf
+    # rm $dir -rf
     unset here
     # exit 1
 }
 
-exit_script() {
-    # 杀死所有子进程
-    pkill -P $$
+function exit_script() {
     exit_func
     # 退出程序
     exit 1
@@ -175,6 +174,7 @@ exit_script() {
 
 function ctrl_c() {
     exit_func
+    # 杀死本进程及其子进程
     kill 0
 }
 
@@ -184,58 +184,57 @@ trap ctrl_c SIGINT
 # trap "exit" TERM ERR
 # trap "kill 0" EXIT
 
-# 主循环
-for server in ${servers[@]}; do {
-    {
+deal_server() {
     # connect host
-        if ! [ "$no_prompt" = true ]; then
-            echo "====== $server ======" >> $dir/$server.feedback
+    if ! [ "$no_prompt" = true ]; then
+        echo "====== $server ======" >> $dir/$server.feedback
+    fi
+    if [ "$checkuid" = true ] || [ "$checkgid" = true ]; then
+        feedback=""
+        if [ "$checkuid" = true ]; then
+            result="$(ssh $server id $uid 2>&1)"
+            if ! [[ "$result" =~ 'no such user' ]]; then
+                echo uid $uid not available > $dir/info_uid
+                feedback="$feedback     $result"
+            fi
         fi
-        if [ "$checkuid" = true ] || [ "$checkgid" = true ]; then
-            feedback=""
-            if [ "$checkuid" = true ]; then
-                result="$(ssh $server id $uid 2>&1)"
-                if ! [[ "$result" =~ 'no such user' ]]; then
-                    echo uid $uid not available > $dir/info_uid
-                    feedback="$feedback     $result"
-                fi
+        if [ "$checkgid" = true ]; then
+            result="$(ssh $server getent group $gid)"
+            if ! [ "$result" = '' ]; then
+                echo gid $gid not available > $dir/info_gid
+            feedback="$feedback     group $result"
             fi
-            if [ "$checkgid" = true ]; then
-                result="$(ssh $server getent group $gid)"
-                if ! [ "$result" = '' ]; then
-                    echo gid $gid not available > $dir/info_gid
-                feedback="$feedback     group $result"
-                fi
-            fi
-            if ! [ "$feedback" = '' ]; then
-                feedback="$server:$feedback"
-                echo $feedback >> $dir/$server.feedback 2>&1
-            fi
-        elif [ "$send" = 'true' ]; then
-            # echo "rsync -aHhzP -e \"ssh -F $ssh_config\" $@ $server:$server_path "
-            # command rsync -aHhzP -e "ssh -F $ssh_config" $@ $server:$server_path >> $dir/$server.feedback 2>&1
-            echo "rsync -aHhzP -e \"ssh -o 'StrictHostKeyChecking no'\"  $@ $server:$server_path " >> $dir/$server.feedback 2>&1
-            command rsync -aHhzP -e "ssh -o 'StrictHostKeyChecking no'" $@ $server:$server_path >> $dir/$server.feedback 2>&1
-        # command表示系统原版rsync命令
-        else
-            ssh -o 'StrictHostKeyChecking no' $server "$cmds" >> $dir/$server.feedback 2>&1
-            # ssh -F $ssh_config $server "$cmds" >> $dir/$server.feedback 2>&1
-            # ssh -F $ssh_config -o 'StrictHostKeyChecking no' $server "$cmds" >> $dir/$server.feedback 2>&1
         fi
-    } && {
+        if ! [ "$feedback" = '' ]; then
+            feedback="$server:$feedback"
+            echo $feedback >> $dir/$server.feedback 2>&1
+        fi
+    elif [ "$send" = 'true' ]; then
+        # echo "rsync -aHhzP -e \"ssh -F $ssh_config\" $@ $server:$server_path "
+        # command rsync -aHhzP -e "ssh -F $ssh_config" $@ $server:$server_path >> $dir/$server.feedback 2>&1
+        echo "rsync -aHhzP -e \"ssh -o 'StrictHostKeyChecking no'\"  $@ $server:$server_path " >> $dir/$server.feedback 2>&1
+        command rsync -aHhzP -e "ssh -o 'StrictHostKeyChecking no'" $@ $server:$server_path >> $dir/$server.feedback 2>&1
+    # command表示系统原版rsync命令
+    else
+        ssh -o 'StrictHostKeyChecking no' $server "$cmds" >> $dir/$server.feedback 2>&1
+        # ssh -F $ssh_config $server "$cmds" >> $dir/$server.feedback 2>&1
+        # ssh -F $ssh_config -o 'StrictHostKeyChecking no' $server "$cmds" >> $dir/$server.feedback 2>&1
+    fi
     #-- collect unfinished servers --
-        echo "$server" >> $dir/finished
-        # 计算差集 servers - finished
-        unfinished="`sort --version-sort $dir/servers $dir/finished | uniq -u`"
-        # unfinished中换行符换为空格
-        unfinished="${unfinished//
+    echo "$server" >> $dir/finished
+    # 计算差集 servers - finished
+    unfinished="`sort --version-sort $dir/servers $dir/finished | uniq -u`"
+    # unfinished中换行符换为空格
+    unfinished="${unfinished//
 / }"
-        # unfinished_output 文件仅一行，为未返回结果的服务器名，已排序
-        echo $unfinished > $dir/unfinished_output
-    }
-} &
-done
+    # unfinished_output 文件仅一行，为未返回结果的服务器名，已排序
+    echo $unfinished > $dir/unfinished_output
+}
 
+# 主循环
+for server in ${servers[@]}; do
+    deal_server $server &
+done
 unset -v server
 
 # exit when all servers return result

@@ -3,31 +3,21 @@
 
 tmp_log=$(mktemp /tmp/tmp.XXXXXXXXXX)
 tmp_finish=$(mktemp /tmp/tmp.XXXXXXXXXX)
-# BGPID=$!
-# SCPID=$$
 
-# echo $(jobs -p)
+
 echo $tmp_log
 echo $tmp_finish
 
 exit_func() {
-    # echo $!
-    # pgrep -P $SCPID
-    # pkill -P $$
-    # killall $tmp_log
-    # killall $tmp_finish
-    # echo $(jobs -p)
-    # kill $(jobs -p)
-    # pkill -P $$
+    # 杀死所有子进程
+    pkill -P $$
     sort -n $tmp_log
     if [ "`cat $tmp_finish`" = '1' ]; then echo finished; else echo unfinished; fi
     [ -f $tmp_log ] && rm $tmp_log
     [ -f $tmp_finish ] && rm $tmp_finish
-    # kill $BGPID
 }
+
 exit_script() {
-    # 杀死所有子进程
-    pkill -P $$
     exit_func
     # 退出程序
     exit 1
@@ -35,8 +25,10 @@ exit_script() {
 
 ctrl_c() {
     exit_func
+    # 杀死本进程及其子进程
     kill 0
 }
+
 
 trap ctrl_c SIGINT
 # trap "exit" INT TERM ERR

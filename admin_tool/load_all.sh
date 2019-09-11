@@ -7,13 +7,13 @@ here=$(cd "$(dirname "${BASH_SOURCE[0]-$0}")"; pwd)
 here="`echo $here | sed 's/^\/mfs\/\([^\/]\+\)/\/home\/\1\/mfs/'`"
 admin_tool_path="$here"
 
-alias _all="$SHELL $here/all.sh"
+alias _all="zsh $here/all.sh"
 all()
 {
     _all $@
 }
 
-alias _send="$SHELL $here/all.sh --send"
+alias _send="zsh $here/all.sh --send"
 send()
 {
     _send $@
@@ -94,12 +94,12 @@ admin()
 
 
 # 按大小升序列出当前目录下所有文件与文件夹, 单位为G的
-alias _slG="$SHELL $here/slG.sh"
+alias _slG="zsh $here/slG.sh"
 slG()
 {
     _slG $@
 }
-alias sl_home="sudo $SHELL $here/slG.sh /home"
+alias sl_home="sudo zsh $here/slG.sh /home"
 
 # slG()
 # {
