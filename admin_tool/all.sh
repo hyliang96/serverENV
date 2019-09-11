@@ -151,7 +151,7 @@ watch -n 1 -t "echo 'hosts in wait (ctrl+C to stop waiting):' && cat $dir/unfini
 exit_func()
 {
     # 杀死所有子进程
-    # pkill -P $$
+    pkill -P $$
     # 输出总结信息
     [ "$checkuid" = true ] && cat $dir/info_uid
     [ "$checkgid" = true ] && cat $dir/info_gid

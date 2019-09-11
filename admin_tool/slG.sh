@@ -3,13 +3,17 @@
 
 tmp_log=$(mktemp /tmp/tmp.XXXXXXXXXX)
 tmp_finish=$(mktemp /tmp/tmp.XXXXXXXXXX)
+BGPID=$!
+SCPID=$$
 
 echo $(jobs -p)
-# echo $tmp_log
-# echo $tmp_finish
+echo $tmp_log
+echo $tmp_finish
 
 function exit_func() {
-    echo $!
+    # echo $!
+    pgrep -P $SCPID
+    pkill -P $$
     # killall $tmp_log
     # killall $tmp_finish
     # echo $(jobs -p)
@@ -19,6 +23,7 @@ function exit_func() {
     if [ "`cat $tmp_finish`" = '1' ]; then echo finished; else echo unfinished; fi
     [ -f $tmp_log ] && rm $tmp_log
     [ -f $tmp_finish ] && rm $tmp_finish
+    # kill $BGPID
     exit 1
 }
 trap exit_func SIGINT
