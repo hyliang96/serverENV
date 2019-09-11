@@ -161,7 +161,7 @@ function exit_func()
     # 报告未完成的服务器的名单
     echo -n 'unfinished servers:' && cat $dir/unfinished_output
     # 删除临时文件夹
-    # rm $dir -rf
+    rm $dir -rf
     unset here
     # exit 1
 }
