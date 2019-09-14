@@ -212,15 +212,12 @@ allpasswd()
         local source_host="$1"
         echo $source_host
     else
-        return
         local servers=()
         parse_server_set "$server_set" servers
         local source_host=${servers[1]}
         ssh $source_host passwd $user
     fi
 
-
-
-    local encrypted="$(ssh $source_host 'cat /etc/shadow | grep qingyi | awk -F: "{ printf \$2}"')"
+    local encrypted="$(ssh $source_host "cat /etc/shadow | grep $user | awk -F: '{ printf \$2}'")"
     all "$server_set" "usermod -p '${encrypted}' $user"
 }
