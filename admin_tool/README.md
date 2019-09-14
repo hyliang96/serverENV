@@ -230,13 +230,12 @@ allgid [机器编组 缺省为a] [x]  # 查询各台服务器gid是否被x占用
   设置一整个编组
 
   ```bash
-  alladduser [机器编组]
+  alladduser [用户名]@[机器编组]
   ```
 
   交互界面
 
   > ```
-  > set username: 用户名
   > set realname: 用户真名，可以输入中文、英文字母、数字、空格、连字符、下划线
   > set uid: 集群上的uid要统一 以便mfs权限正确
   > set password: 明码用户密码
@@ -250,7 +249,7 @@ allgid [机器编组 缺省为a] [x]  # 查询各台服务器gid是否被x占用
 设置一整个编组
 
 ```bash
-alladduser [机器编组] '用户名' '用户真名' 统一的UID '加密用户密码' # 要用单引号，表示不转义
+alladduser  [用户名]@[机器编组]  '用户真名' 统一的UID '加密用户密码' # 要用单引号，表示不转义
 ```
 
 自动在每一台服务器上开始创建账号，并为用户每一台机器上，创建相同的 `/home/用户名/.ssh/{id_rsa,id_rsa.pub,authorized_keys}` ，其中`id_rsa.pub` 的全文已经加入到`authorized_keys` 中作为一行
@@ -319,13 +318,9 @@ sudo passwd 用户名
 * 修改多机密码
 
 ```bash
-openssl passwd -1 -salt $(< /dev/urandom tr -dc '[:alnum:]' | head -c 32)
-```
-
-```bash
-encyph_passwd=$(sudo cat /etc/shadow | grep 用户名 | awk -F: '{ print $2 }')
-all [机器编组] "usermod -p '${encyph_passwd}' 用户名"
-unset -v encyph_passwd
+allpasswd 用户名@编组名                 # 交互界面下重新设定密码
+ # 或
+allpasswd 用户名@编组名 某台服务器名    # 一整个编组都使用这台服务器的密码
 ```
 
 获得`加密密码` 需执行`sudo cat /etc/shadow | grep 用户名`，详细见上文
@@ -360,7 +355,7 @@ all [机器编组] 'usermod -s [默认shell路径] [用户名]'
 使用封装的命令
 
 ```bash
-alldeluser [机器编组] [用户名]    # 执行的是 'userdel -r 用户名', 注销账号，并删除/home/用户名、var/mail/用户名
+alldeluser [用户名]@[机器编组]     # 执行的是 'userdel -r 用户名', 注销账号，并删除/home/用户名、var/mail/用户名
 ```
 
 或使用原始命令

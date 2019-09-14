@@ -18,10 +18,10 @@ randpasswd()
 }
 
 manual_set() {
-    local username_=
+    # local username_=
     local realname_=
     local uid_=
-    echo -n 'set username: ' >&2 ; read -r username_
+    # echo -n 'set username: ' >&2 ; read -r username_
     echo -n 'set realname: ' >&2 ; read -r realname_
     echo -n 'set uid: ' >&2 ; read uid_
     local password=
@@ -36,10 +36,10 @@ manual_set() {
     done
     local enc_password_=$(echo "$password" | openssl passwd -1 -stdin)
 
-    eval $1=\"\$username_\"
-    eval $2=\"\$realname_\"
-    eval $3=\"\$uid_\"
-    eval $4=\"\$enc_password_\"
+    # eval $1=\"\$username_\"
+    eval $1=\"\$realname_\"
+    eval $2=\"\$uid_\"
+    eval $3=\"\$enc_password_\"
 }
 
 adduser_command() {
@@ -94,11 +94,11 @@ What it will do:
 _alladduser()
 {
     if [ "$1" = "-h" ] || [ "$1" = "--help" ] || [ "$1" = "help" ]  || \
-        ! ( [ $# -eq 0 ] || [ $# -eq 1 ]  || [ $# -eq 5 ] ) ; then
+        ! ( [ $# -eq 1 ]  || [ $# -eq 4 ] ) ; then
         echo 'Usage:
-* interactively:    `alladduser [<server_set> default=a]`
+* interactively:    `alladduser <username>[@<server_set> default=a]`
     realname can contains English letters in low/captital case, chinese characters, `'\''``. `"`,-,_ ,sapce,etc
-* non-interactively: `alladduser <server_set> <username> <realname> <uid> <enc_password>`
+* non-interactively: `alladduser <username>[@<server_set> default=a] <realname> <uid> <enc_password>`
     the enc_password is gotten by
         method1      `openssl passwd -1`         to encrypted the password
         method2      `sudo cat /etc/shadow`      the 2nd part (segmented by ":") is encrypted user password
@@ -108,25 +108,24 @@ Attention:
         return
     fi
 
-    if [ $# -eq 0 ]; then
+    local username=$(echo $1 | awk -F@ '{printf $1}')
+    local server_set=$(echo $1 | awk -F@ '{printf $2}')
+    echo "server_set" $server_set
+    shift
+    if [ "$server_set"  = '' ]; then
         local server_set='a'
-    else
-        local server_set="$1"; shift
     fi
 
-    if [ $# -eq 4 ]; then
-        local username=$1
-        local realname=$2
-        local uid=$3
-        local enc_password=$4
+    if [ $# -eq 3 ]; then
+        local realname="$1"
+        local uid="$2"
+        local enc_password="$3"
     else
-        local username=
         local realname=
         local uid=
         local enc_password=
-        manual_set username realname uid enc_password
+        manual_set realname uid enc_password
     fi
-
 
     echo "============================ making user account  ============================"
 
@@ -139,19 +138,28 @@ Attention:
 
 alladduser()
 {
-    local server_set="$1"
-    sudo su -c ". $admin_tool_path/load_all.sh; _alladduser '$server_set'"
+    if [ $# -eq 0 ]; then
+        sudo su -c ". $admin_tool_path/load_all.sh; _alladduser"
+    else
+        local user_server_set="$1"
+        set -- ${@:2:$#}
+        sudo su -c ". $admin_tool_path/load_all.sh; _alladduser '$user_server_set' $*"
+    fi
 }
 
 alldeluser()
 {
-    if [ "$1" = '-h' ] || [ "$1" = '--help' ] || [ "$1" = 'help' ] || [ $# -ne 2 ]; then
-        echo "alldeluser <host_set> <user_name>"
+    if [ "$1" = '-h' ] || [ "$1" = '--help' ] || [ "$1" = 'help' ] || [ $# -ne 1 ]; then
+        echo "alldeluser <user_name>@<host_set> "
         return
     fi
 
-    local hostset="$1"
-    local user="$2"
+    local user=$(echo $1 | awk -F@ '{printf $1}')
+    local hostset=$(echo $1 | awk -F@ '{printf $2}')
+    if [ "$hostset" = '' ]; then
+        echo "alldeluser <user_name>@<host_set> "
+        return
+    fi
 
     answer=$(bash -c "read -p $'You want to delete \e[1;31m$user\e[0m in host set \e[1;31m$hostset\e[0m? It\'s \e[1;31mirreversible\e[0m. [Y/N]' c; echo \$c"); echo
     if [ "$answer" = "y" ] || [ "$answer" = "Y" ]; then
@@ -200,7 +208,12 @@ allsetuid()
 
 allpasswd()
 {
-    # local servers_set="$1"; shift
+    if ( [ $# -ne 1 ] &&  [ $# -ne 2 ] ) || [ "$1" = '-h' ] || [ "$1" = '--help' ] || [ "$1" = 'help' ]; then
+        echo 'Usage: change password for a <user> on all host in <host_set>'
+        echo 'allpasswd <user>@<host_set>  : set new password interactively'
+        echo 'allpasswd <user>@<host_set> <source_host>  : set password follow <source_host>'
+        return
+    fi
     local user=$(echo $1 | awk -F@ '{printf $1}')
     local server_set=$(echo $1 | awk -F@ '{printf $2}')
     shift
@@ -215,9 +228,9 @@ allpasswd()
         local servers=()
         parse_server_set "$server_set" servers
         local source_host=${servers[1]}
-        ssh $source_host passwd $user
+        ssh -t $source_host passwd $user
     fi
 
-    local encrypted="$(ssh $source_host "cat /etc/shadow | grep $user | awk -F: '{ printf \$2}'")"
+    local encrypted="$(ssh -t $source_host "cat /etc/shadow | grep $user | awk -F: '{ printf \$2}'")"
     all "$server_set" "usermod -p '${encrypted}' $user"
 }
