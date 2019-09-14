@@ -310,8 +310,22 @@ all [机器编组]  'usermod -u 用户UID 用户名 && groupmod -g 组GID 用户
 
 ### 修改用户密码
 
+* 修改单机密码
+
 ```bash
-all [机器编组] 'usermod -p '\''加密密码'\'' 用户名'
+sudo passwd 用户名
+```
+
+* 修改多机密码
+
+```bash
+openssl passwd -1 -salt $(< /dev/urandom tr -dc '[:alnum:]' | head -c 32)
+```
+
+```bash
+encyph_passwd=$(sudo cat /etc/shadow | grep 用户名 | awk -F: '{ print $2 }')
+all [机器编组] "usermod -p '${encyph_passwd}' 用户名"
+unset -v encyph_passwd
 ```
 
 获得`加密密码` 需执行`sudo cat /etc/shadow | grep 用户名`，详细见上文

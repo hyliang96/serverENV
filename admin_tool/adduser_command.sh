@@ -197,3 +197,30 @@ allsetuid()
     all "$server_set" "usermod -u $uid $username && groupmod -g $uid $username"
 }
 
+
+allpasswd()
+{
+    # local servers_set="$1"; shift
+    local user=$(echo $1 | awk -F@ '{printf $1}')
+    local server_set=$(echo $1 | awk -F@ '{printf $2}')
+    shift
+
+    echo $user
+    echo $server_set
+
+    if [ $# -ne 0 ]; then
+        local source_host="$1"
+        echo $source_host
+    else
+        return
+        local servers=()
+        parse_server_set "$server_set" servers
+        local source_host=${servers[1]}
+        ssh $source_host passwd $user
+    fi
+
+
+
+    local encrypted="$(ssh $source_host 'cat /etc/shadow | grep qingyi | awk -F: "{ printf \$2}"')"
+    all "$server_set" "usermod -p '${encrypted}' $user"
+}
