@@ -91,7 +91,8 @@ runid="$(hostname)-$(date "+%Y-%m-%d_%H-%M-%S")"
 dir=~/.cache/all/$runid
 mkdir -p $dir
 if [ "$(ls $dir)" != "" ]; then
-    rm $dir/* -rf
+    rm $dir  -rf
+    mkdir -p $dir
 fi
 
 

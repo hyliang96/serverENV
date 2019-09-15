@@ -70,6 +70,7 @@ adduser_command() {
 
 
 allnewkey() {
+    echo 1
     if [ $# -ne 2 ]; then
         echo 'Usage: `allnewkey <server_set> <username>`
 What it will do:
@@ -78,8 +79,13 @@ What it will do:
     send ~/.ssh to all servers in <server_set>'
         return
     fi
+
+    echo 2
+
     local server_set="$1"
     local username="$2"
+
+    echo 3
 
     echo "=================== making keys in /home/$username/.ssh  ====================="
     # 若已有id_rsa,id_rsa.pub，则会询问你是否覆盖之
@@ -89,7 +95,7 @@ What it will do:
     echo; echo; echo
     echo "======= distributing /home/$username/.ssh to server set [${server_set}] ========"
     # 会覆盖各个服务器上的原文件
-    send /home/$username/.ssh  ${server_set}:/home/$username/
+    send /home/$username/.ssh  "${server_set}:/home/$username/"
 }
 
 
@@ -147,12 +153,12 @@ Attention:
     fi
 
     echo "============================ making user account  ============================"
-
     all "$server_set" "$(adduser_command $username $realname $uid $enc_password)"
 
     local servers=()
     parse_server_set "$server_set" servers
-    ssh -t ${servers[1]} ". $admin_tool_path/load_all.sh && allnewkey '$server_set' $username"
+
+    ssh "${servers[1]}" -t ". $admin_tool_path/load_all.sh && allnewkey '$server_set' $username"
 
     userguide "$username" "$passwd"
 }
