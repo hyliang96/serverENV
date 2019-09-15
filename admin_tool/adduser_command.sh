@@ -40,6 +40,7 @@ manual_set() {
     eval $1=\"\$realname_\"
     eval $2=\"\$uid_\"
     eval $3=\"\$enc_password_\"
+    eval $4=\"\$password\"
 }
 
 adduser_command() {
@@ -91,6 +92,20 @@ What it will do:
     send /home/$username/.ssh  ${server_set}:/home/$username/
 }
 
+
+userguide()
+{
+    local username="$1"
+    local passwd="$2"
+
+    echo "服务器账号：$username"
+    echo "密码：$passwd"
+    echo "并请速速更改密码"
+    echo
+    echo "服务器使用教程：http://101.6.240.88:4567/tutorial/Cluster-Usage"
+    echo "教程账号：user，密码：linearregression"
+}
+
 _alladduser()
 {
     if [ "$1" = "-h" ] || [ "$1" = "--help" ] || [ "$1" = "help" ]  || \
@@ -108,8 +123,8 @@ Attention:
         return
     fi
 
-    local username=$(echo $1 | awk -F@ '{printf $1}')
-    local server_set=$(echo $1 | awk -F@ '{printf $2}')
+    local username="$(echo $1 | awk -F@ '{printf $1}')"
+    local server_set="$(echo $1 | awk -F@ '{printf $2}')"
     echo "server_set" $server_set
     shift
     if [ "$server_set"  = '' ]; then
@@ -120,11 +135,13 @@ Attention:
         local realname="$1"
         local uid="$2"
         local enc_password="$3"
+        local passwd='已加密'
     else
         local realname=
         local uid=
         local enc_password=
-        manual_set realname uid enc_password
+        local passwd=
+        manual_set realname uid enc_password passwd
     fi
 
     echo "============================ making user account  ============================"
@@ -134,6 +151,8 @@ Attention:
     local servers=()
     parse_server_set "$server_set" servers
     ssh -t ${servers[1]} ". $admin_tool_path/load_all.sh && allnewkey '$server_set' $username"
+
+    userguide "$username" "$passwd"
 }
 
 alladduser()
