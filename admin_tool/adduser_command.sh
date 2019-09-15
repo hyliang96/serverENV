@@ -98,12 +98,14 @@ userguide()
     local username="$1"
     local passwd="$2"
 
+    echo "-------------------------------------------------------------------------"
     echo "服务器账号：$username"
     echo "密码：$passwd"
     echo "并请速速更改密码"
     echo
     echo "服务器使用教程：http://101.6.240.88:4567/tutorial/Cluster-Usage"
     echo "教程账号：user，密码：linearregression"
+    echo "-------------------------------------------------------------------------"
 }
 
 _alladduser()
