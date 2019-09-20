@@ -13,15 +13,15 @@ all()
     _all $@
 }
 
-alltest()
-{
-    if [ $# -eq 0 ]; then
-        local server_set='a'
-    else
-        local server_set="$1"
-    fi
-    all "$server_set" 'echo test'
-}
+# alltest()
+# {
+    # if [ $# -eq 0 ]; then
+        # local server_set='a'
+    # else
+        # local server_set="$1"
+    # fi
+    # all "$server_set" 'echo test'
+# }
 
 alias _send="zsh $here/all.sh --send"
 send()

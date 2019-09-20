@@ -145,7 +145,6 @@ allsshmfs()
 # 将所有mfs开启
 alias allmfs='allmfsstart; allsshmfs'
 
-alias alltest='all a "echo Hello World!"'
 
 
 
