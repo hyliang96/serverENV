@@ -103,11 +103,12 @@ userguide()
 {
     local username="$1"
     local passwd="$2"
+    local servers="$3"
 
     echo "-------------------------------------------------------------------------"
     echo "服务器账号：$username"
-    echo "密码：$passwd"
-    echo "并请速速更改密码"
+    echo "密码：$passwd     登录后可自行改密"
+    echo "开了账号的服务器：$servers"
     echo
     echo "服务器使用教程：http://101.6.240.88:4567/tutorial/Cluster-Usage"
     echo "教程账号：user，密码：linearregression"
@@ -160,7 +161,7 @@ Attention:
 
     ssh "${servers[1]}" -t ". $admin_tool_path/load_all.sh && allnewkey '$server_set' $username"
 
-    userguide "$username" "$passwd"
+    userguide "$username" "$passwd" "${servers[*]}"
 }
 
 alladduser()
