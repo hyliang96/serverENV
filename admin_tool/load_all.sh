@@ -55,6 +55,8 @@ allgid()
     all "$server_set" --gid $gid
 }
 
+
+unalias allgpu
 allgpu()
 {
     local server_set=
