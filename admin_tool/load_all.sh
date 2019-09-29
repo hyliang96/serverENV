@@ -56,7 +56,9 @@ allgid()
 }
 
 
-unalias allgpu
+if [ "`type allgpu`" =~ 'alias' ]; then
+    unalias allgpu
+fi
 allgpu()
 {
     local server_set=
