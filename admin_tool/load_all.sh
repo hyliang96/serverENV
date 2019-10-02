@@ -56,7 +56,7 @@ allgid()
 }
 
 
-if [ "`type allgpu`" =~ 'alias' ]; then
+if [[ "`type allgpu`" =~ 'alias' ]]; then
     unalias allgpu
 fi
 allgpu()
