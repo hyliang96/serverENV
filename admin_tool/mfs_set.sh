@@ -139,7 +139,7 @@ _allsshmfs()
 allsshmfs()
 {
     # echo "`eval echo $here`"
-    sudo su -c ". $admin_tool_path/load_all.sh; _allsshmfs $*"
+    sudo su -c ". $admin_tool_path/load_all.sh; _allsshmfs '$1' '$2'"
 }
 
 # 将所有mfs开启
