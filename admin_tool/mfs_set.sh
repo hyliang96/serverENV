@@ -134,8 +134,8 @@ _allsshmfs()
 }
 
 # 重新用sshfs挂载mfs
-# allsshmfs 机器编组 [sshmfs源服务器 缺省则为每台服务器对口的sshmfs源服务器]
-# 机器编组：可以只写一台服务器
+# allsshmfs 机器编组 [一台sshmfs源服务器 缺省则为每台服务器对口的sshmfs源服务器]
+# 机器编组：可以只写一台服务器, 可以写多台 形如'g{2..4} g8 g10'
 allsshmfs()
 {
     # echo "`eval echo $here`"
