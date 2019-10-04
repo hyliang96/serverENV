@@ -200,9 +200,11 @@ alldeluser()
     fi
 }
 
+# 列出你本地可见的用户名
+alias userls='cut -d: -f1 /etc/passwd'
 
 # show uid of all users on this server
-uids()
+ids()
 {
     if [ $# -eq 0 ]; then
         awk -F '[:]' '{print $3, $1}' /etc/passwd | sort -nr
@@ -262,3 +264,38 @@ allpasswd()
     local encrypted="$(ssh -t $source_host "cat /etc/shadow | grep $user | awk -F: '{ printf \$2}'")"
     all "$server_set" "usermod -p '${encrypted}' $user"
 }
+
+
+# 原生用户操作
+# 详见 man adduser, man useradd, man userdel 等
+
+# To list all users capable of authenticating (in some way), including non-local, see this reply: https://askubuntu.com/a/414561/571941
+
+# 加用户
+    # 傻瓜操作，需要设置密码，会创建/home/用户名，等其他众多设置，
+    # `sudo adduser 用户名`
+    # 底层操作，需要设置密码，不创建/home/用户名，等其他众多设置
+    # `sudo useradd 用户名`
+    # See also: What is the difference between adduser and useradd?
+
+# 删用户
+        # `sudo userdel 用户名`
+        # `sudo rm -r /home/用户名`       # 小心使用，或用下命令
+        # `sudo rm -rf /var/mail/用户名`   # 小心使用，或用下命令
+    # 上述操作等价于
+    # `sudo userdel -r 用户名`
+
+# 改用户名
+    # usermod -l 新用户名 老用户名
+
+# 改用户密码
+    # sudo passwd 用户名
+
+# 改用默认shell
+    # sudo chsh 用户名
+
+# 改用户信息 （如真实姓名）:
+    # sudo chfn 用户名
+
+# 将用户加入sudo
+    # usermod -aG sudo 用户名
