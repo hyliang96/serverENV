@@ -5,7 +5,7 @@
 # get absoltae path to the dir this is in, work in bash, zsh
 # if you want transfer symbolic link to true path, just change `pwd` to `pwd -P`
 here=$(cd "$(dirname "${BASH_SOURCE[0]-$0}")"; pwd)
-. $here/all_config.sh
+. $here/hosts.sh
 
 
 
@@ -106,12 +106,12 @@ mfsstart()
 }
 
 # 开启原生的mfs
-alias __allmfsstart="all J1 '. $here/load_all.sh; mfsstart'"
+alias __allmfsstart="all J1 '. $here/load.sh; mfsstart'"
 _allmfsstart()
 {
     __allmfsstart
 }
-alias allmfsstart="sudo su -c '. $here/load_all.sh; _allmfsstart'"
+alias allmfsstart="sudo su -c '. $here/load.sh; _allmfsstart'"
 # 注意，不可把 _allsshmfs 写成一个 alias，必需写成function
 # 这是因为 su -c 'xxxx' 是非交互式登录，故未经专门设置则不支持alias，只支持function
 
@@ -139,7 +139,7 @@ _allsshmfs()
 allsshmfs()
 {
     # echo "`eval echo $here`"
-    sudo su -c ". $admin_tool_path/load_all.sh; _allsshmfs '$1' '$2'"
+    sudo su -c ". $admin_tool_path/load.sh; _allsshmfs '$1' '$2'"
 }
 
 # 将所有mfs开启

@@ -159,7 +159,7 @@ Attention:
     local servers=()
     parse_server_set "$server_set" servers
 
-    ssh "${servers[1]}" -t ". $admin_tool_path/load_all.sh && allnewkey '$server_set' $username"
+    ssh "${servers[1]}" -t ". $admin_tool_path/load.sh && allnewkey '$server_set' $username"
 
     userguide "$username" "$passwd" "${servers[*]}"
 }
@@ -167,11 +167,11 @@ Attention:
 alladduser()
 {
     if [ $# -eq 0 ]; then
-        sudo su -c ". $admin_tool_path/load_all.sh; _alladduser"
+        sudo su -c ". $admin_tool_path/load.sh; _alladduser"
     else
         local user_server_set="$1"
         set -- ${@:2:$#}
-        sudo su -c ". $admin_tool_path/load_all.sh; _alladduser '$user_server_set' $*"
+        sudo su -c ". $admin_tool_path/load.sh; _alladduser '$user_server_set' $*"
     fi
 }
 
@@ -191,7 +191,7 @@ alldeluser()
 
     answer=$(bash -c "read -p $'You want to delete \e[1;31m$user\e[0m in host set \e[1;31m$hostset\e[0m? It\'s \e[1;31mirreversible\e[0m. [Y/N]' c; echo \$c"); echo
     if [ "$answer" = "y" ] || [ "$answer" = "Y" ]; then
-        sudo su -c ". $admin_tool_path/load_all.sh; all '$hostset' 'userdel -r $user; id $user'"
+        sudo su -c ". $admin_tool_path/load.sh; all '$hostset' 'userdel -r $user; id $user'"
         # echo "userdel -r $user"
     elif [ "$answer" = "n" ] || [ "$answer" = "N" ]; then
         echo 'please correct the last command'

@@ -103,7 +103,7 @@ admin()
         local cmds="$cmds $i;"
     done
     echo "cmds: $cmds"
-    sudo su -c ". $admin_tool_path/load_all.sh && $cmds"
+    sudo su -c ". $admin_tool_path/load.sh && $cmds"
 }
 
 
@@ -135,7 +135,7 @@ alias sl_home="sudo zsh $here/slG.sh /home"
 
 # }
 
-. $here/adduser_command.sh
+. $here/user_manage.sh
 
 . $here/mfs_set.sh
 

@@ -39,8 +39,8 @@
 * 若用户不满足此依赖，则他每次使用`all*` ,`send`命令，都会要求给每一台服务器输入密码，**欲满足此依赖，请管理员运行**
 
   ```bash
-  . <本目录>/load_all.sh
-  # 如 . /mfs/haoyu/server_conf/ENV/serverENV/admin_tool/load_all.sh
+  . <本目录>/load.sh
+  # 如 . /mfs/haoyu/server_conf/ENV/serverENV/admin_tool/load.sh
   allnewkey [机器编组] <用户名>
   ```
 
@@ -72,7 +72,7 @@
 
 在下述众多命令中`[机器编组]`，均有两种写法
 
-- 预置编组：即`./all_config.sh`中`server_sets`数组当中包含的编组，例如
+- 预置编组：即`./hosts.sh`中`server_sets`数组当中包含的编组，例如
 
   ```
   all c 'ls /home/$USER'
@@ -96,7 +96,7 @@
 | g          | jungpu1-24                | JUN1和JUN2 |
 | a          | juncluster1-4, jungpu1-24 | JUN1和JUN2 |
 
-本包使用`./all_config.sh`文件来配置预置编组，写法如下
+本包使用`./hosts.sh`文件来配置预置编组，写法如下
 
 ```bash
 # 顺序编组
@@ -123,8 +123,8 @@ server_sets=(c  g  gJ1  gJ2 J1 J2 a )
 使用工具包前，需先在`zsh`或`bash`下执行以下命令
 
 ```bash
-. <本目录>/load_all.sh
-# 如 . /mfs/haoyu/server_conf/ENV/serverENV/admin_tool/load_all.sh
+. <本目录>/load.sh
+# 如 . /mfs/haoyu/server_conf/ENV/serverENV/admin_tool/load.sh
 ```
 
 ### 执行命令
@@ -176,7 +176,7 @@ allgpu [机器编组]
 
 ```bash
 sudo su # 然后输入密码
-. <本目录>/load_all.sh # 加载工具包
+. <本目录>/load.sh # 加载工具包
 ```
 
 #### 创建用户
