@@ -4,12 +4,47 @@ v2ray_config_dir="$HOME/.v2ray"
 # get absoltae path to the dir this is in, work in bash, zsh
 # if you want transfer symbolic link to true path, just change `pwd` to `pwd -P`
 v2_script_dir=$(cd "$(dirname "${BASH_SOURCE[0]-$0}")"; pwd)
+v2ray_path_up="$v2_script_dir/.."
 v2ray_path="$v2_script_dir/../v2ray/v2ray"
 v2_script="${BASH_SOURCE[0]-$0}"
 v2_log_dir="$localENV/log/v2ray"
 # get absoltae path to the dir this is in, work in bash, zsh
 # if you want transfer symbolic link to true path, just change `pwd` to `pwd -P`
 # here=$(cd "$(dirname "${BASH_SOURCE[0]-$0}")"; pwd)
+
+_v2_install()
+{
+    local v2ray_dir="$v2ray_path_up/v2ray"
+    local new_version=$(curl --silent https://api.github.com/repos/v2ray/v2ray-core/releases/latest | grep -Po '"tag_name": "\K.*?(?=")')
+
+    if [ -d "$v2ray_dir" ]; then
+        local version="$($v2ray_path --version | grep -Eo 'V2Ray [0-9]+(.[0-9]+)+' | sed 's/V2Ray //')"
+
+        answer=$(bash -c "read  -n 1 -p '已有v2ray-core-$version，是否更新为$new_version ? [Y|N]' c; echo \$c"); echo
+
+        if [ "$answer" != 'y' ] && [ "$answer" != 'Y' ]; then
+            echo "不更新，退出"
+            return
+        fi
+
+        mkdir -p $v2ray_path_up/v2ray_back
+        local back_dir="$v2ray_path_up/v2ray_back/v2ray-v$version-back_at_$(date +%F-%T)"
+        mv $v2ray_dir $back_dir
+        echo "原v2ray-core已备份到$back_dir"
+    fi
+
+    echo "下载v2ray-core-$new_version"
+    curl -L https://github.com/v2ray/v2ray-core/releases/latest/download/v2ray-linux-64.zip > $v2ray_path_up/v2ray-linux-64.zip
+    echo "解压v2ray-core-$new_version"
+    unzip -q $v2ray_path_up/v2ray-linux-64.zip -d $v2ray_dir
+    echo "清空安装包"
+    [ -f  $v2ray_path_up/v2ray-linux-64.zip ] && rm $v2ray_path_up/v2ray-linux-64.zip
+
+    echo "安装到: $v2ray_path"
+    echo "更新后版本："
+    $v2ray_path --version
+}
+
 
 # 关闭开全局http,https,socks5 翻墙
 _v2_stop()
@@ -97,14 +132,17 @@ v2()
     elif [ "$1" = 'status' ]; then
         shift
         _v2_status
+    elif [ "$1" = 'install' ] || [ "$1" = 'update' ] ; then
+        _v2_install
     else
         echo 'v2ray client command line interface'
         echo
+        echo '`v2 install|update`     install or update v2ray-core'
         echo '`v2 start [<vps_name>]` (re)open v2ray client; dafault vps_name="default"'
         echo '`v2 stop`               stop v2ray client'
         echo '`v2 ls`                 list all vps_name'
         echo '`v2 jch`                show all sslocal process'
-        echo 
+        echo
         echo '`$v2ray_config_dir`     dir to save all v2ray config'
         echo '`$v2ray_dir`            path to this v2ray bin'
         echo '`$v2_script`            dir to this script'
