@@ -25,15 +25,33 @@ manual_set() {
     echo -n 'set realname: ' >&2 ; read -r realname_
     echo -n 'set uid: ' >&2 ; read uid_
     local password=
+
     while true; do
-        echo -n 'set password: ' >&2 ; read -sr password; echo '' >&2
-        echo -n 'check password: ' >&2 ; read -sr password2; echo '' >&2
-        if [ "$password" = "$password2" ]; then
+        local answer=$(bash -c "read  -n 1 -p 'randomly inititalize password? [Y|N]' c; echo \$c"); echo
+        if [ "$answer" = 'y' ] ||  [ "$answer" = 'Y' ]; then
+            local random_password=true
             break
-        else
-            echo 'passwords are not the same, re-input it' >&2
+        elif  [ "$answer" = 'n' ] ||  [ "$answer" = 'N' ]; then
+            local random_password=false
+            break
         fi
+        echo 'input not correct, please input "N" or "Y".'
     done
+
+    if [ "$random_password" = 'true' ]; then
+        local password="$(randpasswd)"
+    else
+        while true; do
+            echo -n 'set password: ' >&2 ; read -sr password; echo '' >&2
+            echo -n 'check password: ' >&2 ; read -sr password2; echo '' >&2
+            if [ "$password" = "$password2" ]; then
+                break
+            else
+                echo 'passwords are not the same, re-input it' >&2
+            fi
+        done
+    fi
+
     local enc_password_=$(echo "$password" | openssl passwd -1 -stdin)
 
     # eval $1=\"\$username_\"
@@ -134,11 +152,13 @@ Attention:
 
     local username="$(echo $1 | awk -F@ '{printf $1}')"
     local server_set="$(echo $1 | awk -F@ '{printf $2}')"
-    echo "server_set" $server_set
     shift
     if [ "$server_set"  = '' ]; then
         local server_set='a'
     fi
+
+    echo "username: $username"
+    echo "server_set: $server_set"
 
     if [ $# -eq 3 ]; then
         local realname="$1"
