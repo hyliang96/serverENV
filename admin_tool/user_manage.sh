@@ -88,7 +88,6 @@ adduser_command() {
 
 
 allnewkey() {
-    echo 1
     if [ $# -ne 2 ]; then
         echo 'Usage: `allnewkey <server_set> <username>`
 What it will do:
@@ -98,12 +97,10 @@ What it will do:
         return
     fi
 
-    echo 2
 
     local server_set="$1"
     local username="$2"
 
-    echo 3
 
     echo "=================== making keys in /home/$username/.ssh  ====================="
     # 若已有id_rsa,id_rsa.pub，则会询问你是否覆盖之
