@@ -139,5 +139,7 @@ alias sl_home="sudo zsh $here/slG.sh /home"
 
 . $here/mfs_set.sh
 
+. $here/software.sh
+
 
 unset here
