@@ -5,14 +5,14 @@ tmp_log=$(mktemp /tmp/tmp.XXXXXXXXXX)
 tmp_finish=$(mktemp /tmp/tmp.XXXXXXXXXX)
 
 
-echo $tmp_log
-echo $tmp_finish
+# echo $tmp_log
+# echo $tmp_finish
 
 exit_func() {
     # 杀死所有子进程
     pkill -P $$
     sort -n $tmp_log
-    if [ "`cat $tmp_finish`" = '1' ]; then echo finished; else echo unfinished; fi
+    if [ "`cat $tmp_finish`" = 'finished' ]; then echo finished; else echo unfinished; fi
     [ -f $tmp_log ] && rm $tmp_log
     [ -f $tmp_finish ] && rm $tmp_finish
 }
@@ -38,13 +38,17 @@ trap ctrl_c SIGINT
 watch -n 1 -t "sort -n -r $tmp_log" &
 
 {
-    du -axhd1  --block-size=1G $@ >> $tmp_log
-    echo 1 >> $tmp_finish
-} &
+    for i in `ls $@`; do
+        du  -axhd0  --block-size=1G $i >> $tmp_log &
+    done
+    wait
+    # du -axhd1  --block-size=1G $@ >> $tmp_log
+    echo finished >> $tmp_finish
+}  &
 
 while true; do
     sleep 1
-    if [ "`cat $tmp_finish`" = '1' ]; then
+    if [ "`cat $tmp_finish`" = 'finished' ]; then
         exit_script
     fi
 done
