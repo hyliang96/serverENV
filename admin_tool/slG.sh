@@ -48,10 +48,15 @@ trap ctrl_c SIGINT
 
 pathset=()
 for upper_path in "$@"; do
+    upper_file_sys="$(df $upper_path | tail -n1 | awk '{print $1}')"
     OLD_IFS="$IFS"
     IFS=$'\n'
     for i in $(ls -a1 $upper_path 2> /dev/null | grep -vE '^(.|..)[/]*$'); do
-        pathset+=("$upper_path/$i")
+        suber_path=$upper_path/$i
+        file_sys="$(df $suber_path | tail -n1 | awk '{print $1}')"
+        if [ "$file_sys" = "$upper_file_sys" ]; then
+            pathset+=("$suber_path")
+        fi
     done
     IFS="$OLD_IFS"
 done
@@ -68,7 +73,7 @@ done
     for i in "${pathset[@]}"; do
     {
         du  -axhd0  --block-size=1G $i >> $tmp_log 2>&1
-        sort -n -r $tmp_log > $tmp_log_sort 
+        sort -n -r $tmp_log > $tmp_log_sort
     } &
     done
     wait
