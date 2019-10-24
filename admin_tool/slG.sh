@@ -15,8 +15,8 @@ tmp_finish=$(mktemp /tmp/tmp.XXXXXXXXXX)
 exit_func() {
     # 杀死所有子进程
     pkill -P $$
-    cat $tmp_log_sort
-    # sort -n $tmp_log
+    # cat $tmp_log_sort
+    sort -n $tmp_log
     # if [ "`cat $tmp_finish`" = 'finished' ]; then echo finished; else echo unfinished; fi
     if [ "`cat $tmp_finish`" = 'finished' ]; then : ; else echo unfinished; fi
     [ -f $tmp_log ] && rm $tmp_log
@@ -77,14 +77,16 @@ done
     echo 'finished' >> $tmp_log_sort
 }  &
 
-monitor_file "$tmp_log_sort"
+{
+    while true; do
+        sleep 1
+        if [ "`cat $tmp_finish`" = 'finished' ]; then
+            exit_script
+        fi
+    done
+} &
 
-while true; do
-    sleep 1
-    if [ "`cat $tmp_finish`" = 'finished' ]; then
-        exit_script
-    fi
-done
+monitor_file "$tmp_log_sort"
 
 
 wait
