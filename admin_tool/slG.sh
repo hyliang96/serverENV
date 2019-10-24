@@ -9,9 +9,9 @@ tmp_log_sort=$(mktemp /tmp/tmp.XXXXXXXXXX)
 tmp_finish=$(mktemp /tmp/tmp.XXXXXXXXXX)
 
 
-echo $tmp_log
-echo $tmp_log_sort
-echo $tmp_finish
+# echo $tmp_log
+# echo $tmp_log_sort
+# echo $tmp_finish
 
 exit_func() {
     # 杀死所有子进程
@@ -19,7 +19,7 @@ exit_func() {
     # cat $tmp_log_sort
     sort -n $tmp_log
     # if [ "`cat $tmp_finish`" = 'finished' ]; then echo finished; else echo unfinished; fi
-    if [ "`cat $tmp_finish`" = 'finished' ]; then : ; else echo unfinished; fi
+    if [ "`cat $tmp_finish`" = 'finished' ]; then echo finished ; else echo unfinished; fi
     [ -f $tmp_log ] && rm $tmp_log
     [ -f $tmp_finish ] && rm $tmp_finish
     [ -f $tmp_log_sort ] && rm $tmp_log_sort
