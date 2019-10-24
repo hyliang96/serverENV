@@ -50,7 +50,7 @@ pathset=()
 for upper_path in "$@"; do
     OLD_IFS="$IFS"
     IFS=$'\n'
-    for i in $(ls -a1 $upper_path | grep -vE '^(.|..)[/]*$'); do
+    for i in $(ls -a1 $upper_path 2> /dev/null | grep -vE '^(.|..)[/]*$'); do
         pathset+=("$upper_path/$i")
     done
     IFS="$OLD_IFS"
@@ -67,8 +67,8 @@ done
 {
     for i in "${pathset[@]}"; do
     {
-        du  -axhd0  --block-size=1G $i >> $tmp_log
-        sort -n -r $tmp_log > $tmp_log_sort
+        du  -axhd0  --block-size=1G $i >> $tmp_log 2>&1
+        sort -n -r $tmp_log > $tmp_log_sort 
     } &
     done
     wait
