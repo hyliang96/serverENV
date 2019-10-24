@@ -20,11 +20,11 @@ if [ "$(echo $host_name | tr -d '[0-9]')" = 'jungpu' ] ; then
         if [ $host_id -ge 12 ]; then
             # 在jungpu12-13
             # mfs 用sshfs挂载cpu1-2
-            mfs_source='juncluster'"`expr  ( $host_id - 11 ) % 11 + 1 `"
+            mfs_source='juncluster'"$((  ( $host_id - 11 ) % 11 + 1 ))"
         fi
     else
         host_group='JUN2'   # 在jungpu>=14
-        mfs_source='jungpu'"`expr ( $host_id - 13 ) % 11 + 1 `"
+        mfs_source='jungpu'"$(( ( $host_id - 13 ) % 11 + 1 ))"
         # jungpuxx 的/mfs用sshfs挂载 jungpu(xx-13) 的 /mfs
     fi
 else
