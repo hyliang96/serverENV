@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-here=$(cd "$(dirname "${BASH_SOURCE[0]-$0}")"; pwd)
-here="`echo $here | sed 's/^\/mfs\/\([^\/]\+\)/\/home\/\1\/mfs/'`"
-. ${here}/utils.sh
+admin_tool_path=$(cd "$(dirname "${BASH_SOURCE[0]-$0}")"; pwd)
+admin_tool_path="`echo $admin_tool_path | sed 's/^\/mfs\/\([^\/]\+\)/\/home\/\1\/mfs/'`"
+. ${admin_tool_path}/utils.sh
 
 tmp_log=$(mktemp /tmp/tmp.XXXXXXXXXX)
 tmp_log_sort=$(mktemp /tmp/tmp.XXXXXXXXXX)
@@ -44,14 +44,36 @@ trap ctrl_c SIGINT
 
 # watch -n 1 -t "sort -n -r $tmp_log" &
 
+pathset=()
+for upper_path in "$@"; do
+    OLD_IFS="$IFS"
+    IFS=$'\n'
+    for i in $(ls -a1 $upper_path | grep -vE '^(.|..)[/]*$'); do
+        pathset+=("$upper_path/$i")
+    done
+    IFS="$OLD_IFS"
+done
+
+# declare -p pathset
+
+# exit 1
+
+# {
+# } &
+
+
 {
-    for i in `ls $@`; do
-        du  -axhd0  --block-size=1G $i >> $tmp_log &
+    for i in "${pathset[@]}"; do
+    {
+        du  -axhd0  --block-size=1G $i >> $tmp_log
+        sort -n -r $tmp_log > $tmp_log_sort
+    } &
     done
     wait
     # du -axhd1  --block-size=1G $@ >> $tmp_log
     echo finished >> $tmp_finish
-    sort -n -r $tmp_log >> $tmp_log_sort
+    sed -i '1s/^/finished ed/' $tmp_log_sort
+    echo 'finished' >> $tmp_log_sort
 }  &
 
 monitor_file "$tmp_log_sort"
