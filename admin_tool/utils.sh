@@ -12,9 +12,9 @@ is_array() {
 }
 
 
-here=$(cd "$(dirname "${BASH_SOURCE[0]-$0}")"; pwd)
-. $here/path.sh
-. $here/hosts.sh
+# here=$(cd "$(dirname "${BASH_SOURCE[0]-$0}")"; pwd)
+. $admin_tool_path/path.sh
+. $admin_tool_path/hosts.sh
 
 # 检查server_set_是否有效
 parse_server_set()
