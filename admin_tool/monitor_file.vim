@@ -7,7 +7,8 @@ function! Timer()
     if getline(1) == "finished"
         set modifiable
         norm ggOquitvim
-        norm quit!
+        write
+        quit!
     endif
 endfunction
 set updatetime=100  " milliseconds

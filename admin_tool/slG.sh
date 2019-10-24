@@ -78,14 +78,14 @@ done
     echo 'finished' >> $tmp_log_sort
 }  &
 
-# {
-    # while true; do
-        # sleep 1
-        # if [ "`cat $tmp_finish`" = 'finished' ]; then
-            # exit_script
-        # fi
-    # done
-# } &
+{
+    while true; do
+        sleep 1
+        if [ "`cat $tmp_finish`" = 'finished' ] && [ "$(head -n1 $tmp_log_sort)" = 'quitvim' ]; then
+            exit_script
+        fi
+    done
+} &
 
 monitor_file "$tmp_log_sort"
 
