@@ -13,6 +13,7 @@ is_array() {
 
 
 here=$(cd "$(dirname "${BASH_SOURCE[0]-$0}")"; pwd)
+. $here/path.sh
 . $here/hosts.sh
 
 # 检查server_set_是否有效
@@ -70,3 +71,5 @@ parse_server_set()
     # fi
     unset server_set_
 }
+
+alias monitor_file="command vim -u ${admin_tool_path}/monitor_file.vim"
