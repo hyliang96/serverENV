@@ -17,7 +17,8 @@ exit_func() {
     pkill -P $$
     cat $tmp_log_sort
     # sort -n $tmp_log
-    if [ "`cat $tmp_finish`" = 'finished' ]; then echo finished; else echo unfinished; fi
+    # if [ "`cat $tmp_finish`" = 'finished' ]; then echo finished; else echo unfinished; fi
+    if [ "`cat $tmp_finish`" = 'finished' ]; then : ; else echo unfinished; fi
     [ -f $tmp_log ] && rm $tmp_log
     [ -f $tmp_finish ] && rm $tmp_finish
     [ -f $tmp_log_sort ] && rm $tmp_log_sort
@@ -72,7 +73,7 @@ done
     wait
     # du -axhd1  --block-size=1G $@ >> $tmp_log
     echo finished >> $tmp_finish
-    sed -i '1s/^/finished ed/' $tmp_log_sort
+    sed -i '1s/^/finished\n/' $tmp_log_sort
     echo 'finished' >> $tmp_log_sort
 }  &
 
