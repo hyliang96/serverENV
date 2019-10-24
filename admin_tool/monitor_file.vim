@@ -13,3 +13,7 @@ function! Timer()
 endfunction
 set updatetime=100  " milliseconds
 set nomodifiable
+
+" disable 'Press Enter or type command to continue' at startup.
+set shortmess=a
+set cmdheight=2
