@@ -2,7 +2,7 @@
 
 here=$(cd "$(dirname "${BASH_SOURCE[0]-$0}")"; pwd)
 here="`echo $here | sed 's/^\/mfs\/\([^\/]\+\)/\/home\/\1\/mfs/'`"
-. ${admin_tool_path}/utils.sh
+. ${here}/utils.sh
 
 tmp_log=$(mktemp /tmp/tmp.XXXXXXXXXX)
 tmp_log_sort=$(mktemp /tmp/tmp.XXXXXXXXXX)
