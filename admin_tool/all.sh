@@ -89,7 +89,7 @@ fi
 # ---------------------------------------
 # 临时文件夹
 runid="$(hostname)-$(date "+%Y-%m-%d_%H-%M-%S")"
-dir=~/.cache/all/$runid
+dir="~/.cache/all/$runid"
 mkdir -p $dir
 if [ "$(ls -a $dir)" != "" ]; then
     rm $dir  -rf
@@ -191,7 +191,7 @@ function exit_func()
     # 报告未完成的服务器的名单
     echo -n 'unfinished servers:' && cat $dir/unfinished_output
     # 删除临时文件夹
-    # rm $dir -rf
+    if [ -d "$dir" ] && rm $dir -rf
     unset here
     # exit 1
 }
@@ -282,7 +282,7 @@ update_output_file()
     # ln -sf ${dir}/output_file-$server ${dir}/output_file
 
     {
-        echo 'hosts in wait (:q to stop waiting):'
+        echo 'hosts in wait (ctr+C to stop waiting):'
         cat $dir/unfinished_output
         echo
         # ls $dir/*.feedback 2> /dev/null | sort --version-sort | xargs -I {} cat {}
