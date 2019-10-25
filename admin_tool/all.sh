@@ -241,7 +241,8 @@ deal_server() {
         fi
     elif [ "$send" = 'true' ]; then
         # echo "rsync -aHhzP -e \"ssh -F $ssh_config\" $@ $server:$server_path "
-        # command rsync -aHhzP -e "ssh -F $ssh_config" $@ $server:$server_path >> $dir/$server.feedback 2>&1
+        # command rsync -aHhzP -e "ssh -F $ssh_config" $@ \
+            # $server:$server_path >> $dir/$server.feedback 2>&1
         echo "rsync -aHhzP -e \"ssh -o 'StrictHostKeyChecking no'\"  ${files[@]} $server:$server_path " >> $dir/$server.feedback 2>&1
         command rsync -aHhzP -e "ssh -o 'StrictHostKeyChecking no'" ${files[@]} $server:$server_path >> $dir/$server.feedback 2>&1
     # command表示系统原版rsync命令
@@ -306,11 +307,6 @@ update_output_file()
         # if [ "$(head -n1 ${dir}/output_file)" = 'quitvim' ]; then
             break
         fi
-        sleep 1
-        if [ -f "${dir}/quitvim" ]; then
-        # if [ "$(head -n1 ${dir}/output_file)" = 'quitvim' ]; then
-            break
-        fi
         update_output_file
         if [ -f "${dir}/quitvim" ]; then
         # if [ "$(head -n1 ${dir}/output_file)" = 'quitvim' ]; then
@@ -322,6 +318,7 @@ update_output_file()
             echo 'finished' >> ${dir}/output_file
             break
         fi
+        sleep 1
     done
     # if [ "`sort --version-sort $dir/servers $dir/finished | uniq -u`" = '' ]; then
 
@@ -335,16 +332,17 @@ update_output_file()
     done
 } &
 
+
+
 # 主循环
 {
     for server in ${servers[@]}; do
-        {
+        ( (
             deal_server $server
-            # update_output_file $server
-        } &
+        ) & ) > /dev/null 2>&1
     done
-    unset -v server
-
+    wait
+    # unset -v server
 } &
 
 # {
