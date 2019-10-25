@@ -303,18 +303,19 @@ update_output_file()
     # exit when all servers return result
     while true; do
         if [ "$(head -n1 ${dir}/output_file)" = 'quitvim' ]; then
-            exit_script
+            break
         fi
         sleep 1
         update_output_file
         if [ "`sort --version-sort $dir/servers $dir/finished | uniq -u`" = '' ]; then
             update_output_file
+            sed -i '1s/^/finished\n/' ${dir}/output_file
+            echo 'finished' >> ${dir}/output_file
             break
         fi
     done
     # if [ "`sort --version-sort $dir/servers $dir/finished | uniq -u`" = '' ]; then
-    sed -i '1s/^/finished\n/' ${dir}/output_file
-    echo 'finished' >> ${dir}/output_file
+
     # fi
     while true; do
         if [ "$(head -n1 ${dir}/output_file)" = 'quitvim' ]; then

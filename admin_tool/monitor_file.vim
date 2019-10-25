@@ -7,7 +7,7 @@ set cmdheight=2
 function! Quit()
     set modifiable
     norm ggOquitvim
-    write
+    write!
     quit!
 endfunction
 
@@ -28,7 +28,7 @@ autocmd CursorMoved,CursorMovedI * call Timer()
 
 " unmap <C-c>
 " nmap <C-c> <silent> <C-c>
-nnoremap q :call Quit()<cr>
-" vnoremap <C-c> :call Quit()<cr>
+" nnoremap q :call Quit()<CR>
+map <C-c> :call Quit()<cr>
 
 
