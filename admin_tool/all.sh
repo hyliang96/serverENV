@@ -320,6 +320,7 @@ update_output_file()
         if [ "$(head -n1 ${dir}/output_file)" = 'quitvim' ]; then
             exit_script
         fi
+        sleep 1
     done
 } &
 
