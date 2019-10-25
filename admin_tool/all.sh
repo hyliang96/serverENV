@@ -89,7 +89,7 @@ fi
 # ---------------------------------------
 # 临时文件夹
 runid="$(hostname)-$(date "+%Y-%m-%d_%H-%M-%S")"
-dir="~/.cache/all/$runid"
+dir=~/.cache/all/$runid
 mkdir -p $dir
 if [ "$(ls -a $dir)" != "" ]; then
     rm $dir  -rf
@@ -302,15 +302,18 @@ update_output_file()
 {
     # exit when all servers return result
     while true; do
-        if [ "$(head -n1 ${dir}/output_file)" = 'quitvim' ]; then
+        if [ -f "${dir}/quitvim" ]; then
+        # if [ "$(head -n1 ${dir}/output_file)" = 'quitvim' ]; then
             break
         fi
         sleep 1
-        if [ "$(head -n1 ${dir}/output_file)" = 'quitvim' ]; then
+        if [ -f "${dir}/quitvim" ]; then
+        # if [ "$(head -n1 ${dir}/output_file)" = 'quitvim' ]; then
             break
         fi
         update_output_file
-        if [ "$(head -n1 ${dir}/output_file)" = 'quitvim' ]; then
+        if [ -f "${dir}/quitvim" ]; then
+        # if [ "$(head -n1 ${dir}/output_file)" = 'quitvim' ]; then
             break
         fi
         if [ "`sort --version-sort $dir/servers $dir/finished | uniq -u`" = '' ]; then
@@ -324,7 +327,8 @@ update_output_file()
 
     # fi
     while true; do
-        if [ "$(head -n1 ${dir}/output_file)" = 'quitvim' ]; then
+        if [ -f "${dir}/quitvim" ]; then
+        # if [ "$(head -n1 ${dir}/output_file)" = 'quitvim' ]; then
             exit_script
         fi
         sleep 1
