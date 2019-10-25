@@ -26,8 +26,9 @@ autocmd CursorHold,CursorHold * call Timer()
 autocmd CursorMoved,CursorMovedI * call Timer()
 
 
-unmap <C-c>
-nnoremap <C-c>  :call Quit()<cr>
-vnoremap <C-c> :call Quit()<cr>
+" unmap <C-c>
+" nmap <C-c> <silent> <C-c>
+nnoremap q :call Quit()<cr>
+" vnoremap <C-c> :call Quit()<cr>
 
 
