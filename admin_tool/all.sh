@@ -302,6 +302,9 @@ update_output_file()
 {
     # exit when all servers return result
     while true; do
+        if [ "$(head -n1 ${dir}/output_file)" = 'quitvim' ]; then
+            exit_script
+        fi
         sleep 1
         update_output_file
         if [ "`sort --version-sort $dir/servers $dir/finished | uniq -u`" = '' ]; then
@@ -309,10 +312,15 @@ update_output_file()
             break
         fi
     done
-    if [ "`sort --version-sort $dir/servers $dir/finished | uniq -u`" = '' ]; then
-        sed -i '1s/^/finished\n/' ${dir}/output_file
-        echo 'finished' >> ${dir}/output_file
-    fi
+    # if [ "`sort --version-sort $dir/servers $dir/finished | uniq -u`" = '' ]; then
+    sed -i '1s/^/finished\n/' ${dir}/output_file
+    echo 'finished' >> ${dir}/output_file
+    # fi
+    while true; do
+        if [ "$(head -n1 ${dir}/output_file)" = 'quitvim' ]; then
+            exit_script
+        fi
+    done
 } &
 
 # 主循环
@@ -327,20 +335,20 @@ update_output_file()
 
 } &
 
-{
-    # exit when all servers return result
-    while true; do
-        sleep 1
-        # 不可用这句''' if [ "`cat $dir/unfinished_output`"  = '' ]; then '''
-        # 这是因为：
-        # 在执行`echo $unfinished > $dir/unfinished_output`时，是先清空unfinished_output文件，再写入，
-        # 如果刚清空完，就被判断 [ "`cat $dir/unfinished_output`"  = '' ] ，则会提前执行 exit_func
-        if [ "`sort --version-sort $dir/servers $dir/finished | uniq -u`" = '' ] \
-        && [ "$(head -n1 ${dir}/output_file)" = 'quitvim' ]; then
-            exit_script
-        fi
-    done
-} &
+# {
+#     # exit when all servers return result
+#     while true; do
+#         sleep 1
+#         # 不可用这句''' if [ "`cat $dir/unfinished_output`"  = '' ]; then '''
+#         # 这是因为：
+#         # 在执行`echo $unfinished > $dir/unfinished_output`时，是先清空unfinished_output文件，再写入，
+#         # 如果刚清空完，就被判断 [ "`cat $dir/unfinished_output`"  = '' ] ，则会提前执行 exit_func
+#         # if [ "`sort --version-sort $dir/servers $dir/finished | uniq -u`" = '' ]  && \
+#         if [ "$(head -n1 ${dir}/output_file)" = 'quitvim' ]; then
+#             exit_script
+#         fi
+#     done
+# } &
 
 
 monitor_file "${dir}/output_file"
