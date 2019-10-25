@@ -8,10 +8,6 @@ here=$(cd "$(dirname "${BASH_SOURCE[0]-$0}")"; pwd)
 . $here/hosts.sh
 . $here/utils.sh
 
-for i in "$@"; do
-    echo "|$i|"
-done
-echo '========='
 
 # ---------------------------------------
 # 参数解析
@@ -74,7 +70,6 @@ elif [ "$send" = true ]; then
 else
     cmds=''
     for i in "$@"; do
-        echo "|$i|"
         if [ "$no_prompt" = true ]; then
             cmds="${cmds} $i; echo;"
         else
@@ -85,7 +80,7 @@ else
             cmds="${cmds} echo -E \"# $i_print\"; $i; echo;"
         fi
     done
-    echo -E "cmds: $cmds"
+    # echo -E "cmds: $cmds"
 fi
 
 
@@ -144,9 +139,31 @@ unset -v server
 touch $dir/finished
 touch ${dir}/output_file__init__
 ln -sf ${dir}/output_file__init__ ${dir}/output_file
-
-
 echo "${servers[@]}" >> $dir/unfinished_output
+
+
+if ! [  -f "$dir/servers" ]; then
+    echo "no $dir/servers"
+    exit 1
+fi
+if ! [  -f "$dir/finished" ]; then
+    echo "no $dir/finished"
+    exit 1
+fi
+if ! [  -f "$dir/unfinished_output" ]; then
+    echo "no $dir/unfinished_output"
+    exit 1
+fi
+if ! [  -f "$dir/output_file__init__" ]; then
+    echo "no $dir/output_file__init__"
+    exit 1
+fi
+if ! [  -L "$dir/output_file" ]; then
+    echo "no $dir/output_file"
+    exit 1
+fi
+
+
 
 
 if [ "$checkuid" = true ]; then
@@ -265,7 +282,7 @@ update_output_file()
     # ln -sf ${dir}/output_file-$server ${dir}/output_file
 
     {
-        echo 'hosts in wait (:q to quit vim, after quiting Ctrl+C to stop waiting):'
+        echo 'hosts in wait (:q to stop waiting):'
         cat $dir/unfinished_output
         echo
         # ls $dir/*.feedback 2> /dev/null | sort --version-sort | xargs -I {} cat {}

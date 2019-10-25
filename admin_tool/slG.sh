@@ -73,7 +73,9 @@ done
     for i in "${pathset[@]}"; do
     {
         du  -axhd0  --block-size=1G $i >> $tmp_log 2>&1
-        sort -n -r $tmp_log > $tmp_log_sort
+        echo > $tmp_log_sort
+        echo $':q to stop waiting\n' >> $tmp_log_sort
+        sort -n -r $tmp_log >> $tmp_log_sort
     } &
     done
     wait
