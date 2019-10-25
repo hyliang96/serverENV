@@ -191,7 +191,7 @@ function exit_func()
     # 报告未完成的服务器的名单
     echo -n 'unfinished servers:' && cat $dir/unfinished_output
     # 删除临时文件夹
-    rm $dir -rf
+    # rm $dir -rf
     unset here
     # exit 1
 }
@@ -306,7 +306,13 @@ update_output_file()
             break
         fi
         sleep 1
+        if [ "$(head -n1 ${dir}/output_file)" = 'quitvim' ]; then
+            break
+        fi
         update_output_file
+        if [ "$(head -n1 ${dir}/output_file)" = 'quitvim' ]; then
+            break
+        fi
         if [ "`sort --version-sort $dir/servers $dir/finished | uniq -u`" = '' ]; then
             update_output_file
             sed -i '1s/^/finished\n/' ${dir}/output_file

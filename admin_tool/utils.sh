@@ -74,4 +74,4 @@ parse_server_set()
 
 
 
-alias monitor_file="nvim -u ${admin_tool_path}/monitor_file.vim"
+alias monitor_file="command vim -u ${admin_tool_path}/monitor_file.vim"
