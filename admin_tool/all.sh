@@ -135,6 +135,7 @@ for server in ${servers[@]}; do
 done
 unset -v server
 touch $dir/finished
+touch ${dir}/output_file
 echo "${servers[@]}" >> $dir/unfinished_output
 
 
@@ -146,7 +147,7 @@ if [ "$checkgid" = true ]; then
 fi
 
 
-watch -n 1 -t "echo 'hosts in wait (ctrl+C to stop waiting):' && cat $dir/unfinished_output && echo && ls $dir/*.feedback 2> /dev/null | sort --version-sort | xargs -I {} cat {}" &
+# watch -n 1 -t "echo 'hosts in wait (ctrl+C to stop waiting):' && cat $dir/unfinished_output && echo && ls $dir/*.feedback 2> /dev/null | sort --version-sort | xargs -I {} cat {}" &
 
 
 # 退出进程
@@ -233,23 +234,73 @@ deal_server() {
     echo $unfinished > $dir/unfinished_output
 }
 
-# 主循环
-for server in ${servers[@]}; do
-    deal_server $server &
-done
-unset -v server
 
-# exit when all servers return result
-while true; do
-    sleep 1
-    # 不可用这句''' if [ "`cat $dir/unfinished_output`"  = '' ]; then '''
-    # 这是因为：
-    # 在执行`echo $unfinished > $dir/unfinished_output`时，是先清空unfinished_output文件，再写入，
-    # 如果刚清空完，就被判断 [ "`cat $dir/unfinished_output`"  = '' ] ，则会提前执行 exit_func
+update_put_file()
+{
+    echo 1>  ${dir}/output_file
+    echo 'hosts in wait (:q to quit vim, after quiting Ctrl+C to stop waiting):' 1>> ${dir}/output_file
+    cat $dir/unfinished_output 1>> ${dir}/output_file
+    echo 1>> ${dir}/output_file
+    # ls $dir/*.feedback 2> /dev/null | sort --version-sort | xargs -I {} cat {}
+    local OLD_IFS="$IFS"
+    IFS=$'\n'
+    local i=
+    for i in $(ls -1 $dir/*.feedback 2> /dev/null | sort --version-sort); do
+        cat $i 1>> ${dir}/output_file
+    done
+    IFS="$OLD_IFS"
+
+
+    # {
+    #     echo 'hosts in wait (:q to quit vim, after quiting Ctrl+C to stop waiting):'
+    #     cat $dir/unfinished_output
+    #     echo
+    #     # ls $dir/*.feedback 2> /dev/null | sort --version-sort | xargs -I {} cat {}
+    #     local OLD_IFS="$IFS"
+    #     IFS=$'\n'
+    #     local i=
+    #     for i in $(ls -1 $dir/*.feedback 2> /dev/null | sort --version-sort); do
+    #         cat $i
+    #     done
+    #     IFS="$OLD_IFS"
+    # } 1> ${dir}/output_file
+}
+
+
+# 主循环
+{
+    for server in ${servers[@]}; do
+        {
+            deal_server $server
+            update_put_file
+        } &
+    done
+    unset -v server
+    wait
     if [ "`sort --version-sort $dir/servers $dir/finished | uniq -u`" = '' ]; then
-        exit_script
+        sed -i '1s/^/finished\n/' ${dir}/output_file
+        echo 'finished' >> ${dir}/output_file
     fi
-done
+} &
+
+{
+    # exit when all servers return result
+    while true; do
+        sleep 1
+        # 不可用这句''' if [ "`cat $dir/unfinished_output`"  = '' ]; then '''
+        # 这是因为：
+        # 在执行`echo $unfinished > $dir/unfinished_output`时，是先清空unfinished_output文件，再写入，
+        # 如果刚清空完，就被判断 [ "`cat $dir/unfinished_output`"  = '' ] ，则会提前执行 exit_func
+        if [ "`sort --version-sort $dir/servers $dir/finished | uniq -u`" = '' ] \
+        && [ "$(head -n1 ${dir}/output_file)" = 'quitvim' ]; then
+            exit_script
+        fi
+    done
+} &
+
+
+monitor_file "${dir}/output_file"
+
 
 wait
 

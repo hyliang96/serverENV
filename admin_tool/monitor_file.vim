@@ -11,7 +11,7 @@ function! Timer()
         quit!
     endif
 endfunction
-set updatetime=100  " milliseconds
+set updatetime=1000  " milliseconds
 set nomodifiable
 
 
