@@ -32,7 +32,7 @@ set nomodifiable
 
 
 set autoread
-autocmd BufEnter,BufRead * call Timer()
+autocmd BufEnter,BufRead,FocusGained,FocusLost,WinLeave * call Timer()
 autocmd CursorHold,CursorHoldI * call Timer()
 autocmd CursorMoved,CursorMovedI * call Timer()
 
