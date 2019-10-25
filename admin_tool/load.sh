@@ -11,7 +11,7 @@ admin_tool_path="${here}"
 alias _all="zsh $here/all.sh"
 all()
 {
-    _all $@
+    _all "$@"
 }
 
 alltest()
@@ -27,7 +27,7 @@ alltest()
 alias _send="zsh $here/all.sh --send"
 send()
 {
-    _send $@
+    _send "$@"
 }
 
 alluid()
@@ -112,7 +112,7 @@ admin()
 alias _slG="zsh $here/slG.sh"
 slG()
 {
-    _slG $@
+    _slG "$@"
 }
 alias sl_home="sudo zsh $admin_tool_path/slG.sh /home"
 

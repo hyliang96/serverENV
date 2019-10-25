@@ -8,6 +8,11 @@ here=$(cd "$(dirname "${BASH_SOURCE[0]-$0}")"; pwd)
 . $here/hosts.sh
 . $here/utils.sh
 
+for i in "$@"; do
+    echo "|$i|"
+done
+echo '========='
+
 # ---------------------------------------
 # 参数解析
 # 参数预处理
@@ -68,15 +73,16 @@ elif [ "$send" = true ]; then
     :
 else
     cmds=''
-    for arg do
+    for i in "$@"; do
+        echo "|$i|"
         if [ "$no_prompt" = true ]; then
-            cmds="${cmds} $arg; echo;"
+            cmds="${cmds} $i; echo;"
         else
-            i_print="${arg//\\/\\\\}"
+            i_print="${i//\\/\\\\}"
             i_print="${i_print//\`/\\\`}"
             i_print="${i_print//\$/\\\$}"
             i_print="${i_print//\"/\\\"}"
-            cmds="${cmds} echo -E \"# $i_print\"; $arg; echo;"
+            cmds="${cmds} echo -E \"# $i_print\"; $i; echo;"
         fi
     done
     echo -E "cmds: $cmds"
