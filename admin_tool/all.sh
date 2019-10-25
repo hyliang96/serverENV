@@ -90,7 +90,7 @@ fi
 runid="$(hostname)-$(date "+%Y-%m-%d_%H-%M-%S")"
 dir=~/.cache/all/$runid
 mkdir -p $dir
-if [ "$(ls $dir)" != "" ]; then
+if [ "$(ls -a $dir)" != "" ]; then
     rm $dir  -rf
     mkdir -p $dir
 fi
@@ -130,12 +130,16 @@ fi
 
 
 # 初始化：servers和unfinished_output
+touch $dir/servers
 for server in ${servers[@]}; do
     echo "$server" >> $dir/servers
 done
 unset -v server
 touch $dir/finished
-touch ${dir}/output_file
+touch ${dir}/output_file__init__
+ln -sf ${dir}/output_file__init__ ${dir}/output_file
+
+
 echo "${servers[@]}" >> $dir/unfinished_output
 
 
@@ -235,52 +239,69 @@ deal_server() {
 }
 
 
-update_put_file()
+update_output_file()
 {
-    echo 1>  ${dir}/output_file
-    echo 'hosts in wait (:q to quit vim, after quiting Ctrl+C to stop waiting):' 1>> ${dir}/output_file
-    cat $dir/unfinished_output 1>> ${dir}/output_file
-    echo 1>> ${dir}/output_file
-    # ls $dir/*.feedback 2> /dev/null | sort --version-sort | xargs -I {} cat {}
-    local OLD_IFS="$IFS"
-    IFS=$'\n'
-    local i=
-    for i in $(ls -1 $dir/*.feedback 2> /dev/null | sort --version-sort); do
-        cat $i 1>> ${dir}/output_file
-    done
-    IFS="$OLD_IFS"
+    # local server="$1"
+    # touch ${dir}/output_file-$server
+    # echo 1>  ${dir}/output_file-$server
+    # echo 'hosts in wait (:q to quit vim, after quiting Ctrl+C to stop waiting):' 1>> ${dir}/output_file-$server
+    # cat $dir/unfinished_output 1>> ${dir}/output_file-$server
+    # echo 1>> ${dir}/output_file-$server
+    # # ls $dir/*.feedback 2> /dev/null | sort --version-sort | xargs -I {} cat {}
+    # local OLD_IFS="$IFS"
+    # IFS=$'\n'
+    # local i=
+    # for i in $(ls -1 $dir/*.feedback 2> /dev/null | sort --version-sort); do
+    #     cat $i 1>> ${dir}/output_file-$server
+    # done
+    # IFS="$OLD_IFS"
 
+    # ln -sf ${dir}/output_file-$server ${dir}/output_file
 
-    # {
-    #     echo 'hosts in wait (:q to quit vim, after quiting Ctrl+C to stop waiting):'
-    #     cat $dir/unfinished_output
-    #     echo
-    #     # ls $dir/*.feedback 2> /dev/null | sort --version-sort | xargs -I {} cat {}
-    #     local OLD_IFS="$IFS"
-    #     IFS=$'\n'
-    #     local i=
-    #     for i in $(ls -1 $dir/*.feedback 2> /dev/null | sort --version-sort); do
-    #         cat $i
-    #     done
-    #     IFS="$OLD_IFS"
-    # } 1> ${dir}/output_file
+    {
+        echo 'hosts in wait (:q to quit vim, after quiting Ctrl+C to stop waiting):'
+        cat $dir/unfinished_output
+        echo
+        # ls $dir/*.feedback 2> /dev/null | sort --version-sort | xargs -I {} cat {}
+        local OLD_IFS="$IFS"
+        IFS=$'\n'
+        local i=
+        for i in $(ls -1 $dir/*.feedback 2> /dev/null | sort --version-sort); do
+            cat $i
+        done
+        IFS="$OLD_IFS"
+    } 1> ${dir}/output_file_hot
+
+    ln -sf ${dir}/output_file_hot ${dir}/output_file
 }
 
+
+{
+    # exit when all servers return result
+    while true; do
+        sleep 1
+        update_output_file
+        if [ "`sort --version-sort $dir/servers $dir/finished | uniq -u`" = '' ]; then
+            update_output_file
+            break
+        fi
+    done
+    if [ "`sort --version-sort $dir/servers $dir/finished | uniq -u`" = '' ]; then
+        sed -i '1s/^/finished\n/' ${dir}/output_file
+        echo 'finished' >> ${dir}/output_file
+    fi
+} &
 
 # 主循环
 {
     for server in ${servers[@]}; do
         {
             deal_server $server
-            update_put_file
+            # update_output_file $server
         } &
     done
     unset -v server
-    wait
-    if [ "`sort --version-sort $dir/servers $dir/finished | uniq -u`" = '' ]; then
-        sed -i '1s/^/finished\n/' ${dir}/output_file
-        echo 'finished' >> ${dir}/output_file
-    fi
+
 } &
 
 {
