@@ -293,7 +293,7 @@ update_output_file()
             cat $i
         done
         IFS="$OLD_IFS"
-    } 1> ${dir}/output_file_hot
+    } 2> /dev/null > ${dir}/output_file_hot
 
     ln -sf ${dir}/output_file_hot ${dir}/output_file
 }
