@@ -83,9 +83,6 @@ else
     # echo -E "cmds: $cmds"
 fi
 
-
-# exit 1
-
 # ---------------------------------------
 # 临时文件夹
 runid="$(hostname)-$(date "+%Y-%m-%d_%H-%M-%S")"
@@ -142,11 +139,6 @@ init_dir()
     make_output
     update_output_file
 
-    # touch $dir/output_file-time0
-
-
-    # touch ${dir}/output_file__init__
-    # ln -sf ${dir}/output_file__init__ ${dir}/output_file
 
     if ! [  -f "$dir/servers" ]; then
         echo "no $dir/servers"
@@ -160,17 +152,10 @@ init_dir()
         echo "no $dir/unfinished_output"
         exit 1
     fi
-    # if ! [  -f "$dir/output_file__init__" ]; then
-        # echo "no $dir/output_file__init__"
-        # exit 1
-    # fi
-    # if ! [  -L "$dir/output_file" ]; then
-        # echo "no $dir/output_file"
-        # exit 1
-    # fi
-
-
-
+    if ! [  -f "$dir/output_file" ]; then
+        echo "no $dir/output_file"
+        exit 1
+    fi
 
     if [ "$checkuid" = true ]; then
         echo uid $uid available > $dir/info_uid
@@ -293,29 +278,6 @@ make_output()
 }
 
 
-# update_output_file()
-# {
-    # local server="$1"
-    # touch ${dir}/output_file-$server
-    # echo 1>  ${dir}/output_file-$server
-    # echo 'hosts in wait (:q to quit vim, after quiting Ctrl+C to stop waiting):' 1>> ${dir}/output_file-$server
-    # cat $dir/unfinished_output 1>> ${dir}/output_file-$server
-    # echo 1>> ${dir}/output_file-$server
-    # # ls $dir/*.feedback 2> /dev/null | sort --version-sort | xargs -I {} cat {}
-    # local OLD_IFS="$IFS"
-    # IFS=$'\n'
-    # local i=
-    # for i in $(ls -1 $dir/*.feedback 2> /dev/null | sort --version-sort); do
-    #     cat $i 1>> ${dir}/output_file-$server
-    # done
-    # IFS="$OLD_IFS"
-
-    # ln -sf ${dir}/output_file-$server ${dir}/output_file
-
-    # touch ${dir}/output_file_hot
-    # cp  ${dir}/output_file_hot  ${dir}/output_file_back
-    # ln -sf ${dir}/output_file_back ${dir}/output_file
-
 
 
 update_output_file()
@@ -381,14 +343,16 @@ main_loop()
     } &
 }
 
+start_monitor()
+{
+    monitor_file "${dir}/output_file"
+}
+
 
 init_dir
 update_exit_listen
 main_loop
-monitor_file "${dir}/output_file"
-
-
+start_monitor &
 wait
-
 exit_script
 
