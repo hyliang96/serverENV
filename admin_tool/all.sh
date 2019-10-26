@@ -129,49 +129,56 @@ fi
 
 
 
-
-# 初始化：servers和unfinished_output
-touch $dir/servers
-for server in ${servers[@]}; do
-    echo "$server" >> $dir/servers
-done
-unset -v server
-touch $dir/finished
-touch ${dir}/output_file__init__
-ln -sf ${dir}/output_file__init__ ${dir}/output_file
-echo "${servers[@]}" >> $dir/unfinished_output
-
-
-if ! [  -f "$dir/servers" ]; then
-    echo "no $dir/servers"
-    exit 1
-fi
-if ! [  -f "$dir/finished" ]; then
-    echo "no $dir/finished"
-    exit 1
-fi
-if ! [  -f "$dir/unfinished_output" ]; then
-    echo "no $dir/unfinished_output"
-    exit 1
-fi
-if ! [  -f "$dir/output_file__init__" ]; then
-    echo "no $dir/output_file__init__"
-    exit 1
-fi
-if ! [  -L "$dir/output_file" ]; then
-    echo "no $dir/output_file"
-    exit 1
-fi
+init_dir()
+{
+    # 初始化：servers和unfinished_output
+    touch $dir/servers
+    for server in ${servers[@]}; do
+        echo "$server" >> $dir/servers
+    done
+    unset -v server
+    touch $dir/finished
+    echo "${servers[@]}" >> $dir/unfinished_output
+    make_output
+    update_output_file
+    
+    # touch $dir/output_file-time0
 
 
+    # touch ${dir}/output_file__init__
+    # ln -sf ${dir}/output_file__init__ ${dir}/output_file
+
+    if ! [  -f "$dir/servers" ]; then
+        echo "no $dir/servers"
+        exit 1
+    fi
+    if ! [  -f "$dir/finished" ]; then
+        echo "no $dir/finished"
+        exit 1
+    fi
+    if ! [  -f "$dir/unfinished_output" ]; then
+        echo "no $dir/unfinished_output"
+        exit 1
+    fi
+    # if ! [  -f "$dir/output_file__init__" ]; then
+        # echo "no $dir/output_file__init__"
+        # exit 1
+    # fi
+    # if ! [  -L "$dir/output_file" ]; then
+        # echo "no $dir/output_file"
+        # exit 1
+    # fi
 
 
-if [ "$checkuid" = true ]; then
-    echo uid $uid available > $dir/info_uid
-fi
-if [ "$checkgid" = true ]; then
-    echo gid $gid available > $dir/info_gid
-fi
+
+
+    if [ "$checkuid" = true ]; then
+        echo uid $uid available > $dir/info_uid
+    fi
+    if [ "$checkgid" = true ]; then
+        echo gid $gid available > $dir/info_gid
+    fi
+}
 
 
 # watch -n 1 -t "echo 'hosts in wait (ctrl+C to stop waiting):' && cat $dir/unfinished_output && echo && ls $dir/*.feedback 2> /dev/null | sort --version-sort | xargs -I {} cat {}" &
@@ -260,11 +267,34 @@ deal_server() {
 / }"
     # unfinished_output 文件仅一行，为未返回结果的服务器名，已排序
     echo $unfinished > $dir/unfinished_output
+    # 制作文件
+    make_output
+}
+
+make_output()
+{
+    local timestamp=$(date +%s%N)
+    local hot_file_name=${dir}/hot_output_file-time${timestamp}
+    local file_name=${dir}/output_file-time${timestamp}
+    {
+        echo 'hosts in wait (ctr+C to stop waiting):'
+        cat $dir/unfinished_output
+        echo
+        # ls $dir/*.feedback 2> /dev/null | sort --version-sort | xargs -I {} cat {}
+        local OLD_IFS="$IFS"
+        IFS=$'\n'
+        local i=
+        for i in $(ls -1 $dir/*.feedback 2> /dev/null | sort --version-sort); do
+            cat $i
+        done
+        IFS="$OLD_IFS"
+    } 2> /dev/null > ${hot_file_name}
+    mv ${hot_file_name} ${file_name}
 }
 
 
-update_output_file()
-{
+# update_output_file()
+# {
     # local server="$1"
     # touch ${dir}/output_file-$server
     # echo 1>  ${dir}/output_file-$server
@@ -282,68 +312,76 @@ update_output_file()
 
     # ln -sf ${dir}/output_file-$server ${dir}/output_file
 
-    {
-        echo 'hosts in wait (ctr+C to stop waiting):'
-        cat $dir/unfinished_output
-        echo
-        # ls $dir/*.feedback 2> /dev/null | sort --version-sort | xargs -I {} cat {}
-        local OLD_IFS="$IFS"
-        IFS=$'\n'
-        local i=
-        for i in $(ls -1 $dir/*.feedback 2> /dev/null | sort --version-sort); do
-            cat $i
-        done
-        IFS="$OLD_IFS"
-    } 2> /dev/null > ${dir}/output_file_hot
+    # touch ${dir}/output_file_hot
+    # cp  ${dir}/output_file_hot  ${dir}/output_file_back
+    # ln -sf ${dir}/output_file_back ${dir}/output_file
 
-    ln -sf ${dir}/output_file_hot ${dir}/output_file
+
+
+update_output_file()
+{
+    # if ls $dir/output_file-time* > /dev/null 2>&1; then
+    local latest_file="$(ls -1 $dir/output_file-time* 2>/dev/null | sort --version-sort --reverse | head -n 1)"
+    if [ "$latest_file" != '' ]; then
+        ln -sf ${latest_file} ${dir}/output_file
+    fi
+    # fi
 }
 
 
-{
-    # exit when all servers return result
-    while true; do
-        if [ -f "${dir}/quitvim" ]; then
-        # if [ "$(head -n1 ${dir}/output_file)" = 'quitvim' ]; then
-            break
-        fi
-        update_output_file
-        if [ -f "${dir}/quitvim" ]; then
-        # if [ "$(head -n1 ${dir}/output_file)" = 'quitvim' ]; then
-            break
-        fi
-        if [ "`sort --version-sort $dir/servers $dir/finished | uniq -u`" = '' ]; then
-            update_output_file
-            sed -i '1s/^/finished\n/' ${dir}/output_file
-            echo 'finished' >> ${dir}/output_file
-            break
-        fi
-        sleep 1
-    done
-    # if [ "`sort --version-sort $dir/servers $dir/finished | uniq -u`" = '' ]; then
 
-    # fi
-    while true; do
-        if [ -f "${dir}/quitvim" ]; then
-        # if [ "$(head -n1 ${dir}/output_file)" = 'quitvim' ]; then
-            exit_script
-        fi
-        sleep 1
-    done
-} &
+# 退出状态的监听
+exit_listen()
+{
+    {
+        # exit when all servers return result
+        while true; do
+            if [ -f "${dir}/quitvim" ]; then
+            # if [ "$(head -n1 ${dir}/output_file)" = 'quitvim' ]; then
+                break
+            fi
+            update_output_file
+            if [ -f "${dir}/quitvim" ]; then
+            # if [ "$(head -n1 ${dir}/output_file)" = 'quitvim' ]; then
+                break
+            fi
+            if [ "`sort --version-sort $dir/servers $dir/finished | uniq -u`" = '' ]; then
+                update_output_file
+                sed -i '1s/^/finished\n/' ${dir}/output_file
+                echo 'finished' >> ${dir}/output_file
+                break
+            fi
+            sleep 1
+        done
+        # if [ "`sort --version-sort $dir/servers $dir/finished | uniq -u`" = '' ]; then
+
+        # fi
+        while true; do
+            if [ -f "${dir}/quitvim" ]; then
+            # if [ "$(head -n1 ${dir}/output_file)" = 'quitvim' ]; then
+                exit_script
+            fi
+            sleep 1
+        done
+    } &
+}
+
 
 
 
 # 主循环
+main_loop()
 {
-    for server in ${servers[@]}; do
-        ( (
-            deal_server $server
-        ) & ) > /dev/null 2>&1
-    done
-    wait
-    # unset -v server
-} &
+    {
+        for server in ${servers[@]}; do
+            ( (
+                deal_server $server
+            ) & ) > /dev/null 2>&1
+        done
+        wait
+        # unset -v server
+    } &
+}
 
 # {
 #     # exit when all servers return result
@@ -361,6 +399,10 @@ update_output_file()
 # } &
 
 
+
+init_dir
+exit_listen
+main_loop
 monitor_file "${dir}/output_file"
 
 

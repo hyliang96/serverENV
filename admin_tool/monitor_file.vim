@@ -52,8 +52,8 @@ let g:loaded_matchparen=1                " 关闭括号匹配高亮
 " set noshowmatch
 
 " disable 'Press Enter or type command to continue' at startup.
-" set shortmess=a
-" set cmdheight=2
+set shortmess=a
+set cmdheight=2
 
 
 " if has("syntax")
