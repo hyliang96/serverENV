@@ -256,6 +256,9 @@ deal_server() {
     make_output
 }
 
+
+
+# 创建 output文件
 make_output()
 {
     local timestamp=$(date +%s%N)
@@ -292,7 +295,7 @@ update_output_file()
 
 
 
-# 退出状态的监听
+# 更新输出文件 和 退出 的监听
 update_exit_listen()
 {
     {
@@ -309,15 +312,16 @@ update_exit_listen()
                 echo 'finished' >> ${dir}/output_file
                 break
             fi
-
+            # 不写sleep 1,尽可能早些退出
             if [ -f "${dir}/quitvim" ]; then break; fi
             sleep 0.5
             if [ -f "${dir}/quitvim" ]; then break; fi
             sleep 0.5
         done
+
         # listen for exit
-        # exit_script
         while true; do
+            # 不写sleep 1,尽可能早些退出
             if [ -f "${dir}/quitvim" ]; then exit_script; fi
             sleep 0.5
             if [ -f "${dir}/quitvim" ]; then exit_script; fi
@@ -352,7 +356,7 @@ start_monitor()
 init_dir
 update_exit_listen
 main_loop
-start_monitor &
+start_monitor
 wait
 exit_script
 
