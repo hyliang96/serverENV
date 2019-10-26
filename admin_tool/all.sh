@@ -354,13 +354,13 @@ update_exit_listen()
             sleep 0.5
         done
         # listen for exit
-        exit_script
-        # while true; do
-            # if [ -f "${dir}/quitvim" ]; then exit_script; fi
-            # sleep 0.5
-            # if [ -f "${dir}/quitvim" ]; then exit_script; fi
-            # sleep 0.5
-        # done
+        # exit_script
+        while true; do
+            if [ -f "${dir}/quitvim" ]; then exit_script; fi
+            sleep 0.5
+            if [ -f "${dir}/quitvim" ]; then exit_script; fi
+            sleep 0.5
+        done
     } &
 }
 
