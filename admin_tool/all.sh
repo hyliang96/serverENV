@@ -141,7 +141,7 @@ init_dir()
     echo "${servers[@]}" >> $dir/unfinished_output
     make_output
     update_output_file
-    
+
     # touch $dir/output_file-time0
 
 
@@ -331,38 +331,36 @@ update_output_file()
 
 
 # 退出状态的监听
-exit_listen()
+update_exit_listen()
 {
     {
-        # exit when all servers return result
+        # listen for update
         while true; do
-            if [ -f "${dir}/quitvim" ]; then
-            # if [ "$(head -n1 ${dir}/output_file)" = 'quitvim' ]; then
-                break
-            fi
+            if [ -f "${dir}/quitvim" ]; then break; fi
             update_output_file
-            if [ -f "${dir}/quitvim" ]; then
-            # if [ "$(head -n1 ${dir}/output_file)" = 'quitvim' ]; then
-                break
-            fi
+            if [ -f "${dir}/quitvim" ]; then break; fi
+
+            # if finished, add finished flag into output file
             if [ "`sort --version-sort $dir/servers $dir/finished | uniq -u`" = '' ]; then
                 update_output_file
                 sed -i '1s/^/finished\n/' ${dir}/output_file
                 echo 'finished' >> ${dir}/output_file
                 break
             fi
-            sleep 1
-        done
-        # if [ "`sort --version-sort $dir/servers $dir/finished | uniq -u`" = '' ]; then
 
-        # fi
-        while true; do
-            if [ -f "${dir}/quitvim" ]; then
-            # if [ "$(head -n1 ${dir}/output_file)" = 'quitvim' ]; then
-                exit_script
-            fi
-            sleep 1
+            if [ -f "${dir}/quitvim" ]; then break; fi
+            sleep 0.5
+            if [ -f "${dir}/quitvim" ]; then break; fi
+            sleep 0.5
         done
+        # listen for exit
+        exit_script
+        # while true; do
+            # if [ -f "${dir}/quitvim" ]; then exit_script; fi
+            # sleep 0.5
+            # if [ -f "${dir}/quitvim" ]; then exit_script; fi
+            # sleep 0.5
+        # done
     } &
 }
 
@@ -373,35 +371,19 @@ exit_listen()
 main_loop()
 {
     {
+        local server
         for server in ${servers[@]}; do
             ( (
                 deal_server $server
             ) & ) > /dev/null 2>&1
         done
         wait
-        # unset -v server
     } &
 }
 
-# {
-#     # exit when all servers return result
-#     while true; do
-#         sleep 1
-#         # 不可用这句''' if [ "`cat $dir/unfinished_output`"  = '' ]; then '''
-#         # 这是因为：
-#         # 在执行`echo $unfinished > $dir/unfinished_output`时，是先清空unfinished_output文件，再写入，
-#         # 如果刚清空完，就被判断 [ "`cat $dir/unfinished_output`"  = '' ] ，则会提前执行 exit_func
-#         # if [ "`sort --version-sort $dir/servers $dir/finished | uniq -u`" = '' ]  && \
-#         if [ "$(head -n1 ${dir}/output_file)" = 'quitvim' ]; then
-#             exit_script
-#         fi
-#     done
-# } &
-
-
 
 init_dir
-exit_listen
+update_exit_listen
 main_loop
 monitor_file "${dir}/output_file"
 
