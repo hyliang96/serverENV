@@ -83,24 +83,24 @@ else
     # echo -E "cmds: $cmds"
 fi
 
-# # ---------------------------------------
-# # 临时文件夹
-# runid="$(hostname)-$(date "+%Y-%m-%d_%H-%M-%S")"
-# dir=~/.cache/all/$runid
-# mkdir -p $dir
-# if [ "$(ls -a $dir)" != "" ]; then
-#     rm $dir  -rf
-#     mkdir -p $dir
-# fi
+# ---------------------------------------
+# 临时文件夹
+runid="$(hostname)-$(date "+%Y-%m-%d_%H-%M-%S")"
+dir=~/.cache/all/$runid
+mkdir -p $dir
+if [ "$(ls -a $dir)" != "" ]; then
+    rm $dir  -rf
+    mkdir -p $dir
+fi
 
 
-# if [ "$host_group" = 'JUN1' ]; then
-# # 在gpu1-13，cluster1-4
-#     ssh_config=$here/config_JUN1
-# elif [ "$host_group" = 'JUN2' ]; then
-# # 在gpu14-24
-#     ssh_config=$here/config_JUN2
-# fi
+if [ "$host_group" = 'JUN1' ]; then
+# 在gpu1-13，cluster1-4
+    ssh_config=$here/config_JUN1
+elif [ "$host_group" = 'JUN2' ]; then
+# 在gpu14-24
+    ssh_config=$here/config_JUN2
+fi
 
 
 # # ---------------------------------------
@@ -256,30 +256,7 @@ deal_server() {
     make_output
 }
 
-deal_server()
-{
-    local server="$1"
-    if [ "$checkuid" = true ] || [ "$checkgid" = true ]; then
-        feedback=""
-        if [ "$checkuid" = true ]; then
-            ssh $server id $uid 2>&1 | grep -v 'no such user'
-        fi
-        if [ "$checkgid" = true ]; then
-            ssh $server getent group $gid
-            if ! [ "$result" = '' ]; then
-                echo gid $gid not available > $dir/info_gid
-                feedback="$feedback     group $result"
-            fi
-        fi
-        if ! [ "$feedback" = '' ]; then
-            feedback="$server:$feedback"
-            echo $feedback >> $dir/$server.feedback 2>&1
-        fi
-    elif [ "$send" = 'true' ]; then
-        command rsync -aHhzP -e "ssh -o 'StrictHostKeyChecking no'" ${files[@]} $server:$server_path
-    else
-        ssh -o 'StrictHostKeyChecking no' $server "$cmds"
-}
+
 
 # 创建 output文件
 make_output()
