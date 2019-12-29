@@ -2,6 +2,9 @@
 
 vps_dir="$HOME/.shadowsocks"
 ss_script="${BASH_SOURCE[0]-$0}"
+sslocal() {
+    python3 $serverENV/app/shadowsocksr/shadowsocks/local.py "$@"
+}
 # get absoltae path to the dir this is in, work in bash, zsh
 # if you want transfer symbolic link to true path, just change `pwd` to `pwd -P`
 # here=$(cd "$(dirname "${BASH_SOURCE[0]-$0}")"; pwd)
@@ -9,8 +12,12 @@ ss_script="${BASH_SOURCE[0]-$0}"
 # 关闭开全局http,https,socks5 翻墙
 ss_stop()
 {
-    killall sslocal
-    killall polipo
+    if [ -f $localENV/log/shadowsocks/pid ]; then
+        sslocal -d stop --pid-file $localENV/log/shadowsocks/pid
+    fi
+    if [ "$(ps aux | grep $USER | grep polipo | grep -v grep)" != '' ]; then
+        killall polipo
+    fi
     [ -f $localENV/log/polipo/pid ] && rm $localENV/log/polipo/pid
     # 取消 export的环境变量
     unset http_proxy
@@ -30,6 +37,7 @@ ss_start()
 {
     # 关闭原来的
     ss_stop
+    echo '--------- start -------'
     sleep 1
     # 解析
     if [ $# -eq 0 ];    then
@@ -47,7 +55,7 @@ ss_start()
         --log-file $localENV/log/shadowsocks/log \
         -d start  # 开成守护进程（不仅仅是后台进程），即系统关机/重启时才结束的进程
 
-    . $serverENV/app_config/.polipo_gen.sh
+    bash $serverENV/app_config/polipo_gen.sh
     polipo
     # 用polipo代理http(s)到socks5
     export http_proxy="http://127.0.0.1:8124"
@@ -60,7 +68,7 @@ ss_start()
 ss_jch()
 {
     ps aux | awk NR==1
-    ps aux | awk NR!=1 | grep --color -v grep | grep --color -v 'ps aux' | grep --color -v 'awk NR!=1' | grep --color sslocal
+    ps aux | awk NR!=1 | grep --color -v grep | grep --color -v 'ps aux' | grep --color -v 'awk NR!=1' | grep --color 'shadowsocks/local.py'
 }
 
 ss()
