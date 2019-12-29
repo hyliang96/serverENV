@@ -2,7 +2,7 @@
 
 vps_dir="$HOME/.shadowsocks"
 ss_script="${BASH_SOURCE[0]-$0}"
-alias sslocal="python3 $serverENV/app/shadowsocksr/shadowsocks/local.py"
+# alias sslocal="python3 $serverENV/app/shadowsocksr/shadowsocks/local.py"
 # get absoltae path to the dir this is in, work in bash, zsh
 # if you want transfer symbolic link to true path, just change `pwd` to `pwd -P`
 # here=$(cd "$(dirname "${BASH_SOURCE[0]-$0}")"; pwd)
@@ -11,7 +11,8 @@ alias sslocal="python3 $serverENV/app/shadowsocksr/shadowsocks/local.py"
 ss_stop()
 {
     if [ -f $localENV/log/shadowsocks/pid ]; then
-        sslocal -d stop --pid-file $localENV/log/shadowsocks/pid
+        eval $(ss_jch | awk NR!=1 | sed -r 's/(\S+\s+){10}//' | sed 's/ -d start/ -d stop/')
+        # sslocal -d stop --pid-file $localENV/log/shadowsocks/pid
     fi
     if [ "$(ps aux | grep $USER | grep polipo | grep -v grep)" != '' ]; then
         killall polipo
