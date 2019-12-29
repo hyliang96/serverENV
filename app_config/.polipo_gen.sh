@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# get absoltae path to the dir this is in, work in bash, zsh
+# if you want transfer symbolic link to true path, just change `pwd` to `pwd -P`
+here=$(cd "$(dirname "${BASH_SOURCE[0]-$0}")"; pwd)
+
 mkdir -p ${localENV}/log/polipo
 
 echo "
@@ -17,6 +21,8 @@ logSyslog = true
 
 logFile = $localENV/log/polipo/log
 pidFile = $localENV/log/polipo/pid
-" >  $(dirname ${0})/.polipo
+" >  ${here}/.polipo
 
+# release this variable in the end of file
+unset -v here
 
