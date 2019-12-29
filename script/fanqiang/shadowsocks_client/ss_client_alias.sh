@@ -2,7 +2,12 @@
 
 vps_dir="$HOME/.shadowsocks"
 ss_script="${BASH_SOURCE[0]-$0}"
-# alias sslocal="python3 $serverENV/app/shadowsocksr/shadowsocks/local.py"
+
+# ssr
+alias sslocal="python3 $serverENV/app/shadowsocksr/shadowsocks/local.py"
+# ss
+# which sslocal, get: /home/haoyu/ENV/localENV/anaconda3/bin/sslocal
+
 # get absoltae path to the dir this is in, work in bash, zsh
 # if you want transfer symbolic link to true path, just change `pwd` to `pwd -P`
 # here=$(cd "$(dirname "${BASH_SOURCE[0]-$0}")"; pwd)
@@ -67,6 +72,7 @@ ss_start()
 ss_jch()
 {
     local pattern="$(alias sslocal | sed "s/^sslocal='//" | sed "s/'$//")"
+    [ "$pattern" = '' ] && pattern='sslocal'
     ps aux | awk NR==1
     ps aux | awk NR!=1 | grep --color -v grep | grep --color -v 'ps aux' | grep --color -v 'awk NR!=1' | grep --color "$pattern"
 }
