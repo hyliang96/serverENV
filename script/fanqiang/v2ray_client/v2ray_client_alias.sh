@@ -9,7 +9,8 @@ v2ray_path="$v2_script_dir/../v2ray/v2ray"
 v2_script="${BASH_SOURCE[0]-$0}"
 v2_log_dir="$localENV/log/v2ray"
 
-v2_port=1087
+v2_socks5_port=1080
+v2_http_port=1087
 # get absoltae path to the dir this is in, work in bash, zsh
 # if you want transfer symbolic link to true path, just change `pwd` to `pwd -P`
 # here=$(cd "$(dirname "${BASH_SOURCE[0]-$0}")"; pwd)
@@ -98,7 +99,7 @@ _v2_start()
     echo "log: v2_log_dir"
 
     # 用polipo代理http(s)到socks5
-    tfq_start_ $v2_port
+    tfq_start_ http $v2_http_port
     #no_proxy表示一些不需要代理的网址,比如内网之类的
 }
 
@@ -116,7 +117,16 @@ _v2_status()
 
 v2()
 {
-    if [ "$1" = 'stop' ]; then
+    if [ $# -eq 0 ]; then
+        v2 help
+    elif [ "$1" = 'install' ] || [ "$1" = 'update' ] ; then
+        shift
+        _v2_install
+    elif ! [ -x $v2ray_path ]; then
+        shift
+        echo "executable file no found: $v2ray_path" >&2
+        echo 'run `v2 install` to (re)install v2ray' >&2
+    elif [ "$1" = 'stop' ]; then
         shift
         _v2_stop
     elif [ "$1" = 'start' ]; then
@@ -131,8 +141,6 @@ v2()
     elif [ "$1" = 'status' ]; then
         shift
         _v2_status
-    elif [ "$1" = 'install' ] || [ "$1" = 'update' ] ; then
-        _v2_install
     else
         echo 'v2ray client command line interface'
         echo

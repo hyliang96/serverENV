@@ -5,11 +5,11 @@ ss_script_dir=$(cd "$(dirname "${BASH_SOURCE[0]-$0}")"; pwd)
 ss_script="${BASH_SOURCE[0]-$0}"
 
 # 得到ssr的绝对路径
-ssr_dir="$(cd "$ss_script_dir/../shadowsocksr" && pwd -P)"
+ssr_dir="$(cd "$ss_script_dir/.." && pwd -P)"/shadowsocksr
 ssr_path="${ssr_dir}/shadowsocks/local.py"
 
-ss_port=1080
-polipo_port=8124
+ss_socks5_port=1080
+ss_http_port=1087
 
 # ssr
 alias sslocal="python3 $ssr_path"
@@ -19,11 +19,22 @@ alias sslocal="python3 $ssr_path"
 
 ssr_install()
 {
-    if [ -f "$ssr_dir" ]; then
-    else
-
+    if [ -e "$ssr_dir" ]; then
+        mkdir -p "${ssr_dir}_back"
+        local ssr_dir_back="${ssr_dir}_back/shadowsocksr-back_at_$(date +%F-%T)"
+        mv $ssr_dir $ssr_dir_back
+        echo "原shadowsocksr已备份到: $ssr_dir_back"
     fi
-# https://github.com/shadowsocksrr/shadowsocksr.git
+    git clone https://github.com/shadowsocksrr/shadowsocksr.git $ssr_dir
+    # 已经不维护了, 所以就不pull最新的版本
+
+    if [ -f  "$ssr_path" ]; then
+        echo "已经安装到: $ssr_path"
+        echo '版本:'
+        sslocal --version
+    else
+        echo "未能安装到: $ssr_path"
+    fi
 }
 
 # 关闭开全局http,https,socks5 翻墙
@@ -53,12 +64,12 @@ polipo_gen() {
 
     cat >  ${HOME}/.polipo <<- EOF
 proxyAddress = "127.0.0.1"
-proxyPort = $polipo_port
+proxyPort = $ss_http_port
 
 allowedClients = 127.0.0.1
 allowedPorts = 1-65535
 
-socksParentProxy = "127.0.0.1:$ss_port"
+socksParentProxy = "127.0.0.1:$ss_socks5_port"
 socksProxyType = socks5
 
 daemonise = true
@@ -86,7 +97,7 @@ ss_start()
     if [ -f "$server_config" ]; then
         echo "opening shadowsocks server: $server"
     else
-        echo "file not found: $server_config" >&2
+        echo "config file not found: $server_config" >&2
         return
     fi
 
@@ -107,7 +118,7 @@ ss_start()
     # bash $serverENV/script/fanqiang/polipo/polipo_gen.sh  $ss_port $polipo_port
     polipo
     # 导出环境变量
-    tfq_start_ $polipo_port
+    tfq_start_ http $ss_http_port
 }
 
 ss_jch()
@@ -121,7 +132,16 @@ ss_jch()
 
 ss()
 {
-    if [ "$1" = 'stop' ]; then
+    if [ $# -eq 0 ]; then
+        ss help
+    elif [ "$1" = 'install' ] || [ "$1" = 'reinstall' ] ; then
+        shift
+        ssr_install
+    elif ! [ -x $ssr_path ]; then
+        shift
+        echo "executable file no found: $ssr_path" >&2
+        echo 'run `ss install` to (re)install shadowsocksr' >&2
+    elif [ "$1" = 'stop' ]; then
         shift
         ss_stop
     elif [ "$1" = 'start' ]; then
@@ -134,13 +154,16 @@ ss()
         shift
         ss_jch
     else
-        echo '`ss start [<vps_name>]` open shadowsocks client; dafault vps_name="default"'
-        echo '`ss stop`               stop shadowsocks client'
+        echo 'shadowsocksr client command line insterface'
+        echo
+        echo '`ss install|resinatll`  install shadowsocksr'
+        echo '`ss start [<vps_name>]` open shadowsocksr client; dafault vps_name="default"'
+        echo '`ss stop`               stop shadowsocksr client'
         echo '`ss ls`                 list all vps_name'
         echo '`ss jch|status`         show all sslocal process'
+        echo
         echo '`$vps_dir`              dir to save all vps'
         echo '`$ss_script`            dir to fanqiang.sh script'
     fi
-
 }
 
