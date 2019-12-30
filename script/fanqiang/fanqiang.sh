@@ -1,7 +1,7 @@
 # get absoltae path to the dir this is in, work in bash, zsh
 # if you want transfer symbolic link to true path, just change `pwd` to `pwd -P`
 
-fq_tool=v2 # v2, ss
+fq_tool=ss # v2, ss
 
 here=$(cd "$(dirname "${BASH_SOURCE[0]-$0}")"; pwd)
 

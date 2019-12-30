@@ -1,19 +1,30 @@
 #!/usr/bin/bash
 
 vps_dir="$HOME/.shadowsocks"
+ss_script_dir=$(cd "$(dirname "${BASH_SOURCE[0]-$0}")"; pwd)
 ss_script="${BASH_SOURCE[0]-$0}"
+
+# 得到ssr的绝对路径
+ssr_dir="$(cd "$ss_script_dir/../shadowsocksr" && pwd -P)"
+ssr_path="${ssr_dir}/shadowsocks/local.py"
 
 ss_port=1080
 polipo_port=8124
 
 # ssr
-alias sslocal="python3 $serverENV/app/shadowsocksr/shadowsocks/local.py"
+alias sslocal="python3 $ssr_path"
 # ss
 # which sslocal, get: /home/haoyu/ENV/localENV/anaconda3/bin/sslocal
 
-# get absoltae path to the dir this is in, work in bash, zsh
-# if you want transfer symbolic link to true path, just change `pwd` to `pwd -P`
-# here=$(cd "$(dirname "${BASH_SOURCE[0]-$0}")"; pwd)
+
+ssr_install()
+{
+    if [ -f "$ssr_dir" ]; then
+    else
+
+    fi
+# https://github.com/shadowsocksrr/shadowsocksr.git
+}
 
 # 关闭开全局http,https,socks5 翻墙
 ss_stop()
