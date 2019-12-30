@@ -59,7 +59,7 @@ ss_ls()
     ls $vps_dir | grep .json  | sed 's/.json//g'
 }
 
-polipo_gen() {
+polipo_gen_config() {
     mkdir -p ${localENV}/log/polipo
 
     cat >  ${HOME}/.polipo <<- EOF
@@ -114,8 +114,7 @@ ss_start()
         -d start  # 开成守护进程（不仅仅是后台进程），即系统关机/重启时才结束的进程
 
     # 用polipo代理http(s)到socks5
-    polipo_gen
-    # bash $serverENV/script/fanqiang/polipo/polipo_gen.sh  $ss_port $polipo_port
+    polipo_gen_config
     polipo
     # 导出环境变量
     tfq_start_ http $ss_http_port
