@@ -54,8 +54,10 @@ tfq() {
 
 
 # 若当前有翻墙检测, 则开机登录时开启终端翻墙
-if [ "$(fq jch 2>/dev/null)" != '' ]; then
-    tfq start > /dev/null
+if [ "$(v2 jch 2>/dev/null)" != '' ]; then
+    tfq_start_ http $v2_http_port > /dev/null
+elif [ "$(ss jch 2>/dev/null)" != '' ]; then
+    tfq_start_ http $ss_http_port > /dev/null
 fi
 
 unset -v here
