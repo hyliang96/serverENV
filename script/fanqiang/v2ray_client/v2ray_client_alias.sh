@@ -18,7 +18,7 @@ v2_http_port=1087
 _v2_install()
 {
     local v2ray_dir="$v2ray_path_up/v2ray"
-    local new_version=$(curl --silent https://api.github.com/repos/v2ray/v2ray-core/releases/latest | grep -Po '"tag_name": "\K.*?(?=")')
+    local new_version=$(curl --silent https://api.github.com/repos/v2ray/v2ray-core/releases/latest | grep -Po '"tag_name":[ ]?"\K.*?(?=")')
 
     if [ -d "$v2ray_dir" ]; then
         local version="$($v2ray_path --version | grep -Eo 'V2Ray [0-9]+(.[0-9]+)+' | sed 's/V2Ray //')"
