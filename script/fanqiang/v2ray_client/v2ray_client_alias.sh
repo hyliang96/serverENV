@@ -18,73 +18,74 @@ v2_http_port=1087
 # if you want transfer symbolic link to true path, just change `pwd` to `pwd -P`
 # here=$(cd "$(dirname "${BASH_SOURCE[0]-$0}")"; pwd)
 
-_v2_install() {
-    # if [ "${v2ray_core}" = v2ray ]; then
-    #     local repo='https://github.com/v2fly/v2ray-core'
-    # elif [ "${v2ray_core}" = xray ]; then
-    #     local repo='https://github.com/XTLS/Xray-core'
-    # fi
+_v2_install()
+{
+    if [ "${v2ray_core}" = v2ray ]; then
+        local repo='https://github.com/v2fly/v2ray-core'
+    elif [ "${v2ray_core}" = xray ]; then
+        local repo='https://github.com/XTLS/Xray-core'
+    fi
 
-    # local newest_version_url="${repo}/releases/latest"
-    # local newest_version=$(curl --silent ${newest_version_url} 2>/dev/null| sed -E 's|.+tag/v([0-9.]+)".+|\1|')
-    # if [ "${newest_version}" = '' ]; then
-    #     echo "Failed to connect to ${newest_version_url}"
-    #     return
-    # fi
+    local newest_version_url="${repo}/releases/latest"
+    local newest_version=$(curl --silent ${newest_version_url} 2>/dev/null| sed -E 's|.+tag/v([0-9.]+)".+|\1|')
+    if [ "${newest_version}" = '' ]; then
+        echo "Failed to connect to ${newest_version_url}"
+        return
+    fi
 
-    # if [ -d "$v2ray_dir" ] && [ -f "${v2ray_path}" ] ; then
-    #     local now_version="$($v2ray_path --version | grep -iEo "${v2ray_core} [0-9]+(.[0-9]+)+" | grep -oE '([0-9]+\.)+[0-9]+')"
-    #     if [ "${now_version}" = '' ]; then
-    #         echo "Failed to get current ${v2ray_core} version by `${v2ray_core} --version`"
-    #     else
-    #         echo "Current version is v${now_version}"
-    #     fi
-    #     echo "Newest version is v${newest_version}"
-    # fi
+    if [ -d "$v2ray_dir" ] && [ -f "${v2ray_path}" ] ; then
+        local now_version="$($v2ray_path --version | grep -iEo "${v2ray_core} [0-9]+(.[0-9]+)+" | grep -oE '([0-9]+\.)+[0-9]+')"
+        if [ "${now_version}" = '' ]; then
+            echo "Failed to get current ${v2ray_core} version by `${v2ray_core} --version`"
+        else
+            echo "Current version is v${now_version}"
+        fi
+        echo "Newest version is v${newest_version}"
+    fi
 
-    # if [  -f "${v2ray_path}"  ] && [ "${now_version}" != '' ] && [ "$(echo ${now_version}$'\n'${newest_version} | sort --version-sort | tail -n 1)" = ${now_version} ]; then
-    #     echo "Not to update ${v2ray_core}" >&2
-    #     return
-    # fi
+    if [  -f "${v2ray_path}"  ] && [ "${now_version}" != '' ] && [ "$(echo ${now_version}$'\n'${newest_version} | sort --version-sort | tail -n 1)" = ${now_version} ]; then
+        echo "Not to update ${v2ray_core}" >&2
+        return
+    fi
 
-    # if  [ "${now_version}" != '' ]; then
-    #     local answer=$(bash -c "read  -n 1 -p '已有${v2ray_core} v$now_version，是否更新为 v$newest_version ? [Y|N]' c; echo \$c"); echo
-    #     if [ "$answer" != 'y' ] && [ "$answer" != 'Y' ]; then
-    #         echo "不更新，退出"
-    #         return
-    #     fi
-    # fi
-    # echo "Installing newest ${v2ray_core} v${newest_version}"
-    # echo
+    if  [ "${now_version}" != '' ]; then
+        local answer=$(bash -c "read  -n 1 -p '已有${v2ray_core} v$now_version，是否更新为 v$newest_version ? [Y|N]' c; echo \$c"); echo
+        if [ "$answer" != 'y' ] && [ "$answer" != 'Y' ]; then
+            echo "不更新，退出"
+            return
+        fi
+    fi
+    echo "Installing newest ${v2ray_core} v${newest_version}"
+    echo
 
-    # local v2ray_back_dir=$v2ray_dir_up/${v2ray_core}_back
-    # mkdir -p ${v2ray_back_dir}
-    # local back_dir="${v2ray_back_dir}/${v2ray_core}-v${now_version}-backup_at_$(date +%F-%T)"
-    # [ -d $v2ray_dir ] && mv $v2ray_dir $back_dir && echo "原${v2ray_core}已备份到$back_dir"
-    # local zip_file=$v2ray_dir_up/${v2ray_core}-linux-64.zip
-    # if [ -f ${zip_file} ] && rm ${zip_file}
+    local v2ray_back_dir=$v2ray_dir_up/${v2ray_core}_back
+    mkdir -p ${v2ray_back_dir}
+    local back_dir="${v2ray_back_dir}/${v2ray_core}-v${now_version}-backup_at_$(date +%F-%T)"
+    [ -d $v2ray_dir ] && mv $v2ray_dir $back_dir && echo "原${v2ray_core}已备份到$back_dir"
+    local zip_file=$v2ray_dir_up/${v2ray_core}-linux-64.zip
+    if [ -f ${zip_file} ] && rm ${zip_file}
 
-    # echo "下载${v2ray_core}-v${newest_version}"
-    # curl -L ${repo}/releases/download/v${newest_version}/${v2ray_core}-linux-64.zip > ${zip_file}
-    # echo "解压${v2ray_core}-v${newest_version}"
-    # unzip -q ${zip_file} -d $v2ray_dir
-    # chmod +x "$v2ray_path"
-    # echo "安装到: $v2ray_path"
+    echo "下载${v2ray_core}-v${newest_version}"
+    curl -L ${repo}/releases/download/v${newest_version}/${v2ray_core}-linux-64.zip > ${zip_file}
+    echo "解压${v2ray_core}-v${newest_version}"
+    unzip -q ${zip_file} -d $v2ray_dir
+    chmod +x "$v2ray_path"
+    echo "安装到: $v2ray_path"
 
-    # if [ -d "$v2ray_dir" ] && [ -f "${v2ray_path}" ] ; then
-    #     local now_version="$($v2ray_path --version | grep -iEo "${v2ray_core} [0-9]+(.[0-9]+)+" | grep -oE '([0-9]+\.)+[0-9]+')"
-    # fi
-    # if [ "${now_version}" = "${newest_version}" ]; then
-    #     echo "清空安装包"
-    #     [ -f  ${zip_file} ] && rm ${zip_file}
-    #     echo
-    #     echo '安装成功'
-    #     echo "更新后版本："
-    #     $v2ray_path --version
-    # else
-    #     echo "${v2ray_core}-v${newest_version} 安装失败"
-    #     echo "保留安装包以debug: ${zip_file}"
-    # fi
+    if [ -d "$v2ray_dir" ] && [ -f "${v2ray_path}" ] ; then
+        local now_version="$($v2ray_path --version | grep -iEo "${v2ray_core} [0-9]+(.[0-9]+)+" | grep -oE '([0-9]+\.)+[0-9]+')"
+    fi
+    if [ "${now_version}" = "${newest_version}" ]; then
+        echo "清空安装包"
+        [ -f  ${zip_file} ] && rm ${zip_file}
+        echo
+        echo '安装成功'
+        echo "更新后版本："
+        $v2ray_path --version
+    else
+        echo "${v2ray_core}-v${newest_version} 安装失败"
+        echo "保留安装包以debug: ${zip_file}"
+    fi
 }
 
 # _xray_install() {
