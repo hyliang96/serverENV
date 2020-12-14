@@ -3,9 +3,12 @@
 v2ray_config_dir="$HOME/.v2ray"
 # get absoltae path to the dir this is in, work in bash, zsh
 # if you want transfer symbolic link to true path, just change `pwd` to `pwd -P`
-v2_script_dir=$(cd "$(dirname "${BASH_SOURCE[0]-$0}")"; pwd)
-v2ray_path_up="$v2_script_dir/.."
-v2ray_path="$v2_script_dir/../v2ray/v2ray"
+
+v2ray_core='v2ray' # 'xray'
+
+v2ray_dir_up="$(cd "$(dirname "${BASH_SOURCE[0]-$0}")"; pwd)/.."
+v2ray_dir="$v2ray_dir_up/${v2ray_core}"
+v2ray_path="${v2ray_dir}/${v2ray_core}"
 v2_script="${BASH_SOURCE[0]-$0}"
 v2_log_dir="$localENV/log/v2ray"
 
@@ -17,37 +20,67 @@ v2_http_port=1087
 
 _v2_install()
 {
-    local v2ray_dir="$v2ray_path_up/v2ray"
-    local new_version=$(curl --silent https://api.github.com/repos/v2ray/v2ray-core/releases/latest | grep -Po '"tag_name":[ ]?"\K.*?(?=")')
+    if [ "${v2ray_core}" = v2ray ]; then
+        local repo='https://github.com/v2fly/v2ray-core'
+    else
+        local repo='https://github.com/XTLS/Xray-core'
+    fi
 
-    if [ -d "$v2ray_dir" ]; then
-        local version="$($v2ray_path --version | grep -Eo 'V2Ray [0-9]+(.[0-9]+)+' | sed 's/V2Ray //')"
+    local newest_version_url="${repo}/releases/latest"
+    local newest_version=$(curl --silent ${newest_version_url} 2>/dev/null| sed -E 's|.+tag/v([0-9.]+)".+|\1|')
+    if [ "${newest_version}" = '' ]; then
+        echo "Failed to connect to ${newest_version_url}"
+        return
+    fi
 
-        answer=$(bash -c "read  -n 1 -p '已有v2ray-core-$version，是否更新为$new_version ? [Y|N]' c; echo \$c"); echo
+    if [ -d "$v2ray_dir" ] && [ -f "${v2ray_path}" ] ; then
+        local now_version="$($v2ray_path --version | grep -Eo 'V2Ray [0-9]+(.[0-9]+)+' | grep -oE '([0-9]+\.)+[0-9]+')"
+        if [ "${now_version}" = '' ]; then
+            echo 'Failed to get current v2ray version by `v2ray --version`'
+        else
+            echo "Current version is v${now_version}"
+        fi
+        echo "Newest version is v${newest_version}"
+    fi
 
+    if [  -f "${v2ray_path}"  ] && [ "${now_version}" != '' ] && [ "$(echo ${now_version}$'\n'${newest_version} | sort --version-sort | tail -n 1)" = ${now_version} ]; then
+        echo "Not to update v2ray" >&2
+        return
+    fi
+
+    if  [ "${now_version}" != '' ]; then
+        local answer=$(bash -c "read  -n 1 -p '已有v2ray-core-$now_version，是否更新为$newest_version ? [Y|N]' c; echo \$c"); echo
         if [ "$answer" != 'y' ] && [ "$answer" != 'Y' ]; then
             echo "不更新，退出"
             return
         fi
-
-        mkdir -p $v2ray_path_up/v2ray_back
-        local back_dir="$v2ray_path_up/v2ray_back/v2ray-v$version-back_at_$(date +%F-%T)"
-        mv $v2ray_dir $back_dir
-        echo "原v2ray-core已备份到$back_dir"
     fi
+    echo "Installing newest v2ray v${newest_version}"
+    echo
 
-    echo "下载v2ray-core-$new_version"
-    curl -L https://github.com/v2ray/v2ray-core/releases/latest/download/v2ray-linux-64.zip > $v2ray_path_up/v2ray-linux-64.zip
-    echo "解压v2ray-core-$new_version"
-    unzip -q $v2ray_path_up/v2ray-linux-64.zip -d $v2ray_dir
+    mkdir -p $v2ray_dir_up/v2ray_back
+    local back_dir="$v2ray_dir_up/v2ray_back/v2ray-v${now_version}-back_at_$(date +%F-%T)"
+    [ -d $v2ray_dir ] && mv $v2ray_dir $back_dir && echo "原v2ray-core已备份到$back_dir"
+    rm $v2ray_dir_up/v2ray-linux-64.zip
+
+    echo "下载v2ray-core-$newest_version"
+    curl -L ${repo}/releases/download/v${newest_version}/v2ray-linux-64.zip > $v2ray_dir_up/v2ray-linux-64.zip
+    echo "解压v2ray-core-$newest_version"
+    unzip -q $v2ray_dir_up/v2ray-linux-64.zip -d $v2ray_dir
     echo "清空安装包"
-    [ -f  $v2ray_path_up/v2ray-linux-64.zip ] && rm $v2ray_path_up/v2ray-linux-64.zip
+    [ -f  $v2ray_dir_up/v2ray-linux-64.zip ] && rm $v2ray_dir_up/v2ray-linux-64.zip
 
     echo "安装到: $v2ray_path"
     echo "更新后版本："
     $v2ray_path --version
 }
 
+# _xray_install() {
+    # local v2ray_dir="$v2ray_dir_up/v2ray"
+    # local newest_version=$(curl --silent https://github.com/XTLS/v2-core/releases/latest | grep -Po '"tag_name":[ ]?"\K.*?(?=")')
+
+    # if [ -d "$v2ray_dir" ] || ; then
+# }
 
 # 关闭开全局http,https,socks5 翻墙
 _v2_stop()
@@ -157,4 +190,4 @@ v2()
 }
 
 
-unset -v v2_script_dir
+
