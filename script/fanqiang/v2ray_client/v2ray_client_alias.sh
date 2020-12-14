@@ -43,7 +43,8 @@ _v2_install()
         echo "Newest version is v${newest_version}"
     fi
 
-    if [  -f "${v2ray_path}"  ] && [ "${now_version}" != '' ] && [ "$(echo ${now_version}$'\n'${newest_version} | sort --version-sort | tail -n 1)" = ${now_version} ]; then
+    if [  -f "${v2ray_path}"  ] && [ "${now_version}" != '' ] && \
+        [ "$(echo ${now_version}$'\n'${newest_version} | sort --version-sort | tail -n 1)" = ${now_version} ]; then
         echo "Not to update ${v2ray_core}" >&2
         return
     fi
@@ -63,7 +64,7 @@ _v2_install()
     local back_dir="${v2ray_back_dir}/${v2ray_core}-v${now_version}-backup_at_$(date +%F-%T)"
     [ -d $v2ray_dir ] && mv $v2ray_dir $back_dir && echo "原${v2ray_core}已备份到$back_dir"
     local zip_file=$v2ray_dir_up/${v2ray_core}-linux-64.zip
-    if [ -f ${zip_file} ] && rm ${zip_file}
+    [ -f ${zip_file} ] && rm ${zip_file}
 
     echo "下载${v2ray_core}-v${newest_version}"
     curl -L ${repo}/releases/download/v${newest_version}/${v2ray_core}-linux-64.zip > ${zip_file}
@@ -88,20 +89,13 @@ _v2_install()
     fi
 }
 
-# _xray_install() {
-    # local v2ray_dir="$v2ray_dir_up/v2ray"
-    # local newest_version=$(curl --silent https://github.com/XTLS/v2-core/releases/latest | grep -Po '"tag_name":[ ]?"\K.*?(?=")')
-
-    # if [ -d "$v2ray_dir" ] || ; then
-# }
-
 # 关闭开全局http,https,socks5 翻墙
 _v2_stop()
 {
     echo '--------- v2 stop --------'
     if [ "$(_v2_jch)" != '' ]; then
         killall $v2ray_path
-        echo "closed previous v2ray process"
+        echo "closed previous ${v2ray_core} process"
     fi
     # 取消 export的环境变量
     tfq_stop_
@@ -110,7 +104,7 @@ _v2_stop()
 _v2_ls()
 {
     echo "under dir: $v2ray_config_dir"
-    echo "v2ray servers:"
+    echo "${v2ray_core} servers:"
     ls $v2ray_config_dir | grep .json  | sed 's/.json//g'
 }
 # 开、重启全局http,https,socks5 翻墙
@@ -125,7 +119,7 @@ _v2_start()
         echo server $1
         local server=$1
     fi
-    echo using v2ray config: $server
+    echo using ${v2ray_core} config: $server
     # 检查配置文件是否存在
     if ! [ -f $v2ray_config_dir/$server.json ]; then
         echo "not found v2ray client config: $v2ray_config_dir/$server.json"
@@ -141,13 +135,35 @@ _v2_start()
     ( (
         $v2ray_path -config $v2ray_config_dir/$server.json
     ) & ) > $v2_log_dir/log 2>&1
-    echo "opened v2ray process"
-    echo "log: v2_log_dir"
+    echo "opened ${v2ray_core} process"
+    echo "log: $v2_log_dir"
 
     # 用polipo代理http(s)到socks5
     tfq_start_ http $v2_http_port
     #no_proxy表示一些不需要代理的网址,比如内网之类的
 }
+
+# _god()
+# {
+    # COMPREPLY=()  # 为数组，名字必须是COMPREPLY，在给COMPREPLY赋值之前，最好将它重置清空，避免被其它补全函数干扰
+    # local cur prev
+    # _get_comp_words_by_ref cur prev
+    # COMPREPLY=( $( compgen -W 'xiaomi noops blog' -- "$cur" ) )
+    # return 0
+# }
+# complete -F _god god
+
+if [ "$(ps -p $$ | tail -n1 | awk '{printf $4}' | sed -E 's/^\-//')" = zsh ]; then
+    __v2_start() {
+        local cur cword words  # 定义变量，cur表示当前光标下的单词
+        read -cn cword  # 所有指令集
+        read -Ac words  # 当前指令的索引值
+        cur="$words[$cword-1]" # 当前指令值
+        reply=($(ls $v2ray_config_dir | grep .json  | sed 's/.json//g'))
+    }
+
+    compctl -K __v2_start _v2_start
+fi
 
 _v2_jch()
 {
@@ -156,9 +172,9 @@ _v2_jch()
     [ "$content" != '' ] && echo "$title" && echo "$content" | grep --color $v2ray_path
 }
 
-_v2_status()
+_v2_log()
 {
-    cat $v2_log_dir/log
+    cat $v2_log_dir/log | less
 }
 
 v2()
@@ -171,7 +187,7 @@ v2()
     elif ! [ -x $v2ray_path ]; then
         shift
         echo "executable file no found: $v2ray_path" >&2
-        echo 'run `v2 install` to (re)install v2ray' >&2
+        echo 'run `v2 install` to (re)install '"${v2ray_core}" >&2
     elif [ "$1" = 'stop' ]; then
         shift
         _v2_stop
@@ -184,20 +200,21 @@ v2()
     elif [ "$1" = 'jch' ] || [ "$1" = 'status' ]; then
         shift
         _v2_jch
-    elif [ "$1" = 'status' ]; then
+    elif [ "$1" = 'log' ]; then
         shift
-        _v2_status
+        _v2_log
     else
         echo 'v2ray client command line interface'
         echo
-        echo '`v2 install|update`     install or update v2ray-core'
-        echo '`v2 start [<vps_name>]` (re)open v2ray client; dafault vps_name="default"'
-        echo '`v2 stop`               stop v2ray client'
+        echo '`v2 install|update`     install or update '"${v2ray-core}"
+        echo '`v2 start [<vps_name>]` (re)open '"${v2ray-core}"' client; dafault vps_name="default"'
+        echo '`v2 stop`               stop '"${v2ray-core}"' client'
         echo '`v2 ls`                 list all vps_name'
         echo '`v2 jch|status`         show all sslocal process'
+        echo '`v2 log`                show log'
         echo
-        echo '`$v2ray_config_dir`     dir to save all v2ray config'
-        echo '`$v2ray_dir`            path to this v2ray bin'
+        echo '`$v2ray_config_dir`     dir to save all '"${v2ray-core}"' config'
+        echo '`$v2ray_dir`            path to this '"${v2ray-core}"' bin'
         echo '`$v2_script`            dir to this script'
     fi
 }
