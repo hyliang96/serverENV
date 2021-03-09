@@ -31,6 +31,9 @@ tfq_stop_() {
 . $here/v2ray_host/v2ray_host_alias.sh  >&2
 
 
+# fq : 设置终端翻墙, 并开翻墙内核
+# tfq: 仅设置终端翻墙
+
 if [ "$fq_tool" = ss ]; then
     alias fq='ss'   # 用shadowsock翻墙
     alias tfq_start="tfq_start_ http $ss_http_port"
