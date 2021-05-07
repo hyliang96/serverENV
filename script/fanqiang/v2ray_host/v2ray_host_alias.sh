@@ -25,10 +25,14 @@ v2ray()
 
 # v2ray 多合一脚本
 v2host() {
-    if [ -f "${v2host}" ]; then
+    if [[ "$1" =~  ^(help|-h|--help|)$ ]]; then
+        echo 'v2host help|h|-h|--help       : help'
+        echo 'v2host install|upgrade|update : install/update the script'
+        echo 'v2host                        : run v2ray 七合一脚本'
+    elif [ ! -f h"${v2host}" ] || [[ "$1" =~ ^(install|update|upgrade)$ ]]; then
+        wget https://raw.githubusercontent.com/mack-a/v2ray-agent/master/install.sh -O "${v2host}"
         sudo bash ${v2host}
     else
-        wget https://raw.githubusercontent.com/mack-a/v2ray-agent/master/install.sh -O "${v2host}"
         sudo bash ${v2host}
     fi
 }
