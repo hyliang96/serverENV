@@ -25,7 +25,7 @@ v2ray()
 
 # v2ray 多合一脚本
 v2host() {
-    if [[ "$1" =~  ^(help|-h|--help|)$ ]]; then
+    if [ $# -ge 1 ] && [[ "$1" =~  ^(help|-h|--help|)$ ]]; then
         echo 'v2host help|h|-h|--help       : help'
         echo 'v2host install|upgrade|update : install/update the script'
         echo 'v2host                        : run v2ray 七合一脚本'
