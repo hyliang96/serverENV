@@ -503,7 +503,7 @@ getPublicIP() {
     if [[ -n "$1" ]]; then
         type=$1
     fi
-    if [[ -n "${currentHost}" && -n "${currentRealityServerNames}" && "${currentRealityServerNames}" == "${currentHost}" ]]; then
+    if [[ -n "${currentHost}" && -n "${currentRealityServerNames}" && "${currentRealityServerNames}" == "${currentHost}" && -z "$1" ]]; then
         echo "${currentHost}"
     else
         local currentIP=
@@ -1034,13 +1034,16 @@ checkDNSIP() {
     local dnsIP=
     local type=4
     dnsIP=$(dig @1.1.1.1 +time=1 +short "${domain}")
+    if [[ -z "${dnsIP}" ]]; then
+        dnsIP=$(dig @8.8.8.8 +time=1 +short "${domain}")
+    fi
     if echo "${dnsIP}" | grep -q "timed out" || [[ -z "${dnsIP}" ]]; then
         echo
         echoContent red " ---> 无法通过DNS获取域名 IPv4 地址"
         echoContent green " ---> 尝试检查域名 IPv6 地址"
         dnsIP=$(dig @2606:4700:4700::1111 +time=1 aaaa +short "${domain}")
         type=6
-        if [[ -z "${dnsIP}" ]]; then
+        if echo "${dnsIP}" | grep -q "network unreachable" || [[ -z "${dnsIP}" ]]; then
             echoContent red " ---> 无法通过DNS获取域名IPv6地址，退出安装"
             exit 0
         fi
@@ -1343,8 +1346,8 @@ checkIP() {
         if [[ -n ${localIP} ]]; then
             echoContent yellow " ---> 检测返回值异常，建议手动卸载nginx后重新执行脚本"
             echoContent red " ---> 异常结果：${localIP}"
-            exit 0
         fi
+        exit 0
     else
         if echo "${localIP}" | awk -F "[,]" '{print $2}' | grep -q "." || echo "${localIP}" | awk -F "[,]" '{print $2}' | grep -q ":"; then
             echoContent red "\n ---> 检测到多个ip，请确认是否关闭cloudflare的云朵"
@@ -1900,14 +1903,10 @@ installHysteria() {
 
     if [[ -z "${hysteriaConfigPath}" ]]; then
 
-        version=$(curl -s https://api.github.com/repos/apernet/hysteria/releases?per_page=5 | jq -r '.[]|select (.prerelease==false)|.tag_name' | head -1)
+        version=$(curl -s "https://api.github.com/repos/apernet/hysteria/releases?per_page=10" | jq -r ".[]|select (.prerelease==${prereleaseStatus})|.tag_name" | grep -v "app/v2" | head -1)
 
         echoContent green " ---> Hysteria版本:${version}"
-        #        if wget --help | grep -q show-progress; then
         wget -c -q "${wgetShowProgressStatus}" -P /etc/v2ray-agent/hysteria/ "https://github.com/apernet/hysteria/releases/download/${version}/${hysteriaCoreCPUVendor}"
-        #        else
-        #            wget -c -P /etc/v2ray-agent/hysteria/ "https://github.com/apernet/hysteria/releases/download/${version}/${hysteriaCoreCPUVendor}" >/dev/null 2>&1
-        #        fi
         mv "/etc/v2ray-agent/hysteria/${hysteriaCoreCPUVendor}" /etc/v2ray-agent/hysteria/hysteria
         chmod 655 /etc/v2ray-agent/hysteria/hysteria
     else
@@ -1928,7 +1927,7 @@ installTuic() {
 
     if [[ -z "${tuicConfigPath}" ]]; then
 
-        version=$(curl -s https://api.github.com/repos/EAimTY/tuic/releases?per_page=5 | jq -r '.[]|select (.prerelease==false)|.tag_name' | head -1)
+        version=$(curl -s "https://api.github.com/repos/EAimTY/tuic/releases?per_page=1" | jq -r '.[]|select (.prerelease==false)|.tag_name')
 
         echoContent green " ---> Tuic版本:${version}"
         wget -c -q "${wgetShowProgressStatus}" -P /etc/v2ray-agent/tuic/ "https://github.com/EAimTY/tuic/releases/download/${version}/${version}${tuicCoreCPUVendor}"
@@ -1963,15 +1962,11 @@ installXray() {
 
     if [[ "${coreInstallType}" != "1" ]]; then
 
-        version=$(curl -s https://api.github.com/repos/XTLS/Xray-core/releases?per_page=10 | jq -r '.[]|select (.prerelease=='${prereleaseStatus}')|.tag_name' | head -1)
+        version=$(curl -s "https://api.github.com/repos/XTLS/Xray-core/releases?per_page=1" | jq -r ".[].tag_name")
 
         echoContent green " ---> Xray-core版本:${version}"
 
-        #        if wget --help | grep -q show-progress; then
         wget -c -q "${wgetShowProgressStatus}" -P /etc/v2ray-agent/xray/ "https://github.com/XTLS/Xray-core/releases/download/${version}/${xrayCoreCPUVendor}.zip"
-        #        else
-        #            wget -c -P /etc/v2ray-agent/xray/ "https://github.com/XTLS/Xray-core/releases/download/${version}/${xrayCoreCPUVendor}.zip" >/dev/null 2>&1
-        #        fi
         if [[ ! -f "/etc/v2ray-agent/xray/${xrayCoreCPUVendor}.zip" ]]; then
             echoContent red " ---> 核心下载失败，请重新尝试安装"
             exit 0
@@ -2079,10 +2074,10 @@ xrayVersionManageMenu() {
         echoContent yellow "2.不保证回退后一定可以正常使用"
         echoContent yellow "3.如果回退的版本不支持当前的config，则会无法连接，谨慎操作"
         echoContent skyBlue "------------------------Version-------------------------------"
-        curl -s https://api.github.com/repos/XTLS/Xray-core/releases | jq -r '.[]|select (.prerelease==false)|.tag_name' | head -5 | awk '{print ""NR""":"$0}'
+        curl -s "https://api.github.com/repos/XTLS/Xray-core/releases?per_page=5" | jq -r ".[]|select (.prerelease==false)|.tag_name" | awk '{print ""NR""":"$0}'
         echoContent skyBlue "--------------------------------------------------------------"
         read -r -p "请输入要回退的版本:" selectXrayVersionType
-        version=$(curl -s https://api.github.com/repos/XTLS/Xray-core/releases | jq -r '.[]|select (.prerelease==false)|.tag_name' | head -5 | awk '{print ""NR""":"$0}' | grep "${selectXrayVersionType}:" | awk -F "[:]" '{print $2}')
+        version=$(curl -s "https://api.github.com/repos/XTLS/Xray-core/releases?per_page=5" | jq -r ".[]|select (.prerelease==false)|.tag_name" | awk '{print ""NR""":"$0}' | grep "${selectXrayVersionType}:" | awk -F "[:]" '{print $2}')
         if [[ -n "${version}" ]]; then
             updateXray "${version}"
         else
@@ -2200,16 +2195,12 @@ updateXray() {
         if [[ -n "$1" ]]; then
             version=$1
         else
-            version=$(curl -s https://api.github.com/repos/XTLS/Xray-core/releases | jq -r ".[]|select (.prerelease==${prereleaseStatus})|.tag_name" | head -1)
+            version=$(curl -s "https://api.github.com/repos/XTLS/Xray-core/releases?per_page=1" | jq -r ".[]|select (.prerelease==${prereleaseStatus})|.tag_name")
         fi
 
         echoContent green " ---> Xray-core版本:${version}"
 
-        #        if wget --help | grep -q show-progress; then
         wget -c -q "${wgetShowProgressStatus}" -P /etc/v2ray-agent/xray/ "https://github.com/XTLS/Xray-core/releases/download/${version}/${xrayCoreCPUVendor}.zip"
-        #        else
-        #            wget -c -P /etc/v2ray-agent/xray/ "https://github.com/XTLS/Xray-core/releases/download/${version}/${xrayCoreCPUVendor}.zip" >/dev/null 2>&1
-        #        fi
 
         unzip -o "/etc/v2ray-agent/xray/${xrayCoreCPUVendor}.zip" -d /etc/v2ray-agent/xray >/dev/null
         rm -rf "/etc/v2ray-agent/xray/${xrayCoreCPUVendor}.zip"
@@ -2222,7 +2213,7 @@ updateXray() {
         if [[ -n "$1" ]]; then
             version=$1
         else
-            version=$(curl -s https://api.github.com/repos/XTLS/Xray-core/releases | jq -r ".[]|select (.prerelease==${prereleaseStatus})|.tag_name" | head -1)
+            version=$(curl -s "https://api.github.com/repos/XTLS/Xray-core/releases?per_page=1" | jq -r ".[].tag_name")
         fi
 
         if [[ -n "$1" ]]; then
@@ -3794,7 +3785,7 @@ EOF
             "publicKey": "${realityPublicKey}",
             "maxTimeDiff": 70000,
             "shortIds": [
-                ""
+                "6ba85179e30d4fc2"
             ]
         }
       }
@@ -4134,12 +4125,12 @@ EOF
         echoContent green "    https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=hysteria%3A%2F%2F${currentHost}%3A${hysteriaPort}%3F${mport}protocol%3D${hysteriaProtocol}%26auth%3D${id}%26peer%3D${currentHost}%26insecure%3D0%26alpn%3Dh3%26upmbps%3D${hysteriaClientUploadSpeed}%26downmbps%3D${hysteriaClientDownloadSpeed}%23${hysteriaEmail}\n"
     elif [[ "${type}" == "vlessReality" ]]; then
         echoContent yellow " ---> 通用格式(VLESS+reality+uTLS+Vision)"
-        echoContent green "    vless://${id}@$(getPublicIP):${currentRealityPort}?encryption=none&security=reality&type=tcp&sni=${currentRealityServerNames}&fp=chrome&pbk=${currentRealityPublicKey}&flow=xtls-rprx-vision#${email}\n"
+        echoContent green "    vless://${id}@$(getPublicIP):${currentRealityPort}?encryption=none&security=reality&type=tcp&sni=${currentRealityServerNames}&fp=chrome&pbk=${currentRealityPublicKey}&sid=6ba85179e30d4fc2&flow=xtls-rprx-vision#${email}\n"
 
         echoContent yellow " ---> 格式化明文(VLESS+reality+uTLS+Vision)"
-        echoContent green "协议类型:VLESS reality，地址:$(getPublicIP)，publicKey:${currentRealityPublicKey}，serverNames：${currentRealityServerNames}，端口:${currentRealityPort}，用户ID:${id}，传输方式:tcp，账户名:${email}\n"
+        echoContent green "协议类型:VLESS reality，地址:$(getPublicIP)，publicKey:${currentRealityPublicKey}，shortId: 6ba85179e30d4fc2,serverNames：${currentRealityServerNames}，端口:${currentRealityPort}，用户ID:${id}，传输方式:tcp，账户名:${email}\n"
         cat <<EOF >>"/etc/v2ray-agent/subscribe_local/default/${user}"
-vless://${id}@$(getPublicIP):${currentRealityPort}?encryption=none&security=reality&type=tcp&sni=${currentRealityServerNames}&fp=chrome&pbk=${currentRealityPublicKey}&flow=xtls-rprx-vision#${email}
+vless://${id}@$(getPublicIP):${currentRealityPort}?encryption=none&security=reality&type=tcp&sni=${currentRealityServerNames}&fp=chrome&pbk=${currentRealityPublicKey}&sid=6ba85179e30d4fc2&flow=xtls-rprx-vision#${email}
 EOF
         cat <<EOF >>"/etc/v2ray-agent/subscribe_local/clashMeta/${user}"
   - name: "${email}"
@@ -4154,19 +4145,20 @@ EOF
     servername: ${currentRealityServerNames}
     reality-opts:
       public-key: ${currentRealityPublicKey}
+      short-id: 6ba85179e30d4fc2
     client-fingerprint: chrome
 EOF
         echoContent yellow " ---> 二维码 VLESS(VLESS+reality+uTLS+Vision)"
-        echoContent green "    https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=vless%3A%2F%2F${id}%40$(getPublicIP)%3A${currentRealityPort}%3Fencryption%3Dnone%26security%3Dreality%26type%3Dtcp%26sni%3D${currentRealityServerNames}%26fp%3Dchrome%26pbk%3D${currentRealityPublicKey}%26flow%3Dxtls-rprx-vision%23${email}\n"
+        echoContent green "    https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=vless%3A%2F%2F${id}%40$(getPublicIP)%3A${currentRealityPort}%3Fencryption%3Dnone%26security%3Dreality%26type%3Dtcp%26sni%3D${currentRealityServerNames}%26fp%3Dchrome%26pbk%3D${currentRealityPublicKey}%26pbk%3D6ba85179e30d4fc2%26flow%3Dxtls-rprx-vision%23${email}\n"
 
     elif [[ "${type}" == "vlessRealityGRPC" ]]; then
         echoContent yellow " ---> 通用格式(VLESS+reality+uTLS+gRPC)"
-        echoContent green "    vless://${id}@$(getPublicIP):${currentRealityPort}?encryption=none&security=reality&type=grpc&sni=${currentRealityServerNames}&fp=chrome&pbk=${currentRealityPublicKey}&path=grpc&serviceName=grpc#${email}\n"
+        echoContent green "    vless://${id}@$(getPublicIP):${currentRealityPort}?encryption=none&security=reality&type=grpc&sni=${currentRealityServerNames}&fp=chrome&pbk=${currentRealityPublicKey}&sid=6ba85179e30d4fc2&path=grpc&serviceName=grpc#${email}\n"
 
         echoContent yellow " ---> 格式化明文(VLESS+reality+uTLS+gRPC)"
-        echoContent green "协议类型:VLESS reality，serviceName:grpc，地址:$(getPublicIP)，publicKey:${currentRealityPublicKey}，serverNames：${currentRealityServerNames}，端口:${currentRealityPort}，用户ID:${id}，传输方式:gRPC，client-fingerprint：chrome，账户名:${email}\n"
+        echoContent green "协议类型:VLESS reality，serviceName:grpc，地址:$(getPublicIP)，publicKey:${currentRealityPublicKey}，shortId: 6ba85179e30d4fc2，serverNames：${currentRealityServerNames}，端口:${currentRealityPort}，用户ID:${id}，传输方式:gRPC，client-fingerprint：chrome，账户名:${email}\n"
         cat <<EOF >>"/etc/v2ray-agent/subscribe_local/default/${user}"
-vless://${id}@$(getPublicIP):${currentRealityPort}?encryption=none&security=reality&type=grpc&sni=${currentRealityServerNames}&fp=chrome&pbk=${currentRealityPublicKey}&path=grpc&serviceName=grpc#${email}
+vless://${id}@$(getPublicIP):${currentRealityPort}?encryption=none&security=reality&type=grpc&sni=${currentRealityServerNames}&fp=chrome&pbk=${currentRealityPublicKey}&sid=6ba85179e30d4fc2&path=grpc&serviceName=grpc#${email}
 EOF
         cat <<EOF >>"/etc/v2ray-agent/subscribe_local/clashMeta/${user}"
   - name: "${email}"
@@ -4180,12 +4172,13 @@ EOF
     servername: ${currentRealityServerNames}
     reality-opts:
       public-key: ${currentRealityPublicKey}
+      short-id: 6ba85179e30d4fc2
     grpc-opts:
       grpc-service-name: "grpc"
     client-fingerprint: chrome
 EOF
         echoContent yellow " ---> 二维码 VLESS(VLESS+reality+uTLS+gRPC)"
-        echoContent green "    https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=vless%3A%2F%2F${id}%40$(getPublicIP)%3A${currentRealityPort}%3Fencryption%3Dnone%26security%3Dreality%26type%3Dgrpc%26sni%3D${currentRealityServerNames}%26fp%3Dchrome%26pbk%3D${currentRealityPublicKey}%26path%3Dgrpc%26serviceName%3Dgrpc%23${email}\n"
+        echoContent green "    https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=vless%3A%2F%2F${id}%40$(getPublicIP)%3A${currentRealityPort}%3Fencryption%3Dnone%26security%3Dreality%26type%3Dgrpc%26sni%3D${currentRealityServerNames}%26fp%3Dchrome%26pbk%3D${currentRealityPublicKey}%26pbk%3D6ba85179e30d4fc2%26path%3Dgrpc%26serviceName%3Dgrpc%23${email}\n"
     elif [[ "${type}" == "tuic" ]]; then
 
         if [[ -z "${email}" ]]; then
@@ -7630,7 +7623,7 @@ initRealityDest() {
         realityDestDomain=${domain}:${port}
     else
         local realityDestDomainList=
-        realityDestDomainList="gateway.icloud.com,itunes.apple.com,download-installer.cdn.mozilla.net,addons.mozilla.org,www.lovelive-anime.jp,swdist.apple.com,swcdn.apple.com,updates.cdn-apple.com,mensura.cdn-apple.com,osxapps.itunes.apple.com,aod.itunes.apple.com,s0.awsstatic.com,d1.awsstatic.com,images-na.ssl-images-amazon.com,m.media-amazon.com,player.live-video.net,www.yahoo.com,one-piece.com,lol.secure.dyn.riotcdn.net,addons.mozilla.org,gateway.icloud.com,itunes.apple.com,download-installer.cdn.mozilla.net,addons.mozilla.org,www.lovelive-anime.jp,swdist.apple.com,swcdn.apple.com,updates.cdn-apple.com,mensura.cdn-apple.com,osxapps.itunes.apple.com,aod.itunes.apple.com,s0.awsstatic.com,d1.awsstatic.com,images-na.ssl-images-amazon.com,m.media-amazon.com,player.live-video.net"
+        realityDestDomainList="gateway.icloud.com,itunes.apple.com,swdist.apple.com,swcdn.apple.com,updates.cdn-apple.com,mensura.cdn-apple.com,osxapps.itunes.apple.com,aod.itunes.apple.com,download-installer.cdn.mozilla.net,addons.mozilla.org,s0.awsstatic.com,d1.awsstatic.com,images-na.ssl-images-amazon.com,m.media-amazon.com,player.live-video.net,one-piece.com,lol.secure.dyn.riotcdn.net,www.lovelive-anime.jp,www.nokia.com,auth.riotgames.com,xsso.riotgames.com,csgo.com"
 
         echoContent skyBlue "\n===== 生成配置回落的域名 例如:[addons.mozilla.org:443] ======\n"
         echoContent green "回落域名列表：https://www.v2ray-agent.com/archives/1680104902581#heading-8\n"
@@ -7903,7 +7896,7 @@ menu() {
     cd "$HOME" || exit
     echoContent red "\n=============================================================="
     echoContent green "作者：mack-a"
-    echoContent green "当前版本：v2.10.14"
+    echoContent green "当前版本：v2.10.20"
     echoContent green "Github：https://github.com/mack-a/v2ray-agent"
     echoContent green "描述：八合一共存脚本\c"
     showInstallStatus
