@@ -144,36 +144,36 @@ _v2_start()
 }
 echo A2 >&2
 # 自动补全
-# if [ "$(ps -p $$ | tail -n1 | awk '{printf $4}' | sed -E 's/^\-//')" = zsh ]; then
-    # __v2_start() {
-        # local cur cword words  # 定义变量，cur表示当前光标下的单词
-        # read -cn cword  # 所有指令集
-        # read -Ac words  # 当前指令的索引值
-        # cur="$words[$cword-1]" # 当前指令值
-        # if [ "$cur" = start ]; then
-            # reply=($(ls $v2ray_config_dir | grep .json  | sed 's/.json//g'))
-        # fi
-    # }
-    # compctl -K __v2_start v2
-# elif [ "$(ps -p $$ | tail -n1 | awk '{printf $4}' | sed -E 's/^\-//')" = bash ]; then
-    # __v2_start() {
-        # local cur prev words cword
-        # COMPREPLY=()  # 为数组，名字必须是COMPREPLY，在给COMPREPLY赋值之前，最好将它重置清空，避免被其它补全函数干扰
-        # cur=${COMP_WORDS[1]}
+if [ "$(/bin/ps -p $$ | tail -n1 | awk '{printf $4}' | sed -E 's/^\-//')" = zsh ]; then
+    __v2_start() {
+        local cur cword words  # 定义变量，cur表示当前光标下的单词
+        read -cn cword  # 所有指令集
+        read -Ac words  # 当前指令的索引值
+        cur="$words[$cword-1]" # 当前指令值
+        if [ "$cur" = start ]; then
+            reply=($(ls $v2ray_config_dir | grep .json  | sed 's/.json//g'))
+        fi
+    }
+    compctl -K __v2_start v2
+elif [ "$(/bin/ps -p $$ | tail -n1 | awk '{printf $4}' | sed -E 's/^\-//')" = bash ]; then
+    __v2_start() {
+        local cur prev words cword
+        COMPREPLY=()  # 为数组，名字必须是COMPREPLY，在给COMPREPLY赋值之前，最好将它重置清空，避免被其它补全函数干扰
+        cur=${COMP_WORDS[1]}
 
-        # if [ "${cur}" = start ]; then
-            # COMPREPLY=($(ls $v2ray_config_dir | grep .json  | sed 's/.json//g'))
-        # fi
-    # }
-    # complete -F __v2_start v2
-# fi
+        if [ "${cur}" = start ]; then
+            COMPREPLY=($(ls $v2ray_config_dir | grep .json  | sed 's/.json//g'))
+        fi
+    }
+    complete -F __v2_start v2
+fi
 
 
 echo A3 >&2
 _v2_jch()
 {
-    local title="$(ps aux | awk NR==1)"
-    local content="$(ps aux | awk NR!=1 | grep --color -v grep | grep --color -v 'ps aux' | grep --color -v 'awk NR!=1' | grep --color $v2ray_path )"
+    local title="$(/bin/ps aux | awk NR==1)"
+    local content="$(/bin/ps aux | awk NR!=1 | grep --color -v grep | grep --color -v '/bin/ps aux' | grep --color -v 'awk NR!=1' | grep --color $v2ray_path )"
     [ "$content" != '' ] && echo "$title" && echo "$content" | grep --color $v2ray_path
 }
 

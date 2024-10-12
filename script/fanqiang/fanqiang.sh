@@ -4,24 +4,24 @@ echo fanqiang.sh >&2
 
 # clash
 function proxy_on() {
-	export http_proxy=http://127.0.0.1:7890
-	export https_proxy=http://127.0.0.1:7890
-	export no_proxy=127.0.0.1,localhost
-    	export HTTP_PROXY=http://127.0.0.1:7890
-    	export HTTPS_PROXY=http://127.0.0.1:7890
- 	export NO_PROXY=127.0.0.1,localhost
-	echo -e "\033[32m[√] 已开启代理\033[0m"
+    export http_proxy=http://127.0.0.1:7890
+    export https_proxy=http://127.0.0.1:7890
+    export no_proxy=127.0.0.1,localhost
+        export HTTP_PROXY=http://127.0.0.1:7890
+        export HTTPS_PROXY=http://127.0.0.1:7890
+    export NO_PROXY=127.0.0.1,localhost
+    echo -e "\033[32m[√] 已开启代理\033[0m"
 }
 
 # 关闭系统代理
 function proxy_off(){
-	unset http_proxy
-	unset https_proxy
-	unset no_proxy
-  	unset HTTP_PROXY
-	unset HTTPS_PROXY
-	unset NO_PROXY
-	echo -e "\033[31m[×] 已关闭代理\033[0m"
+    unset http_proxy
+    unset https_proxy
+    unset no_proxy
+    unset HTTP_PROXY
+    unset HTTPS_PROXY
+    unset NO_PROXY
+    echo -e "\033[31m[×] 已关闭代理\033[0m"
 }
 
 
@@ -89,12 +89,12 @@ tfq() {
 
 echo b >&2
 # 若当前有翻墙检测, 则开机登录时开启终端翻墙
-# if [ "$(v2 jch 2>/dev/null)" != '' ]; then
-    # echo b1 >&2
-    # tfq_start_ http $v2_http_port > /dev/null
-# elif [ "$(ss jch 2>/dev/null)" != '' ]; then
-    # echo b2 >&2
-    # tfq_start_ http $ss_http_port > /dev/null
-# fi
+if [ "$(v2 jch 2>/dev/null)" != '' ]; then
+    echo b1 >&2
+    tfq_start_ http $v2_http_port > /dev/null
+elif [ "$(ss jch 2>/dev/null)" != '' ]; then
+    echo b2 >&2
+    tfq_start_ http $ss_http_port > /dev/null
+fi
 echo c >&2
 unset -v here
