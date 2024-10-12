@@ -1,5 +1,6 @@
 # get absoltae path to the dir this is in, work in bash, zsh
 # if you want transfer symbolic link to true path, just change `pwd` to `pwd -P`
+echo fanqiang.sh >&2
 
 # clash
 function proxy_on() {
@@ -52,11 +53,15 @@ tfq_stop_() {
     echo "终端已结束翻墙"
 }
 
+echo a >&2
 . $here/shadowsocks_client/ss_client_alias.sh  >&2
+echo a1 >&2
 . $here/shadowsocks_host/ss_host_alias.sh  >&2
+echo a2 >&2
 . $here/v2ray_client/v2ray_client_alias.sh  >&2
+echo a3 >&2
 . $here/v2ray_host/v2ray_host_alias.sh  >&2
-
+echo a+ >&2
 
 # fq : 设置终端翻墙, 并开翻墙内核
 # tfq: 仅设置终端翻墙
@@ -82,12 +87,12 @@ tfq() {
     fi
 }
 
-
+echo b >&2
 # 若当前有翻墙检测, 则开机登录时开启终端翻墙
 if [ "$(v2 jch 2>/dev/null)" != '' ]; then
     tfq_start_ http $v2_http_port > /dev/null
 elif [ "$(ss jch 2>/dev/null)" != '' ]; then
     tfq_start_ http $ss_http_port > /dev/null
 fi
-
+echo c >&2
 unset -v here
