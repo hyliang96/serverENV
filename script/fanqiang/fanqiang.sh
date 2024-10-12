@@ -90,8 +90,10 @@ tfq() {
 echo b >&2
 # 若当前有翻墙检测, 则开机登录时开启终端翻墙
 if [ "$(v2 jch 2>/dev/null)" != '' ]; then
+    echo b1 >&2
     tfq_start_ http $v2_http_port > /dev/null
 elif [ "$(ss jch 2>/dev/null)" != '' ]; then
+    echo b2 >&2
     tfq_start_ http $ss_http_port > /dev/null
 fi
 echo c >&2
