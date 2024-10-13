@@ -45,7 +45,7 @@ ss_stop()
         eval $(ss_jch | awk NR!=1 | sed -r 's/(\S+\s+){10}//' | sed 's/ -d start/ -d stop/')
         # sslocal -d stop --pid-file $localENV/log/shadowsocks/pid
     fi
-    if [ "$(ps aux | grep $USER | grep polipo | grep -v grep)" != '' ]; then
+    if [ "$(/bin/ps aux | grep $USER | grep polipo | grep -v grep)" != '' ]; then
         killall polipo
     fi
     [ -f $localENV/log/polipo/pid ] && rm $localENV/log/polipo/pid
@@ -124,8 +124,8 @@ ss_jch()
 {
     local pattern="$(alias sslocal | sed "s/^sslocal='//" | sed "s/'$//")"
     [ "$pattern" = '' ] && pattern='sslocal'
-    local title="$(ps aux | awk NR==1)"
-    local content="$(ps aux | awk NR!=1 | grep --color -v grep | grep --color -v 'ps aux' | grep --color -v 'awk NR!=1' | grep "$pattern" )"
+    local title="$(/bin/ps aux | awk NR==1)"
+    local content="$(/bin/ps aux | awk NR!=1 | grep --color -v grep | grep --color -v '/bin/ps aux' | grep --color -v 'awk NR!=1' | grep "$pattern" )"
     [ "$content" != '' ] && echo "$title" && echo "$content" | grep --color "$pattern"
 }
 
