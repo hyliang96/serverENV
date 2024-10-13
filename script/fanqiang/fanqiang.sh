@@ -5,7 +5,6 @@ echo fanqiang.sh >&2
 
 
 
-# clash
 
 
 # 开启clash的系统代理
