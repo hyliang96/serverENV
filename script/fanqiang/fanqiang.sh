@@ -3,9 +3,10 @@
 # if you want transfer symbolic link to true path, just change `pwd` to `pwd -P`
 echo fanqiang.sh >&2
 
-fq_tool=clash # clash, v2, ss
 
 here=$(cd "$(dirname "${BASH_SOURCE[0]-$0}")"; pwd)
+
+fq_tool=clash # clash, v2, ss
 
 tfq_start_() {
     local protocol="$1"
@@ -40,10 +41,17 @@ tfq_stop_() {
 }
 
 tfq_status_() {
+    echo "默认代理工具\$fq_tool=${fq_tool}"
+    echo
     echo "http_proxy=$http_proxy"
     echo "https_proxy=$https_proxy"
     echo "ftp_proxy=$ftp_proxy"
     echo "no_proxy=$no_proxy"
+    echo
+    echo "HTTP_PROXY=$HTTP_PROXY"
+    echo "HTTPS_PROXY=$HTTPS_PROXY"
+    echo "FTP_PROXY=$FTP_PROXY"
+    echo "NO_PROXY=$NO_PROXY"
 }
 
 echo a >&2
@@ -82,8 +90,13 @@ tfq() {
     elif [ "$1" = status ]; then
         tfq_status_
     else
-        echo 'tfq [start]: start 翻墙 in terminal.'
-        echo 'tfq stop:    stop 翻墙 in terminal.'
+        echo 'tfq [start]       开启终端代理'
+        echo 'tfq stop          关闭终端代理'
+        echo 'tfq staus         查看终端代理的端口设置'
+        echo
+        echo 'tfq 终端开始代理, 对curl, w3m有效，对ping无效'
+        echo 'w3m www.google.com 与 w3m www.google.hk 只能显示搜索入口主页, 无法显示搜索结果页'
+        echo 'w3m www.google.jp 则都能显示'
     fi
 }
 
