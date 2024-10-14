@@ -5,10 +5,25 @@
 # if you want transfer symbolic link to true path, just change `pwd` to `pwd -P`
 
 
-clash_dir="$(cd "$(dirname "${BASH_SOURCE[0]-$0}")"; pwd)/../clash-for-linux"
+clash_dir="$(realpath $(cd "$(dirname "${BASH_SOURCE[0]-$0}")"; pwd)/../clash-for-linux)"
+clash_subscript="$clash_dir/.env"
+clash_config="$clash_dir/conf/config.yaml"
+clash_log_dir="$clash_dir/logs"
 clash_script="${BASH_SOURCE[0]-$0}"
 
 clash_http_port=7890
+
+_clash_install() {
+    local repo="git@github.com:wnlen/clash-for-linux.git"
+    # local repo="https://hub.fastgit.org/wanhebin/clash-for-linux.git"
+    mkdir -p "${clash_dir}_backup"
+    local clash_back_dir="${clash_dir}_backup/clash-for-linux-backup_at_$(date +%F-%T)"
+    [ -d "$clash_dir" ] && mv "$clash_dir" "$clash_back_dir" && echo "原clash-for-linux已备份到$clash_back_dir"
+    echo
+    echo "安装到: ${clash_dir}"
+    git clone "$repo" "$clash_dir"
+    echo "clash-for-linux安装完成"
+}
 
 _clash_stop() {
     echo '----------- clash stop ----------'
@@ -33,16 +48,25 @@ _clash_jch() {
     [ "$content" != '' ] && echo "$title" && echo "$content" | grep --color clash-linux-a
 }
 
+_clash_log() {
+    echo "ls $clash_log_dir/"
+    ls "$clash_log_dir/"
+    local log_file=$(bash -c "cd ${clash_log_dir};"' read -e -p "select log file: " log; echo $log')
+    echo log_file=$log_file
+    echo "less $clash_log_dir/$log_file"
+    less "$clash_log_dir/$log_file"
+}
+
 clash() {
     if [ $# -eq 0 ]; then
         clash help
     elif [ "$1" = 'install' ] || [ "$1" = 'update' ] ; then
         shift
-        #
-    elif ! [ -x $v2ray_path ]; then
+        _clash_install
+    elif ! [ -f "${clash_dir}/start.sh" ]; then
         shift
-        # echo "executable file no found: $v2ray_path" >&2
-        # echo 'run `v2 install` to (re)install '"${v2ray_core}" >&2
+        echo "file no found: $clash_dir/start.sh" >&2
+        echo 'run `clash install` to (re)install clash client' >&2
     elif [ "$1" = 'stop' ]; then
         shift
         _clash_stop
@@ -57,20 +81,21 @@ clash() {
         _clash_jch
     elif [ "$1" = 'log' ]; then
         shift
-        # _v2_log
+        _clash_log
     else
         echo 'clash client command line interface'
         echo
-        # echo '`v2 install|update`     install or update '"${v2ray-core}"
-        echo '`clash start`           (re)start clash client'
-        echo '`clash stop`            stop clash client'
-        # echo '`v2 ls`                 list all vps_name'
-        # echo '`v2 jch|status`         show all sslocal process'
-        # echo '`v2 log`                show log'
+        echo '`clash install|update`    install or update clash client'
+        echo '`clash start`             (re)start clash client'
+        echo '`clash stop`              stop clash client'
+        echo '`clash jch|status`        show all clash process'
+        echo '`clash log`               show log'
         echo
-        echo '`$v2ray_config_dir`     dir to save all '"${v2ray-core}"' config'
-        echo '`$clash_dir`            path to this clash client dir'
-        echo '`$clash_script`         dir to this script'
+        echo '`$clash_subscript`        path of clash subscription config file'
+        echo '`$clash_config`           path of clash config file'
+        echo '`$clash_log_dir`          dir of clash logs'
+        echo '`$clash_dir`              dir of this clash client'
+        echo '`$clash_script`           path of this script'
     fi
 
 }

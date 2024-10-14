@@ -215,7 +215,7 @@ v2()
         echo '`v2 start [<vps_name>]` (re)open '"${v2ray-core}"' client; dafault vps_name="default"'
         echo '`v2 stop`               stop '"${v2ray-core}"' client'
         echo '`v2 ls`                 list all vps_name'
-        echo '`v2 jch|status`         show all sslocal process'
+        echo '`v2 jch|status`         show all '"${v2ray-core}"' process'
         echo '`v2 log`                show log'
         echo
         echo '`$v2ray_config_dir`     dir to save all '"${v2ray-core}"' config'
