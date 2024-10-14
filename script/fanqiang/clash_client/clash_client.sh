@@ -22,6 +22,8 @@ _clash_install() {
     echo
     echo "安装到: ${clash_dir}"
     git clone "$repo" "$clash_dir"
+    rm "${clash_dir}/.env"
+    ln -s "$serverENV/serverENV_private/.clash/.env" "${clash_dir}/.env"
     echo "clash-for-linux安装完成"
 }
 
