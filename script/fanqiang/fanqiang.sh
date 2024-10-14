@@ -21,9 +21,9 @@ tfq_start_() {
         export no_proxy="localhost,127.0.0.1,localaddress,.localdomain.com,.souche.com"
         export NO_PROXY="${no_proxy}"
         #no_proxy表示一些不需要代理的网址,比如内网之类的
-        echo "终端已启用代理"
+        echo "终端系统代理已启用代理"
     else
-        echo "端口$fq_port空置，终端未启用代理"
+        echo "端口$fq_port空置，终端系统代理未启用代理"
     fi
 }
 
@@ -36,7 +36,7 @@ tfq_stop_() {
     unset HTTPS_PROXY
     unset FTP_PROXY
     unset NO_PROXY
-    echo "终端已结束代理"
+    echo "终系统代理端已结束代理"
 }
 
 tfq_status_() {
