@@ -90,6 +90,8 @@ clash() {
         echo '`clash install|update`    install or update clash client'
         echo '`clash start`             (re)start clash client'
         echo '`clash stop`              stop clash client'
+        echo ' clash stop; clash start  stop clash -> update suscripted configs -> start clash'
+        echo ' clash start              stop clash (if it is on) -> start clash, without updating suscripted configs'
         echo '`clash jch|status`        show all clash process'
         echo '`clash log`               show log'
         echo
