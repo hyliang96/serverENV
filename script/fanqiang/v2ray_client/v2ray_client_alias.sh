@@ -1,5 +1,4 @@
 #!/usr/bin/bash
-echo A >&2
 v2ray_config_dir="$HOME/.v2ray"
 # get absoltae path to the dir this is in, work in bash, zsh
 # if you want transfer symbolic link to true path, just change `pwd` to `pwd -P`
@@ -17,7 +16,6 @@ v2_http_port=1087
 # get absoltae path to the dir this is in, work in bash, zsh
 # if you want transfer symbolic link to true path, just change `pwd` to `pwd -P`
 # here=$(cd "$(dirname "${BASH_SOURCE[0]-$0}")"; pwd)
-echo A1 >&2
 _v2_install()
 {
     if [ "${v2ray_core}" = v2ray ]; then
@@ -142,7 +140,6 @@ _v2_start()
     tfq_start_ http $v2_http_port
     #no_proxy表示一些不需要代理的网址,比如内网之类的
 }
-echo A2 >&2
 # 自动补全
 if [ "$(/bin/ps -p $$ | tail -n1 | awk '{printf $4}' | sed -E 's/^\-//')" = zsh ]; then
     __v2_start() {
@@ -169,7 +166,6 @@ elif [ "$(/bin/ps -p $$ | tail -n1 | awk '{printf $4}' | sed -E 's/^\-//')" = ba
 fi
 
 
-echo A3 >&2
 _v2_jch()
 {
     local title="$(/bin/ps aux | awk NR==1)"
@@ -225,4 +221,4 @@ v2()
 }
 
 
-echo A4 >&2
+
