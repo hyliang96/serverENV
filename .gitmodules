@@ -1,3 +1,0 @@
-[submodule "admin_tool"]
-	path = admin_tool
-	url = git@github.com:hyliang96/admin_tool.git
