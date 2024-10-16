@@ -1,0 +1,1 @@
+../myCellar/fzf/bin/fzf-preview.sh
