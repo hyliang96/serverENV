@@ -1,2 +1,0 @@
-#!/bin/bash
-"/home/hyliang/ENV/localENV/anaconda3/lib/p7zip/7za" "$@"
