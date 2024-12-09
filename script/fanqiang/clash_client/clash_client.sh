@@ -41,7 +41,7 @@ _clash_start() {
     else
         bash ${clash_dir}/restart.sh
     fi
-    # sleep 1 # 等待clash开始接入 $clash_http_port 端口
+    sleep 1 # 等待clash开始接入 $clash_http_port 端口
     tfq_start_ http $clash_http_port
 }
 
