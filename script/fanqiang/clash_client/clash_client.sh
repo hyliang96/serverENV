@@ -35,7 +35,7 @@ _clash_stop() {
 }
 
 _clash_start() {
-    local PID_NUM=$(ps -ef -u $(whoami) | grep [c]lash-linux-a | wc -l)
+    local PID_NUM=$(ps -f -u $(whoami) | grep [c]lash-linux-a | wc -l)
     if [ $PID_NUM -eq 0 ]; then
         bash ${clash_dir}/start.sh
     else
