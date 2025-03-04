@@ -11,7 +11,7 @@ clash_config="$clash_dir/conf/config.yaml"
 clash_log_dir="$clash_dir/logs"
 clash_script="${BASH_SOURCE[0]-$0}"
 
-clash_http_port=7890
+clash_http_port=17890
 # 7890
 
 _clash_install() {
