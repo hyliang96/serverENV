@@ -10,7 +10,7 @@ fq_tool=clash # clash, v2, ss
 tfq_start_() {
     local protocol="$1"
     local fq_port="$2"
-    if [ "$(lsof -Pn -i:${fq_port})" != '' ]; then
+    # if [ "$(lsof -Pn -i:${fq_port})" != '' ]; then
         # 用polipo代理http(s)到socks5
         export http_proxy="$protocol://127.0.0.1:$fq_port"
         export HTTP_PROXY="${http_proxy}"
@@ -22,9 +22,9 @@ tfq_start_() {
         export NO_PROXY="${no_proxy}"
         #no_proxy表示一些不需要代理的网址,比如内网之类的
         echo "终端系统代理已启用代理"
-    else
-        echo "端口${fq_port}空置，终端系统代理未启用代理"
-    fi
+    # else
+        # echo "端口${fq_port}空置，终端系统代理未启用代理"
+    # fi
 }
 
 tfq_stop_() {

@@ -12,6 +12,7 @@ clash_log_dir="$clash_dir/logs"
 clash_script="${BASH_SOURCE[0]-$0}"
 
 clash_http_port=7890
+# 7890
 
 _clash_install() {
     local repo="git@github.com:wnlen/clash-for-linux.git"
